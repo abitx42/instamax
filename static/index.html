@@ -1272,122 +1272,6 @@ body{
   transform:none !important;
 }
 
-/* ── 5. BROADCAST TELEMETRY HUD (HIGH-TECH SPEC CONSOLE) ── */
-.telemetry-deck{
-  background:rgba(9, 13, 24, 0.75);
-  border:1px solid rgba(255, 255, 255, 0.09);
-  border-radius:18px;
-  padding:16px 18px;
-  margin-bottom:20px;
-  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.3);
-  backdrop-filter:blur(16px);
-  transition:all 0.3s ease;
-}
-.telemetry-deck:hover{
-  border-color:rgba(255, 255, 255, 0.16);
-  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 14px 40px rgba(0, 0, 0, 0.4);
-}
-.telemetry-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:12px;
-  padding-bottom:10px;
-  border-bottom:1px solid rgba(255, 255, 255, 0.06);
-}
-.telemetry-title{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:.65rem;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:1.5px;
-  color:var(--text-dim);
-}
-.telemetry-beacon{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--cyan);
-  box-shadow:0 0 8px var(--cyan);
-  animation:pulse 1.8s infinite;
-}
-.telemetry-tag{
-  font-size:.62rem;
-  font-family:'JetBrains Mono',monospace;
-  color:var(--cyan);
-  background:rgba(56, 189, 248, 0.1);
-  padding:2px 7px;
-  border-radius:4px;
-  border:1px solid rgba(56, 189, 248, 0.25);
-}
-
-.spec-grid{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:10px;
-}
-.si{
-  background:rgba(18, 23, 38, 0.55);
-  border:1px solid rgba(255, 255, 255, 0.06);
-  border-radius:12px;
-  padding:10px 12px;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  transition:all 0.25s var(--spring);
-}
-.si:hover{
-  background:rgba(255, 255, 255, 0.06);
-  border-color:rgba(255, 255, 255, 0.18);
-  transform:translateY(-2px);
-}
-.sl{
-  font-size:.58rem;
-  text-transform:uppercase;
-  letter-spacing:.8px;
-  color:var(--text-faint);
-  font-weight:700;
-}
-.sv{
-  font-size:.88rem;
-  font-weight:600;
-  color:var(--text-main);
-  letter-spacing:-.01em;
-}
-.si-sub{
-  font-size:.6rem;
-  color:var(--cyan);
-  font-family:'JetBrains Mono',monospace;
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-
-/* Dancing Soundwave Bars in Audio Spec Tile */
-.soundwave-box{
-  display:inline-flex;
-  align-items:center;
-  gap:2px;
-  height:12px;
-  margin-left:4px;
-}
-.sw-bar{
-  width:2px;
-  border-radius:1px;
-  background:var(--cyan);
-  animation:audioWave 1.2s ease-in-out infinite;
-}
-.sw-bar:nth-child(1){animation-delay:0.1s;height:4px}
-.sw-bar:nth-child(2){animation-delay:0.3s;height:10px}
-.sw-bar:nth-child(3){animation-delay:0.5s;height:7px}
-.sw-bar:nth-child(4){animation-delay:0.2s;height:12px}
-@keyframes audioWave{
-  0%, 100%{transform:scaleY(0.4)}
-  50%{transform:scaleY(1.1)}
-}
-
 /* ── 6. DEVICE & DESTINATION SELECTORS ── */
 .row{
   display:flex;
@@ -1966,58 +1850,6 @@ code{
   </div>
   <div id="enh-hlg-note" style="display:none;font-size:.72rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5">
     ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). Provides extra color headroom to survive Instagram re-encode. Full HDR display requires an iPhone 12+ or HDR-capable Android.
-  </div>
-
-  <!-- Broadcast Telemetry Deck -->
-  <div class="telemetry-deck">
-    <div class="telemetry-header">
-      <div class="telemetry-title">
-        <div class="telemetry-beacon"></div>
-        Live Mastering Telemetry
-      </div>
-      <span class="telemetry-tag">BROADCAST INSPECTOR</span>
-    </div>
-    
-    <div class="spec-grid">
-      <div class="si">
-        <div class="sl">Spatial Resolution</div>
-        <div class="sv" id="spec-res">1080 × 1920</div>
-        <div class="si-sub">Target Box</div>
-      </div>
-      <div class="si">
-        <div class="sl">Frame Rate Cap</div>
-        <div class="sv">≤ 30.00 FPS</div>
-        <div class="si-sub">Zero Stutter</div>
-      </div>
-      <div class="si">
-        <div class="sl">Video Codec</div>
-        <div class="sv" id="spec-codec">H.264 High</div>
-        <div class="si-sub">Level 4.2</div>
-      </div>
-      <div class="si">
-        <div class="sl">Resampling Filter</div>
-        <div class="sv">Lanczos-3</div>
-        <div class="si-sub">Super-sampled</div>
-      </div>
-      <div class="si">
-        <div class="sl">Audio Engine</div>
-        <div class="sv">AAC · 48.0 kHz</div>
-        <div class="si-sub">
-          -14 LUFS Norm
-          <div class="soundwave-box">
-            <div class="sw-bar"></div>
-            <div class="sw-bar"></div>
-            <div class="sw-bar"></div>
-            <div class="sw-bar"></div>
-          </div>
-        </div>
-      </div>
-      <div class="si">
-        <div class="sl">Color Profile</div>
-        <div class="sv" id="spec-color">BT.709 sRGB</div>
-        <div class="si-sub">Calibrated</div>
-      </div>
-    </div>
   </div>
 
   <!-- Hardware Metadata & Destination -->
@@ -2767,26 +2599,10 @@ document.querySelectorAll('.ec').forEach(el=>{
     document.querySelectorAll('.ec').forEach(x=>x.classList.remove('selected'));
     el.classList.add('selected');
     selectedEnh = el.dataset.enh;
-    updateSpecGrid();
     document.getElementById('enh-hlg-note').style.display =
       selectedEnh === 'hlg' ? 'block' : 'none';
   });
 });
-
-function updateSpecGrid() {
-  const codec = document.getElementById('spec-codec');
-  const color = document.getElementById('spec-color');
-  if (selectedEnh === 'hlg') {
-    if (codec) codec.textContent = 'H.265 Main 10';
-    if (color) color.textContent = 'HLG BT.2020';
-  } else if (selectedEnh === 'cinema') {
-    if (codec) codec.textContent = 'H.264 High';
-    if (color) color.textContent = 'BT.709 + Denoise';
-  } else {
-    if (codec) codec.textContent = 'H.264 High';
-    if (color) color.textContent = 'BT.709 sRGB';
-  }
-}
 
 // ── Drop zone ──
 const dz = document.getElementById('dz');
@@ -3050,7 +2866,6 @@ document.getElementById('bnew').addEventListener('click', () => {
   const stdCard = document.querySelector('.ec[data-enh="standard"]');
   if (stdCard) stdCard.classList.add('selected');
   document.getElementById('enh-hlg-note').style.display = 'none';
-  updateSpecGrid();
   resetDrop();
 });
 
