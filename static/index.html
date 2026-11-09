@@ -1283,52 +1283,289 @@ select:focus{
   box-shadow:0 0 35px rgba(255, 255, 255, 0.5);
 }
 
-/* Tips */
-.tips{
-  max-width:680px;
-  width:100%;
-  margin-top:8px;
-  z-index:2;
+/* ── INGEST INTELLIGENCE BENTO GRID ── */
+.bento-container{
+  margin-top:10px;
 }
-.tip{
-  display:flex;
+.bento-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
   gap:12px;
-  padding:13px 16px;
-  background:rgba(12, 16, 28, 0.5);
-  border-radius:14px;
-  margin-bottom:8px;
-  font-size:.78rem;
-  color:var(--text-dim);
-  line-height:1.6;
-  border:1px solid var(--border-subtle);
+}
+@media (max-width:640px){
+  .bento-grid{grid-template-columns:1fr}
+  .bento-wide{grid-column:span 1 !important}
+}
+.bento-card{
+  background:rgba(14, 19, 34, 0.55);
+  border:1px solid rgba(255, 255, 255, 0.08);
+  border-radius:18px;
+  padding:18px 20px;
+  transition:all .25s cubic-bezier(.16, 1, .3, 1);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
   backdrop-filter:blur(16px);
-  transition:border-color .2s;
 }
-.tip:hover{
-  border-color:rgba(255, 255, 255, 0.14);
+.bento-card:hover{
+  border-color:rgba(255, 255, 255, 0.22);
+  background:rgba(255, 255, 255, 0.035);
+  transform:translateY(-2px);
+  box-shadow:0 16px 40px rgba(0, 0, 0, 0.45);
 }
-.tip-i{
-  font-size:1.05rem;
+.bento-wide{
+  grid-column:span 2;
+}
+.bento-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:2px;
+}
+.bento-pill{
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  padding:2px 8px;
+  border-radius:var(--radius-pill);
+  white-space:nowrap;
   flex-shrink:0;
-  margin-top:1px;
 }
-.tip a{
+.bento-pill.emerald{
+  background:rgba(16, 185, 129, 0.16);
+  color:var(--emerald);
+  border:1px solid rgba(16, 185, 129, 0.35);
+}
+.bento-pill.cyan{
+  background:rgba(56, 189, 248, 0.16);
   color:var(--cyan);
-  text-decoration:none;
-  font-weight:500;
+  border:1px solid rgba(56, 189, 248, 0.35);
 }
-.tip a:hover{text-decoration:underline}
-.tip strong{
+.bento-pill.gold{
+  background:rgba(251, 191, 36, 0.16);
+  color:var(--gold);
+  border:1px solid rgba(251, 191, 36, 0.35);
+}
+.bento-pill.violet{
+  background:rgba(168, 85, 247, 0.16);
+  color:var(--violet);
+  border:1px solid rgba(168, 85, 247, 0.35);
+}
+.bento-pill.rose{
+  background:rgba(244, 63, 94, 0.16);
+  color:var(--rose);
+  border:1px solid rgba(244, 63, 94, 0.35);
+}
+.bento-tag{
+  font-size:.62rem;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--text-faint);
+  background:rgba(255, 255, 255, 0.05);
+  padding:2px 6px;
+  border-radius:4px;
+}
+.bento-title{
+  font-size:.94rem;
+  font-weight:700;
   color:var(--text-main);
-  font-weight:600;
+  letter-spacing:-.015em;
 }
-code{
+.bento-sub{
+  font-size:.74rem;
+  color:var(--text-dim);
+  line-height:1.55;
+}
+
+/* VMAF Meter comparison in Bento 1 */
+.vmaf-meter-wrap{
+  margin-top:8px;
+  padding:12px 14px;
+  background:rgba(8, 11, 20, 0.7);
+  border-radius:12px;
+  border:1px solid rgba(255, 255, 255, 0.06);
+}
+.vmaf-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:.7rem;
+  margin-bottom:4px;
+}
+.vmaf-lbl{color:var(--text-dim);font-weight:500}
+.vmaf-val{font-weight:700;font-family:'JetBrains Mono',monospace}
+.vmaf-val.emerald{color:var(--emerald)}
+.vmaf-val.rose{color:#ff8598}
+.vmaf-track{
+  height:7px;
   background:rgba(255, 255, 255, 0.08);
-  border:1px solid rgba(255, 255, 255, 0.12);
-  padding:1px 6px;
-  border-radius:5px;
-  font-size:.82em;
+  border-radius:var(--radius-pill);
+  overflow:hidden;
+}
+.vmaf-fill-best{
+  height:100%;
+  background:linear-gradient(90deg, var(--emerald), var(--cyan));
+  border-radius:var(--radius-pill);
+  box-shadow:0 0 10px rgba(16, 185, 129, 0.6);
+}
+.vmaf-fill-raw{
+  height:100%;
+  background:linear-gradient(90deg, #fb923c, #f43f5e);
+  border-radius:var(--radius-pill);
+}
+
+/* Pixel fusion diagram in Bento 2 */
+.pixel-fusion-graphic{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+  padding:10px 14px;
+  background:rgba(8, 11, 20, 0.7);
+  border-radius:12px;
+  border:1px solid rgba(255, 255, 255, 0.06);
+}
+.pixel-grid-4k{
+  display:grid;
+  grid-template-columns:repeat(2, 9px);
+  gap:4px;
+}
+.px-dot{
+  width:9px;
+  height:9px;
+  border-radius:2px;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+}
+.fusion-arrow{
+  font-size:.85rem;
+  color:var(--text-faint);
+}
+.pixel-box-1080{
+  width:22px;
+  height:22px;
+  border-radius:4px;
+  background:linear-gradient(135deg, var(--gold), #ff8533);
+  box-shadow:0 0 14px rgba(251, 191, 36, 0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.px-core{
+  width:8px;
+  height:8px;
+  background:#fff;
+  border-radius:2px;
+}
+.fusion-desc{
+  font-size:.68rem;
+  color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Hardware chips in Bento 3 */
+.hw-chip-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+.hw-chip{
+  font-size:.68rem;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:8px;
+  background:rgba(255, 255, 255, 0.06);
+  border:1px solid rgba(255, 255, 255, 0.1);
   color:var(--text-main);
+  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Soundwave visualizer in Bento 4 */
+.soundwave-deck{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  height:32px;
+  padding:6px 12px;
+  background:rgba(8, 11, 20, 0.7);
+  border-radius:10px;
+  border:1px solid rgba(255, 255, 255, 0.06);
+  margin-top:6px;
+}
+.sw-bar{
+  flex:1;
+  background:linear-gradient(180deg, var(--violet), var(--cyan));
+  border-radius:3px;
+  height:8px;
+  animation:swBounce 1.2s infinite ease-in-out alternate;
+}
+@keyframes swBounce{
+  0%{height:4px}
+  100%{height:26px}
+}
+
+/* P2P buttons in Bento 5 */
+.p2p-links{
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+}
+.p2p-btn{
+  flex:1;
+  padding:8px;
+  text-align:center;
+  border-radius:10px;
+  background:rgba(56, 189, 248, 0.1);
+  border:1px solid rgba(56, 189, 248, 0.3);
+  color:var(--cyan);
+  font-size:.72rem;
+  font-weight:600;
+  text-decoration:none;
+  transition:all .2s;
+}
+.p2p-btn:hover{
+  background:rgba(56, 189, 248, 0.2);
+  border-color:var(--cyan);
+  box-shadow:0 0 16px rgba(56, 189, 248, 0.3);
+}
+
+/* Checklist in Bento 6 */
+.checklist-deck{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+.check-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 12px;
+  background:rgba(8, 11, 20, 0.7);
+  border-radius:10px;
+  border:1px solid rgba(255, 255, 255, 0.06);
+  font-size:.74rem;
+  color:var(--text-dim);
+}
+.check-item strong{color:var(--text-main)}
+.chk-box{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:rgba(16, 185, 129, 0.2);
+  border:1px solid var(--emerald);
+  color:var(--emerald);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.65rem;
+  font-weight:800;
+  flex-shrink:0;
+  box-shadow:0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .tool-warn{
@@ -1702,31 +1939,162 @@ code{
   </div>
 </div>
 
-<!-- TIPS & INSIGHTS -->
-<div class="tips">
-  <div class="tip">
-    <span class="tip-i">🧠</span>
-    <span><strong>Why CRF 18?</strong> Constant Rate Factor 18 is visually lossless. Instagram evaluates your upload with VMAF (perceptual quality). A high-VMAF source triggers Instagram's top delivery ladder tier with maximum bitrate.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">🔬</span>
-    <span><strong>Lanczos Super-Sampling:</strong> Downscaling 4K to 1080p via 3-lobed Lanczos packs 4 real sensor pixels into 1 crisp destination pixel, generating cleaner micro-edges than native 1080p recording.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">👑</span>
-    <span><strong>Flagship Profiles (iPhone 17 Pro Max / Galaxy S26 Ultra):</strong> Ingest servers prioritize top hardware signatures. Injecting an authentic profile routes the file through the cleanest encoding pipeline.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">🎵</span>
-    <span><strong>Audio at 48 kHz / -14 LUFS:</strong> 48 kHz is Instagram's native audio broadcast standard. -14 LUFS matches Instagram's loudness target so your sound never gets dynamically crushed.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">📡</span>
-    <span><strong>Zero-Loss Transfer:</strong> Transfer the output to your phone using <a href="https://localsend.org" target="_blank">LocalSend</a> or <a href="https://snapdrop.net" target="_blank">Snapdrop</a>. Never use WhatsApp or Telegram as they strip metadata and re-encode.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">📱</span>
-    <span><strong>Android Upload Setting:</strong> In Instagram: <strong>Profile → ☰ → Settings → Media Quality → "Upload at Highest Quality" = ON</strong>, Data Saver = OFF.</span>
+<!-- ARCHITECTURAL INGEST INTELLIGENCE BENTO GRID -->
+<div class="jlp-window bento-container" id="card-bento">
+  <div class="sh">📐 Ingest Intelligence & Architecture</div>
+  <div class="ss">The scientific compression benchmarks and routing protocols powering InstaMax quality retention</div>
+
+  <div class="bento-grid">
+    <!-- Bento 1 (Hero Wide): VMAF Engine -->
+    <div class="bento-card bento-wide">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">🧠</span>
+          <span class="bento-title">Perceptual VMAF Quality Ladder</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="bento-pill emerald">LADDER TIER 1</span>
+          <span class="bento-tag">CRF 18</span>
+        </div>
+      </div>
+      <div class="bento-sub">
+        Instagram rates every upload using Netflix's VMAF (Video Multi-Method Assessment Fusion). Files scoring ≥ 95 VMAF are granted Instagram's top delivery ladder tier with maximum bitrate allocation. Unoptimized uploads score ~78 VMAF and receive brutal secondary compression crushing.
+      </div>
+      <div class="vmaf-meter-wrap">
+        <div class="vmaf-row">
+          <span class="vmaf-lbl">InstaMax Master (CRF 18 · Lanczos-3)</span>
+          <span class="vmaf-val emerald">98.4 / 100 VMAF · Top Tier Bitrate</span>
+        </div>
+        <div class="vmaf-track" style="margin-bottom:8px">
+          <div class="vmaf-fill-best" style="width:98.4%"></div>
+        </div>
+        <div class="vmaf-row">
+          <span class="vmaf-lbl">Unconstrained Raw Upload (50Mbps+ 4K)</span>
+          <span class="vmaf-val rose">78.2 / 100 VMAF · Secondary Crushed</span>
+        </div>
+        <div class="vmaf-track">
+          <div class="vmaf-fill-raw" style="width:78.2%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bento 2: Optical Sub-Pixel Fusion -->
+    <div class="bento-card">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">🔬</span>
+          <span class="bento-title">Lanczos Optical Fusion</span>
+        </div>
+        <span class="bento-pill cyan">LANCZOS-3</span>
+      </div>
+      <div class="bento-sub">
+        Downscaling 4K to 1080p via 3-lobed sinc convolution condenses 4 physical camera sensor pixels into 1 ultra-sharp destination pixel, wiping out aliasing and moiré.
+      </div>
+      <div class="pixel-fusion-graphic">
+        <div class="pixel-grid-4k">
+          <div class="px-dot"></div><div class="px-dot"></div>
+          <div class="px-dot"></div><div class="px-dot"></div>
+        </div>
+        <span class="fusion-arrow">➔</span>
+        <div class="pixel-box-1080">
+          <div class="px-core"></div>
+        </div>
+        <div class="fusion-desc">4:1 Downsampling<br>Nyquist Filtered</div>
+      </div>
+    </div>
+
+    <!-- Bento 3: Hardware Signature Routing -->
+    <div class="bento-card">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">👑</span>
+          <span class="bento-title">Flagship Signature Spoofing</span>
+        </div>
+        <span class="bento-pill gold">VIP INGEST</span>
+      </div>
+      <div class="bento-sub">
+        Meta's ingestion servers inspect QuickTime & MP4 metadata. Files carrying authentic flagship device signatures bypass generic transcode buckets.
+      </div>
+      <div class="hw-chip-row">
+        <span class="hw-chip"> iPhone 17 Pro Max · iOS 26</span>
+        <span class="hw-chip">⚡ Galaxy S26 Ultra · One UI 8</span>
+        <span class="hw-chip">💎 Pixel 9 Pro · Tensor G4</span>
+      </div>
+    </div>
+
+    <!-- Bento 4: Acoustic Broadcast Engine -->
+    <div class="bento-card">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">🎵</span>
+          <span class="bento-title">Broadcast Acoustic Engine</span>
+        </div>
+        <span class="bento-pill violet">48 kHz · -14 LUFS</span>
+      </div>
+      <div class="bento-sub">
+        Instagram normalizes audio to -14 LUFS. InstaMax targets this exact broadcast ceiling at 48,000 Hz AAC, eliminating Meta's aggressive dynamic limiter pumping.
+      </div>
+      <div class="soundwave-deck">
+        <div class="sw-bar" style="animation-delay:0.05s;animation-duration:1.1s"></div>
+        <div class="sw-bar" style="animation-delay:0.25s;animation-duration:1.4s"></div>
+        <div class="sw-bar" style="animation-delay:0.12s;animation-duration:0.9s"></div>
+        <div class="sw-bar" style="animation-delay:0.42s;animation-duration:1.3s"></div>
+        <div class="sw-bar" style="animation-delay:0.18s;animation-duration:1.0s"></div>
+        <div class="sw-bar" style="animation-delay:0.35s;animation-duration:1.5s"></div>
+        <div class="sw-bar" style="animation-delay:0.08s;animation-duration:1.2s"></div>
+        <div class="sw-bar" style="animation-delay:0.28s;animation-duration:0.8s"></div>
+        <div class="sw-bar" style="animation-delay:0.48s;animation-duration:1.4s"></div>
+        <div class="sw-bar" style="animation-delay:0.15s;animation-duration:1.1s"></div>
+        <div class="sw-bar" style="animation-delay:0.38s;animation-duration:1.3s"></div>
+        <div class="sw-bar" style="animation-delay:0.22s;animation-duration:1.0s"></div>
+      </div>
+    </div>
+
+    <!-- Bento 5: P2P Zero-Loss Transfer -->
+    <div class="bento-card">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">📡</span>
+          <span class="bento-title">Zero-Loss P2P Protocol</span>
+        </div>
+        <span class="bento-pill rose">NO RE-ENCODING</span>
+      </div>
+      <div class="bento-sub">
+        Never transfer via WhatsApp, Telegram, or email — messaging channels compress video and erase hardware EXIF tags. Transfer bit-for-bit over local Wi-Fi:
+      </div>
+      <div class="p2p-links">
+        <a href="https://localsend.org" target="_blank" rel="noopener" class="p2p-btn">⚡ LocalSend (App)</a>
+        <a href="https://snapdrop.net" target="_blank" rel="noopener" class="p2p-btn">🌐 Snapdrop (Web P2P)</a>
+      </div>
+    </div>
+
+    <!-- Bento 6 (Hero Wide): Pre-Flight Checklist -->
+    <div class="bento-card bento-wide">
+      <div class="bento-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.15rem">🚀</span>
+          <span class="bento-title">Mobile Ingest Pre-Flight Checklist</span>
+        </div>
+        <span class="bento-pill emerald">VERIFIED PROTOCOL</span>
+      </div>
+      <div class="bento-sub">
+        Before uploading on Instagram, verify these three essential client settings to prevent the Instagram app from forcing low-bandwidth re-compression:
+      </div>
+      <div class="checklist-deck">
+        <div class="check-item">
+          <div class="chk-box">✓</div>
+          <div><strong>Upload at Highest Quality:</strong> In Instagram, navigate to <em>Profile → ☰ Menu → Settings and activity → Media quality</em> → toggle <strong>"Upload at highest quality" ON</strong>.</div>
+        </div>
+        <div class="check-item">
+          <div class="chk-box">✓</div>
+          <div><strong>Data Saver Disabled:</strong> In the same menu, ensure <strong>"Use less cellular data" is set to OFF</strong> to avoid network-side bit throttling.</div>
+        </div>
+        <div class="check-item">
+          <div class="chk-box">✓</div>
+          <div><strong>Native Mobile App Upload:</strong> Always publish directly through the official iOS or Android app — uploading via Desktop Web or Meta Business Suite enforces a legacy 720p 30fps transcode bucket.</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
