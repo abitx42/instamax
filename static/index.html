@@ -56,7 +56,7 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding:32px 18px 84px;
+  padding:56px 18px 84px;
   position:relative;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
@@ -310,49 +310,6 @@ body{
 @keyframes fadeInUp{
   from{opacity:0;transform:translateY(16px)}
   to{opacity:1;transform:translateY(0)}
-}
-
-/* ── NAV / FLOATING BADGE ── */
-.top-nav{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:6px 16px;
-  background:rgba(18, 22, 36, 0.7);
-  border:1px solid var(--border-subtle);
-  border-radius:var(--radius-pill);
-  box-shadow:0 12px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
-  backdrop-filter:blur(20px);
-  margin-bottom:32px;
-  z-index:2;
-  transition:all 0.3s var(--spring);
-}
-.top-nav:hover{
-  transform:translateY(-1px) scale(1.01);
-  border-color:rgba(255, 255, 255, 0.2);
-  box-shadow:0 16px 36px rgba(0,0,0,.5), 0 0 20px rgba(56, 189, 248, 0.15);
-}
-.status-dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:var(--emerald);
-  box-shadow:0 0 10px var(--emerald);
-  animation:pulse 2s infinite ease-in-out;
-}
-@keyframes pulse{
-  0%,100%{opacity:1;transform:scale(1)}
-  50%{opacity:.6;transform:scale(.85)}
-}
-.nav-text{
-  font-size:.76rem;
-  font-weight:500;
-  letter-spacing:-.01em;
-  color:var(--text-dim);
-}
-.nav-text strong{
-  color:var(--text-main);
-  font-weight:600;
 }
 
 /* ── HERO ── */
@@ -1836,16 +1793,8 @@ code{
   <div class="ambient-light-3"></div>
 </div>
 
-<!-- TOP FLOATING STATUS NAV -->
-<div class="top-nav anim-fade-in">
-  <div class="status-dot"></div>
-  <div class="nav-text">Engine <strong>FFmpeg 9 + ExifTool</strong> Active</div>
-  <div style="width:1px;height:12px;background:var(--border-subtle)"></div>
-  <div class="nav-text">Tier <strong>Lanczos · CRF 18 · HLG</strong></div>
-</div>
-
 <!-- HERO HEADER -->
-<div class="hero anim-fade-in anim-delay-1">
+<div class="hero anim-fade-in">
   <h1>
     <span class="gradient-text">Studio Quality</span> for <span class="accent-glow">Instagram</span>
   </h1>
