@@ -314,7 +314,8 @@ def api_process():
         return jsonify({"ok": False, "error": "exiftool not found. Run: brew install exiftool"}), 500
 
     # --- Save upload ---
-    _progress[job_id] = Queue()
+    if job_id not in _progress:
+        _progress[job_id] = Queue()
     orig_stem = Path(f.filename).stem
     tmp_in    = UPLOAD_TMP / f"{orig_stem}_orig{suffix}"
     _push(job_id, "progress", {"pct": 0, "label": "Receiving file…"})
@@ -464,7 +465,10 @@ def api_process():
                 cmd_compress, job_id, duration, compress_label
             )
             if not ok:
-                _push(job_id, "error", {"error": f"ffmpeg failed:\n{err[-500:]}"})
+                err_msg = f"ffmpeg failed:\n{err[-500:]}"
+                print(f"[ERROR] Job {job_id} ffmpeg failed:\n{err}", file=sys.stderr)
+                _push(job_id, "app_error", {"error": err_msg})
+                _push(job_id, "error", {"error": err_msg})
                 return
 
             _push(job_id, "progress", {"pct": 97, "label": "Injecting metadata…"})
@@ -517,7 +521,11 @@ def api_process():
                 "codec":       output_codec,
             })
         except Exception as ex:
-            _push(job_id, "error", {"error": str(ex)})
+            import traceback
+            traceback.print_exc()
+            err_msg = str(ex)
+            _push(job_id, "app_error", {"error": err_msg})
+            _push(job_id, "error", {"error": err_msg})
         finally:
             try: tmp_in.unlink()
             except: pass
@@ -545,16 +553,18 @@ def api_process():
 @app.route("/api/events/<job_id>")
 def api_events(job_id):
     """SSE stream for real-time progress."""
-    q = _progress.get(job_id)
-    if q is None:
-        return Response("data: {}\n\n", mimetype="text/event-stream")
+    if job_id not in _progress:
+        _progress[job_id] = Queue()
+    q = _progress[job_id]
 
     def generate():
+        # Flush initial keepalive so browser connects immediately without timeout
+        yield ": keepalive\n\n"
         while True:
             try:
-                msg = q.get(timeout=30)
+                msg = q.get(timeout=25)
                 yield _sse_format(msg["event"], msg["data"])
-                if msg["event"] in ("done", "error"):
+                if msg["event"] in ("done", "error", "app_error"):
                     _progress.pop(job_id, None)
                     break
             except Empty:
@@ -564,7 +574,8 @@ def api_events(job_id):
         stream_with_context(generate()),
         mimetype="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         }
     )

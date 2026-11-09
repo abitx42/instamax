@@ -2845,7 +2845,9 @@ function fillProbeBadge(p) {
 }
 
 // ── PROCESS ──
-document.getElementById('gobtn').addEventListener('click', async () => {
+let activeES = null;
+
+document.getElementById('gobtn').addEventListener('click', () => {
   if (!selectedFile) return;
   hideErr('p-err');
   step(3);
@@ -2863,12 +2865,13 @@ document.getElementById('gobtn').addEventListener('click', async () => {
   pl.style.display   = 'block';
   ps.style.display   = 'block';
   etaEl.style.display = 'block';
-  pl.textContent  = 'Uploading to optimizer…';
-  pf.style.width  = '3%';
+  pl.textContent  = 'Uploading video stream…';
+  pf.style.width  = '2%';
   etaEl.textContent = '';
 
   jobId = 'job_' + Date.now();
 
+  // Start SSE listener
   startSSE(jobId);
 
   const fd = new FormData();
@@ -2880,24 +2883,59 @@ document.getElementById('gobtn').addEventListener('click', async () => {
   fd.append('job_id',        jobId);
   fd.append('enhancement',   selectedEnh);
 
-  try {
-    const res  = await fetch('/api/process', {method:'POST', body: fd});
-    const data = await res.json();
-    if (!data.ok) {
-      showErr('p-err', data.error || 'Server error.');
-      btn.disabled = false;
-      return;
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/process', true);
+
+  xhr.upload.onprogress = e => {
+    if (e.lengthComputable) {
+      const uploadPct = Math.round((e.loaded / e.total) * 100);
+      pf.style.width = Math.max(2, Math.min(uploadPct, 95)) + '%';
+      pl.textContent = `Uploading video… ${uploadPct}%`;
+      ps.textContent = `${fmtSize(e.loaded)} of ${fmtSize(e.total)}`;
     }
-    if (data.probe) fillProbeBadge(data.probe);
-    pl.textContent = 'Optimizing video stream…';
-  } catch (e) {
-    showErr('p-err', 'Upload failed: ' + e.message);
+  };
+
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (!data.ok) {
+          showErr('p-err', data.error || 'Server error.');
+          btn.disabled = false;
+          if (activeES) activeES.close();
+          return;
+        }
+        if (data.probe) fillProbeBadge(data.probe);
+        pl.textContent = 'Optimizing video stream…';
+      } catch (err) {
+        showErr('p-err', 'Invalid server response: ' + err.message);
+        btn.disabled = false;
+        if (activeES) activeES.close();
+      }
+    } else {
+      let errMsg = 'Upload failed with status ' + xhr.status;
+      try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch {}
+      showErr('p-err', errMsg);
+      btn.disabled = false;
+      if (activeES) activeES.close();
+    }
+  };
+
+  xhr.onerror = () => {
+    showErr('p-err', 'Network error during upload. Please retry.');
     btn.disabled = false;
-  }
+    if (activeES) activeES.close();
+  };
+
+  xhr.send(fd);
 });
 
 function startSSE(jid) {
+  if (activeES) {
+    try { activeES.close(); } catch {}
+  }
   const es = new EventSource(`/api/events/${jid}`);
+  activeES = es;
 
   es.addEventListener('probe', e => {
     try { fillProbeBadge(JSON.parse(e.data)); } catch {}
@@ -2921,6 +2959,7 @@ function startSSE(jid) {
 
   es.addEventListener('done', e => {
     es.close();
+    activeES = null;
     const d = JSON.parse(e.data);
     outputPath = d.output;
 
@@ -2953,8 +2992,10 @@ function startSSE(jid) {
     step(4);
   });
 
-  es.addEventListener('error', e => {
+  // Explicit server application error
+  es.addEventListener('app_error', e => {
     es.close();
+    activeES = null;
     let msg = 'Processing failed.';
     try { msg = JSON.parse(e.data).error || msg; } catch {}
     showErr('p-err', msg);
@@ -2962,7 +3003,27 @@ function startSSE(jid) {
     document.getElementById('eta').textContent = '';
   });
 
-  es.onerror = () => {};
+  es.addEventListener('error', e => {
+    if (e.data) {
+      es.close();
+      activeES = null;
+      let msg = 'Processing failed.';
+      try { msg = JSON.parse(e.data).error || msg; } catch {}
+      showErr('p-err', msg);
+      document.getElementById('gobtn').disabled = false;
+      document.getElementById('eta').textContent = '';
+    }
+  });
+
+  es.onerror = err => {
+    if (es.readyState === EventSource.CLOSED) {
+      if (document.getElementById('res-card').style.display !== 'block') {
+        showErr('p-err', 'Stream connection ended. Please check output in Downloads.');
+        document.getElementById('gobtn').disabled = false;
+        document.getElementById('eta').textContent = '';
+      }
+    }
+  };
 }
 
 // Open in Finder
