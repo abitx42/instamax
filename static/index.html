@@ -6,31 +6,36 @@
 <title>InstaMax — Ultra-Quality Instagram AI Optimizer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#03050a;
-  --surface-base:rgba(12, 16, 28, 0.72);
-  --surface-raised:rgba(20, 26, 42, 0.65);
+  --bg:#020408;
+  --surface-base:rgba(10, 14, 26, 0.75);
+  --surface-raised:rgba(18, 24, 40, 0.65);
   --surface-active:rgba(255, 255, 255, 0.08);
   --border-subtle:rgba(255, 255, 255, 0.08);
   --border-strong:rgba(255, 255, 255, 0.16);
   --border-lit:rgba(255, 255, 255, 0.85);
   
   --text-main:#f4f6fb;
-  --text-dim:rgba(244, 246, 251, 0.58);
-  --text-faint:rgba(244, 246, 251, 0.36);
-  --text-dark:#071331;
+  --text-dim:rgba(244, 246, 251, 0.6);
+  --text-faint:rgba(244, 246, 251, 0.38);
+  --text-dark:#050914;
   
   --cyan:#38bdf8;
+  --cyan-glow:rgba(56, 189, 248, 0.35);
   --violet:#a855f7;
+  --violet-glow:rgba(168, 85, 247, 0.35);
+  --amber:#f59e0b;
+  --amber-glow:rgba(245, 158, 11, 0.35);
   --rose:#f43f5e;
   --gold:#fbbf24;
   --emerald:#10b981;
+  --emerald-glow:rgba(16, 185, 129, 0.35);
   --warn:#fb923c;
   
-  --glow-cta: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 12px 44px rgba(214, 226, 255, 0.32), 0 0 85px rgba(120, 150, 255, 0.22);
-  --glow-cta-hover: 0 0 0 1px #ffffff, 0 16px 50px rgba(214, 226, 255, 0.45), 0 0 100px rgba(140, 175, 255, 0.32);
+  --glow-cta: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 12px 44px rgba(214, 226, 255, 0.35), 0 0 85px rgba(120, 150, 255, 0.25);
+  --glow-cta-hover: 0 0 0 1px #ffffff, 0 16px 50px rgba(214, 226, 255, 0.5), 0 0 100px rgba(140, 175, 255, 0.35);
   --glow-card: 0 30px 90px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   --radius-window:24px;
   --radius-pill:999px;
@@ -245,8 +250,8 @@ body{
   background:var(--surface-base);
   border:1px solid var(--border-subtle);
   border-radius:var(--radius-window);
-  padding:26px 28px;
-  margin-bottom:16px;
+  padding:28px 30px;
+  margin-bottom:18px;
   box-shadow:var(--glow-card);
   backdrop-filter:blur(24px) saturate(150%);
   position:relative;
@@ -254,26 +259,35 @@ body{
   overflow:hidden;
 }
 
-/* Subtle hairline highlight edge on top border */
+/* Spotlight flashlight effect that follows cursor */
+.jlp-window::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 0), rgba(120, 160, 255, 0.07), transparent 40%);
+  pointer-events:none;
+}
+
+/* Hairline highlight on top border */
 .jlp-window-edge{
   position:absolute;
   inset-x:24px;
   top:0;
   height:1px;
-  background:linear-gradient(90deg, transparent 5%, rgba(190, 215, 255, 0.38) 50%, transparent 95%);
+  background:linear-gradient(90deg, transparent 5%, rgba(190, 215, 255, 0.45) 50%, transparent 95%);
   pointer-events:none;
 }
 
 .ctitle{
-  font-size:.67rem;
+  font-size:.68rem;
   text-transform:uppercase;
-  letter-spacing:1.5px;
+  letter-spacing:1.8px;
   color:var(--text-dim);
-  margin-bottom:16px;
+  margin-bottom:14px;
   display:flex;
   align-items:center;
   gap:8px;
-  font-weight:600;
+  font-weight:700;
 }
 .cdot{
   width:6px;
@@ -284,7 +298,7 @@ body{
   flex-shrink:0;
 }
 
-/* ── DROP ZONE (Jimo AI ask bar / terminal vibe) ── */
+/* ── DROP ZONE ── */
 #dz{
   border:1.5px dashed rgba(255, 255, 255, 0.14);
   border-radius:18px;
@@ -420,7 +434,619 @@ body{
   letter-spacing:-.01em;
 }
 
-/* ── SETTINGS & INTERACTIVE SELECTORS ── */
+/* ══════════════════════════════════════════════════════
+   STEP 2 REDESIGN: CREATIVE, VISUAL, INTERACTIVE
+   ══════════════════════════════════════════════════════ */
+
+/* ── 1. QUALITY PRESETS: VISUAL TIERS WITH METERS ── */
+.q-cards{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+  margin-bottom:20px;
+}
+.qc{
+  padding:14px 12px;
+  border-radius:16px;
+  border:1px solid var(--border-subtle);
+  background:rgba(16, 21, 36, 0.45);
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  text-align:left;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.qc:hover{
+  border-color:rgba(255, 255, 255, 0.28);
+  background:rgba(255, 255, 255, 0.04);
+  transform:translateY(-2px);
+}
+.qc.selected{
+  border-color:rgba(255, 255, 255, 0.85);
+  background:rgba(255, 255, 255, 0.07);
+  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 30px rgba(120, 160, 255, 0.16);
+}
+.qc-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.qc-badge{
+  font-size:.62rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  padding:2px 7px;
+  border-radius:var(--radius-pill);
+}
+.qc[data-q="best"] .qc-badge{
+  background:rgba(251, 191, 36, 0.18);
+  color:var(--gold);
+  border:1px solid rgba(251, 191, 36, 0.35);
+}
+.qc[data-q="great"] .qc-badge{
+  background:rgba(56, 189, 248, 0.18);
+  color:var(--cyan);
+  border:1px solid rgba(56, 189, 248, 0.35);
+}
+.qc[data-q="good"] .qc-badge{
+  background:rgba(168, 85, 247, 0.18);
+  color:var(--violet);
+  border:1px solid rgba(168, 85, 247, 0.35);
+}
+
+/* Signal meter */
+.qc-meter{
+  display:flex;
+  gap:2.5px;
+  align-items:flex-end;
+  height:12px;
+}
+.meter-bar{
+  width:3px;
+  border-radius:2px;
+  background:rgba(255, 255, 255, 0.15);
+  transition:all .2s;
+}
+.meter-bar.b1{height:5px}
+.meter-bar.b2{height:8px}
+.meter-bar.b3{height:12px}
+.qc[data-q="best"] .meter-bar{background:var(--gold)}
+.qc[data-q="great"] .meter-bar.b1, .qc[data-q="great"] .meter-bar.b2{background:var(--cyan)}
+.qc[data-q="good"] .meter-bar.b1{background:var(--violet)}
+
+.qc-title{
+  font-size:.9rem;
+  font-weight:700;
+  color:var(--text-main);
+  letter-spacing:-.015em;
+  margin-top:2px;
+}
+.qc-sub{
+  font-size:.67rem;
+  color:var(--text-dim);
+  line-height:1.35;
+}
+
+/* ── 2. TARGET ASPECT RATIO: INTERACTIVE WIREFRAME MINIATURES ── */
+.fmt-cards{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.fc{
+  padding:14px 10px;
+  border-radius:16px;
+  border:1px solid var(--border-subtle);
+  background:rgba(16, 21, 36, 0.45);
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  position:relative;
+}
+.fc:hover{
+  border-color:rgba(255, 255, 255, 0.3);
+  background:rgba(255, 255, 255, 0.04);
+  transform:translateY(-2px);
+}
+.fc.selected{
+  border-color:rgba(255, 255, 255, 0.9);
+  background:rgba(255, 255, 255, 0.08);
+  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 25px rgba(56, 189, 248, 0.2);
+}
+
+/* Wireframe Shape Miniature container */
+.shape-preview-wrap{
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.shape-box{
+  border:1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius:4px;
+  background:rgba(255, 255, 255, 0.04);
+  transition:all .25s ease;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* Specific aspect ratio dimensions */
+.shape-reels{
+  width:22px;
+  height:38px;
+  border-radius:5px;
+}
+.shape-reels::before{
+  content:'';
+  position:absolute;
+  top:2px;
+  width:7px;
+  height:2px;
+  background:rgba(255, 255, 255, 0.35);
+  border-radius:2px;
+}
+.shape-feed{
+  width:26px;
+  height:32px;
+  border-radius:4px;
+}
+.shape-square{
+  width:28px;
+  height:28px;
+  border-radius:4px;
+}
+.shape-landscape{
+  width:38px;
+  height:22px;
+  border-radius:4px;
+}
+.shape-landscape::after{
+  content:'';
+  position:absolute;
+  bottom:-4px;
+  width:14px;
+  height:2px;
+  background:rgba(255, 255, 255, 0.25);
+  border-radius:1px;
+}
+
+/* Active wireframe glow */
+.fc.selected .shape-box{
+  border-color:var(--cyan);
+  background:linear-gradient(180deg, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0.05) 100%);
+  box-shadow:0 0 14px rgba(56, 189, 248, 0.5), inset 0 0 8px rgba(56, 189, 248, 0.3);
+}
+.fc.selected .shape-reels::before{background:var(--cyan)}
+.fc.selected .shape-landscape::after{background:var(--cyan)}
+
+.fc-title{
+  font-size:.86rem;
+  font-weight:700;
+  color:var(--text-main);
+  letter-spacing:-.01em;
+}
+.fc-badge{
+  font-size:.64rem;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;
+  padding:2px 6px;
+  border-radius:4px;
+  background:rgba(255, 255, 255, 0.06);
+  color:var(--text-dim);
+}
+.fc.selected .fc-badge{
+  background:rgba(56, 189, 248, 0.18);
+  color:var(--cyan);
+  border:1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* ── 3. INTERACTIVE INSTAGRAM SAFE ZONE OVERLAY WIDGET ── */
+.sz-btn-trigger{
+  width:100%;
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(56, 189, 248, 0.25);
+  background:rgba(56, 189, 248, 0.05);
+  color:var(--cyan);
+  font-size:.78rem;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:all .2s;
+  margin-bottom:20px;
+}
+.sz-btn-trigger:hover{
+  background:rgba(56, 189, 248, 0.1);
+  border-color:rgba(56, 189, 248, 0.45);
+  box-shadow:0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.sz-wrap{
+  position:relative;
+  margin-bottom:20px;
+  display:none;
+}
+.sz-canvas{
+  width:100%;
+  max-width:320px;
+  margin:0 auto;
+  aspect-ratio:9/16;
+  background:linear-gradient(180deg, #0b0f1d 0%, #050811 100%);
+  border-radius:22px;
+  overflow:hidden;
+  border:2px solid rgba(255, 255, 255, 0.15);
+  position:relative;
+  box-shadow:0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.12);
+}
+
+/* Simulated Instagram UI Overlays */
+.ig-top-header{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:14%;
+  background:repeating-linear-gradient(
+    -45deg,
+    rgba(244, 63, 94, 0.22),
+    rgba(244, 63, 94, 0.22) 8px,
+    rgba(244, 63, 94, 0.32) 8px,
+    rgba(244, 63, 94, 0.32) 16px
+  );
+  border-bottom:1px dashed var(--rose);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+}
+.ig-top-header span{
+  font-size:.62rem;
+  font-weight:700;
+  color:#ff859c;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  background:rgba(0, 0, 0, 0.6);
+  padding:2px 8px;
+  border-radius:4px;
+}
+.ig-right-rail{
+  position:absolute;
+  top:14%;
+  bottom:35%;
+  right:0;
+  width:14%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  padding-bottom:10px;
+  background:rgba(244, 63, 94, 0.15);
+  border-left:1px dashed var(--rose);
+  z-index:2;
+}
+.ig-icon-chip{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  font-size:.5rem;
+  color:#ff9bb0;
+  font-weight:600;
+}
+.ig-bot-footer{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:35%;
+  background:repeating-linear-gradient(
+    -45deg,
+    rgba(244, 63, 94, 0.22),
+    rgba(244, 63, 94, 0.22) 8px,
+    rgba(244, 63, 94, 0.32) 8px,
+    rgba(244, 63, 94, 0.32) 16px
+  );
+  border-top:1px dashed var(--rose);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:12px;
+  gap:6px;
+  z-index:2;
+}
+.ig-bot-footer span.danger-tag{
+  align-self:center;
+  font-size:.62rem;
+  font-weight:700;
+  color:#ff859c;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  background:rgba(0, 0, 0, 0.65);
+  padding:2px 8px;
+  border-radius:4px;
+  margin-bottom:auto;
+}
+.ig-user-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.ig-avatar{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:linear-gradient(135deg, #c13584, #fd1d1d);
+}
+.ig-handle{
+  font-size:.68rem;
+  font-weight:700;
+  color:#fff;
+}
+.ig-caption{
+  font-size:.58rem;
+  color:rgba(255, 255, 255, 0.7);
+  line-height:1.3;
+}
+
+/* Green Safe Viewport Center */
+.sz-safe-viewport{
+  position:absolute;
+  top:14%;
+  bottom:35%;
+  left:0;
+  right:14%;
+  border:2px dashed var(--emerald);
+  background:rgba(16, 185, 129, 0.04);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  text-align:center;
+  z-index:1;
+}
+.safe-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:rgba(16, 185, 129, 0.2);
+  color:var(--emerald);
+  border:1px solid rgba(16, 185, 129, 0.5);
+  padding:4px 10px;
+  border-radius:var(--radius-pill);
+  font-size:.68rem;
+  font-weight:700;
+  box-shadow:0 0 14px rgba(16, 185, 129, 0.3);
+}
+.safe-desc{
+  font-size:.58rem;
+  color:var(--text-dim);
+  margin-top:6px;
+  line-height:1.4;
+}
+
+/* ── 4. ENHANCEMENT MODE: THE CROWN JEWEL ── */
+.enh-cards{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+  margin-bottom:20px;
+}
+.ec{
+  padding:16px 12px;
+  border-radius:16px;
+  border:1px solid var(--border-subtle);
+  background:rgba(16, 21, 36, 0.45);
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  text-align:left;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.ec:hover{
+  border-color:rgba(255, 255, 255, 0.3);
+  background:rgba(255, 255, 255, 0.04);
+  transform:translateY(-2px);
+}
+
+/* Standard Mode selected */
+.ec[data-enh="standard"].selected{
+  border-color:rgba(255, 255, 255, 0.9);
+  background:rgba(255, 255, 255, 0.08);
+  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Cinema Mode selected (Amber / Gold Lens Flare) */
+.ec[data-enh="cinema"].selected{
+  border-color:rgba(245, 158, 11, 0.85);
+  background:linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(20, 26, 42, 0.7) 100%);
+  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(251, 191, 36, 0.4);
+}
+.ec[data-enh="cinema"].selected::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--amber), transparent);
+}
+
+/* HDR Mode: Animated Prismatic Hologram Rim */
+.ec[data-enh="hlg"].selected{
+  border-color:transparent;
+  background:linear-gradient(180deg, rgba(168, 85, 247, 0.15) 0%, rgba(14, 18, 32, 0.85) 100%);
+  box-shadow:0 12px 40px rgba(0, 0, 0, 0.6), 0 0 35px rgba(168, 85, 247, 0.35);
+}
+.ec[data-enh="hlg"].selected::before{
+  content:'';
+  position:absolute;
+  inset:-1.5px;
+  border-radius:17.5px;
+  padding:1.5px;
+  background:linear-gradient(135deg, #ff007f, #7928ca, #0070f3, #00dfd8, #ff007f);
+  background-size:300% 300%;
+  animation:prismatic 4s ease infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+@keyframes prismatic{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+.ec-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.ec-pill{
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.5px;
+  padding:2px 7px;
+  border-radius:var(--radius-pill);
+}
+.ec[data-enh="standard"] .ec-pill{
+  background:rgba(255, 255, 255, 0.08);
+  color:var(--text-main);
+  border:1px solid var(--border-subtle);
+}
+.ec[data-enh="cinema"] .ec-pill{
+  background:rgba(245, 158, 11, 0.15);
+  color:var(--amber);
+  border:1px solid rgba(245, 158, 11, 0.35);
+}
+.ec[data-enh="hlg"] .ec-pill{
+  background:linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(168, 85, 247, 0.25));
+  color:#ff90e8;
+  border:1px solid rgba(244, 63, 94, 0.4);
+}
+
+.ec-title{
+  font-size:.9rem;
+  font-weight:700;
+  color:var(--text-main);
+  letter-spacing:-.015em;
+  margin-top:2px;
+}
+.ec-sub{
+  font-size:.67rem;
+  color:var(--text-dim);
+  line-height:1.35;
+}
+.ec[data-disabled="true"]{
+  opacity:.35;
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+/* ── 5. BROADCAST TELEMETRY HUD (HIGH-TECH SPEC CONSOLE) ── */
+.telemetry-deck{
+  background:rgba(9, 13, 24, 0.75);
+  border:1px solid rgba(255, 255, 255, 0.09);
+  border-radius:18px;
+  padding:16px 18px;
+  margin-bottom:20px;
+  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter:blur(16px);
+}
+.telemetry-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255, 255, 255, 0.06);
+}
+.telemetry-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.65rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--text-dim);
+}
+.telemetry-beacon{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 8px var(--cyan);
+  animation:pulse 1.8s infinite;
+}
+.telemetry-tag{
+  font-size:.62rem;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--cyan);
+  background:rgba(56, 189, 248, 0.1);
+  padding:2px 7px;
+  border-radius:4px;
+  border:1px solid rgba(56, 189, 248, 0.25);
+}
+
+.spec-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+}
+.si{
+  background:rgba(18, 23, 38, 0.55);
+  border:1px solid rgba(255, 255, 255, 0.06);
+  border-radius:12px;
+  padding:10px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  transition:all .2s;
+}
+.si:hover{
+  background:rgba(255, 255, 255, 0.04);
+  border-color:rgba(255, 255, 255, 0.12);
+}
+.sl{
+  font-size:.58rem;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text-faint);
+  font-weight:700;
+}
+.sv{
+  font-size:.88rem;
+  font-weight:600;
+  color:var(--text-main);
+  letter-spacing:-.01em;
+}
+.si-sub{
+  font-size:.6rem;
+  color:var(--cyan);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── 6. DEVICE & DESTINATION SELECTORS ── */
 .row{
   display:flex;
   gap:14px;
@@ -428,8 +1054,8 @@ body{
 }
 .col{flex:1}
 label{
-  font-size:.75rem;
-  font-weight:500;
+  font-size:.74rem;
+  font-weight:600;
   color:var(--text-dim);
   display:block;
   margin-bottom:6px;
@@ -455,170 +1081,7 @@ select:focus{
   box-shadow:0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 20px rgba(120, 160, 255, 0.2);
 }
 
-/* Quality, Format, Enhancement cards */
-.q-cards, .fmt-cards, .enh-cards{
-  display:flex;
-  gap:10px;
-  margin-bottom:16px;
-}
-.qc, .fc, .ec{
-  flex:1;
-  padding:13px 10px;
-  border-radius:var(--radius-card);
-  border:1px solid var(--border-subtle);
-  background:rgba(20, 25, 42, 0.4);
-  cursor:pointer;
-  transition:all .22s ease;
-  text-align:center;
-  position:relative;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
-}
-.qc:hover, .fc:hover, .ec:hover{
-  border-color:rgba(255, 255, 255, 0.25);
-  background:rgba(255, 255, 255, 0.035);
-  transform:translateY(-1px);
-}
-.qc.selected, .fc.selected, .ec.selected{
-  border-color:var(--border-lit);
-  background:rgba(255, 255, 255, 0.08);
-  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3), 0 0 25px rgba(120, 160, 255, 0.15);
-}
-.qc-title, .fc-title, .ec-title{
-  font-size:.84rem;
-  font-weight:600;
-  margin-bottom:3px;
-  color:var(--text-main);
-  letter-spacing:-.01em;
-}
-.qc-sub, .fc-sub, .ec-sub{
-  font-size:.66rem;
-  color:var(--text-dim);
-  line-height:1.4;
-}
-.ec.selected .ec-title{color:#ffffff}
-.ec[data-disabled="true"]{
-  opacity:.35;
-  cursor:not-allowed;
-  border-color:var(--border-subtle);
-  transform:none !important;
-}
-
-/* Safe zone overlay */
-.sz-wrap{
-  position:relative;
-  margin-top:14px;
-  display:none;
-}
-.sz-canvas{
-  width:100%;
-  aspect-ratio:9/16;
-  background:rgba(12, 16, 26, 0.85);
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid var(--border-subtle);
-  position:relative;
-  max-height:280px;
-}
-.sz-zone{
-  position:absolute;
-  left:0;
-  right:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.62rem;
-  font-weight:600;
-  letter-spacing:.6px;
-  text-transform:uppercase;
-}
-.sz-top{
-  top:0;
-  height:14%;
-  background:rgba(244, 63, 94, 0.28);
-  color:#ff9bb0;
-}
-.sz-bot{
-  bottom:0;
-  height:35%;
-  background:rgba(244, 63, 94, 0.28);
-  color:#ff9bb0;
-}
-.sz-right{
-  position:absolute;
-  top:0;
-  bottom:0;
-  right:0;
-  width:10%;
-  background:rgba(244, 63, 94, 0.2);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.sz-right span{
-  font-size:.52rem;
-  color:#ff9bb0;
-  writing-mode:vertical-rl;
-  text-transform:uppercase;
-  letter-spacing:.6px;
-}
-.sz-safe{
-  position:absolute;
-  top:14%;
-  bottom:35%;
-  left:0;
-  right:10%;
-  border:1.5px dashed var(--emerald);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.sz-safe span{
-  font-size:.68rem;
-  color:var(--emerald);
-  font-weight:700;
-  text-align:center;
-}
-.sz-toggle{
-  font-size:.74rem;
-  color:var(--cyan);
-  cursor:pointer;
-  margin-top:6px;
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  transition:opacity .2s;
-}
-.sz-toggle:hover{opacity:.8}
-
-/* Export spec grid */
-.spec-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:8px;
-  margin-top:14px;
-}
-.si{
-  background:rgba(18, 23, 38, 0.6);
-  border:1px solid var(--border-subtle);
-  border-radius:10px;
-  padding:10px 12px;
-}
-.sl{
-  font-size:.6rem;
-  text-transform:uppercase;
-  letter-spacing:.8px;
-  color:var(--text-faint);
-  margin-bottom:2px;
-  font-weight:600;
-}
-.sv{
-  font-size:.88rem;
-  font-weight:600;
-  color:var(--text-main);
-  letter-spacing:-.01em;
-}
-
-/* ── PROGRESS ── */
+/* Progress HUD */
 .pbg{
   height:7px;
   background:rgba(255, 255, 255, 0.08);
@@ -660,7 +1123,7 @@ select:focus{
   display:none;
 }
 
-/* ── PRIMARY CTA BUTTON (Iconic Jimo lit white button) ── */
+/* Primary CTA Button (Iconic Jimo lit white button) */
 .btn-go{
   width:100%;
   padding:15px;
@@ -695,7 +1158,7 @@ select:focus{
   box-shadow:none;
 }
 
-/* ── ERROR ── */
+/* Error */
 .err{
   display:none;
   background:rgba(244, 63, 94, 0.1);
@@ -709,7 +1172,7 @@ select:focus{
   white-space:pre-wrap;
 }
 
-/* ── RESULT CARD ── */
+/* Result card */
 #res-card{
   display:none;
   width:100%;
@@ -748,7 +1211,6 @@ select:focus{
 .mv.g{color:var(--emerald)}
 .mv.r{color:#ff8598}
 
-/* Size comparison bar */
 .size-compare{margin:14px 0 6px}
 .sc-label{
   font-size:.7rem;
@@ -821,7 +1283,7 @@ select:focus{
   box-shadow:0 0 35px rgba(255, 255, 255, 0.5);
 }
 
-/* ── TIPS & INSIGHTS (Jimo feature highlights) ── */
+/* Tips */
 .tips{
   max-width:680px;
   width:100%;
@@ -869,7 +1331,6 @@ code{
   color:var(--text-main);
 }
 
-/* ── TOOL WARNING ── */
 .tool-warn{
   max-width:680px;
   width:100%;
@@ -933,7 +1394,7 @@ code{
 </div>
 
 <!-- STEP 1 CARD: DROP -->
-<div class="jlp-window">
+<div class="jlp-window" id="card-step1">
   <div class="jlp-window-edge"></div>
   <div class="ctitle"><span class="cdot"></span> Step 1 — Select High-Resolution Source</div>
   
@@ -967,102 +1428,229 @@ code{
   <div class="err" id="d-err"></div>
 </div>
 
-<!-- STEP 2 CARD: CONFIG -->
-<div class="jlp-window">
+<!-- STEP 2 CARD: CONFIG & ENHANCEMENT ENGINE -->
+<div class="jlp-window" id="card-step2">
   <div class="jlp-window-edge"></div>
-  <div class="ctitle"><span class="cdot"></span> Step 2 — Compression & Enhancement Pipeline</div>
-
+  
   <!-- Quality preset selector -->
+  <div class="ctitle"><span class="cdot"></span> Mastering Quality Tier</div>
   <div class="q-cards" id="q-cards">
+    <!-- Best -->
     <div class="qc selected" data-q="best">
-      <div class="qc-title">🏆 Best</div>
-      <div class="qc-sub">CRF 18 · Slow encode<br>Near-lossless VMAF</div>
+      <div class="qc-header">
+        <span class="qc-badge">PRO MASTER</span>
+        <div class="qc-meter" title="Visual Fidelity Tier: Maximum">
+          <div class="meter-bar b1"></div>
+          <div class="meter-bar b2"></div>
+          <div class="meter-bar b3"></div>
+        </div>
+      </div>
+      <div class="qc-title">CRF 18 · Near Lossless</div>
+      <div class="qc-sub">Lanczos 3-lobed super-sample with maximum bit-budget for peak VMAF score.</div>
     </div>
+    
+    <!-- Great -->
     <div class="qc" data-q="great">
-      <div class="qc-title">⚡ Great</div>
-      <div class="qc-sub">CRF 20 · Slow encode<br>Excellent quality</div>
+      <div class="qc-header">
+        <span class="qc-badge">BALANCED</span>
+        <div class="qc-meter" title="Visual Fidelity Tier: High">
+          <div class="meter-bar b1"></div>
+          <div class="meter-bar b2"></div>
+          <div class="meter-bar b3"></div>
+        </div>
+      </div>
+      <div class="qc-title">CRF 20 · Studio Crisp</div>
+      <div class="qc-sub">Optimized encoding velocity while maintaining excellent perceptual detail.</div>
     </div>
+    
+    <!-- Fast -->
     <div class="qc" data-q="good">
-      <div class="qc-title">🚀 Fast</div>
-      <div class="qc-sub">CRF 23 · Medium<br>Quick turnaround</div>
+      <div class="qc-header">
+        <span class="qc-badge">TURBO</span>
+        <div class="qc-meter" title="Visual Fidelity Tier: Standard">
+          <div class="meter-bar b1"></div>
+          <div class="meter-bar b2"></div>
+          <div class="meter-bar b3"></div>
+        </div>
+      </div>
+      <div class="qc-title">CRF 23 · Fast Render</div>
+      <div class="qc-sub">Medium preset for rapid export and compact file footprints.</div>
     </div>
   </div>
 
-  <!-- Output format selector -->
-  <div class="ctitle" style="margin-top:14px"><span class="cdot"></span> Target Aspect Ratio</div>
+  <!-- Output format selector with wireframe miniatures -->
+  <div class="ctitle"><span class="cdot"></span> Target Aspect Ratio & Framing</div>
   <div class="fmt-cards" id="fmt-cards">
+    <!-- Reels 9:16 -->
     <div class="fc selected" data-fmt="reels">
-      <div class="fc-title">📱 Reels</div>
-      <div class="fc-sub">9:16<br>1080×1920</div>
+      <div class="shape-preview-wrap">
+        <div class="shape-box shape-reels"></div>
+      </div>
+      <div class="fc-title">Reels</div>
+      <div class="fc-badge">9:16 · 1080×1920</div>
     </div>
+    
+    <!-- Feed 4:5 -->
     <div class="fc" data-fmt="portrait">
-      <div class="fc-title">🖼️ Feed</div>
-      <div class="fc-sub">4:5<br>1080×1350</div>
+      <div class="shape-preview-wrap">
+        <div class="shape-box shape-feed"></div>
+      </div>
+      <div class="fc-title">Feed</div>
+      <div class="fc-badge">4:5 · 1080×1350</div>
     </div>
+    
+    <!-- Square 1:1 -->
     <div class="fc" data-fmt="square">
-      <div class="fc-title">⬛ Square</div>
-      <div class="fc-sub">1:1<br>1080×1080</div>
+      <div class="shape-preview-wrap">
+        <div class="shape-box shape-square"></div>
+      </div>
+      <div class="fc-title">Square</div>
+      <div class="fc-badge">1:1 · 1080×1080</div>
     </div>
+    
+    <!-- Landscape 16:9 -->
     <div class="fc" data-fmt="landscape">
-      <div class="fc-title">🖥️ IGTV</div>
-      <div class="fc-sub">16:9<br>1920×1080</div>
+      <div class="shape-preview-wrap">
+        <div class="shape-box shape-landscape"></div>
+      </div>
+      <div class="fc-title">IGTV</div>
+      <div class="fc-badge">16:9 · 1920×1080</div>
     </div>
   </div>
 
-  <!-- Safe Zone Visual Guide -->
-  <span class="sz-toggle" id="sz-toggle" onclick="toggleSafeZone()">📐 Show Instagram Safe Zone guide</span>
+  <!-- Interactive Instagram Safe Zone Guide Button -->
+  <button type="button" class="sz-btn-trigger" id="sz-toggle" onclick="toggleSafeZone()">
+    <span>📐</span>
+    <span id="sz-toggle-text">Preview Instagram UI Safe Zone Overlay</span>
+  </button>
+  
+  <!-- Interactive Safe Zone Phone Mockup Canvas -->
   <div class="sz-wrap" id="sz-wrap">
     <div class="sz-canvas" id="sz-canvas">
-      <div class="sz-top sz-zone">⚠ Top danger — navigation / header</div>
-      <div class="sz-safe"><span>✅ Safe Zone<br><small style="font-weight:400;font-size:.55rem">Keep text, stickers & logos here</small></span></div>
-      <div class="sz-right"><span>Buttons</span></div>
-      <div class="sz-bot sz-zone">⚠ Bottom danger — captions, handle, reaction buttons</div>
-    </div>
-    <div style="font-size:.67rem;color:var(--text-dim);margin-top:6px">
-      ⬆ Top 14% · Bottom 35% · Right 10% = covered by Instagram native UI
+      <!-- Simulated IG Top Danger Bar -->
+      <div class="ig-top-header">
+        <span>⚠ Top Danger Zone (14%) — Header & Stories Bar</span>
+      </div>
+      
+      <!-- Safe Viewport Center -->
+      <div class="sz-safe-viewport">
+        <div class="safe-badge">✓ 100% SAFE VIEWPORT</div>
+        <div class="safe-desc">Place all titles, typography, faces, and core visual hooks inside this region.</div>
+      </div>
+      
+      <!-- Simulated IG Right Rail Icons -->
+      <div class="ig-right-rail">
+        <div class="ig-icon-chip">❤️<span>64.2k</span></div>
+        <div class="ig-icon-chip">💬<span>1.8k</span></div>
+        <div class="ig-icon-chip">✈️<span>12.4k</span></div>
+        <div class="ig-icon-chip">🎵<span>Audio</span></div>
+      </div>
+      
+      <!-- Simulated IG Bottom Danger Footer -->
+      <div class="ig-bot-footer">
+        <span class="danger-tag">⚠ Bottom Danger Zone (35%) — Captions & Action UI</span>
+        <div class="ig-user-row">
+          <div class="ig-avatar"></div>
+          <div class="ig-handle">@creator_studio · Follow</div>
+        </div>
+        <div class="ig-caption">Best 4K-to-1080p workflow for ultra-crisp uploads 🔥 #reels #cinematic</div>
+      </div>
     </div>
   </div>
 
-  <!-- Enhancement Mode -->
-  <div class="ctitle" style="margin-top:16px"><span class="cdot"></span> Enhancement Mode</div>
+  <!-- Enhancement Mode (Thematic Visual Cards) -->
+  <div class="ctitle"><span class="cdot"></span> Enhancement Mode</div>
   <div class="enh-cards" id="enh-cards">
+    <!-- Standard -->
     <div class="ec selected" data-enh="standard">
-      <div class="ec-title">🎞️ Standard</div>
-      <div class="ec-sub">Optimised H.264<br>BT.709 Broadcast</div>
+      <div class="ec-top">
+        <span class="ec-pill">BROADCAST</span>
+        <span style="font-size:1.1rem">📺</span>
+      </div>
+      <div class="ec-title">Standard</div>
+      <div class="ec-sub">Calibrated BT.709 color fidelity. Zero gamut shift, 100% feed compliant.</div>
     </div>
+    
+    <!-- Cinema -->
     <div class="ec" data-enh="cinema">
-      <div class="ec-title">🎬 Cinema</div>
-      <div class="ec-sub">Denoise + Sharpen<br>Micro-contrast SDR</div>
+      <div class="ec-top">
+        <span class="ec-pill">FILM EDIT</span>
+        <span style="font-size:1.1rem">🎬</span>
+      </div>
+      <div class="ec-title">Cinema</div>
+      <div class="ec-sub">Spatiotemporal de-noise (`hqdn3d`), unsharp mask edge restoration, and micro-contrast.</div>
     </div>
+    
+    <!-- HDR HLG -->
     <div class="ec" data-enh="hlg" id="enh-hlg">
-      <div class="ec-title">✨ HDR</div>
-      <div class="ec-sub">HLG / BT.2020<br>H.265 Main 10</div>
+      <div class="ec-top">
+        <span class="ec-pill">REC.2100 HLG</span>
+        <span style="font-size:1.1rem">✨</span>
+      </div>
+      <div class="ec-title">HDR 10-bit</div>
+      <div class="ec-sub">H.265 Main 10 encode with Rec.2020 / HLG wide color headroom for HDR displays.</div>
     </div>
   </div>
+  
   <div id="enh-hlg-warn" style="display:none;font-size:.72rem;color:var(--warn);margin-bottom:8px">
     ⚠️ libx265 not available on this machine — HDR mode disabled
   </div>
-  <div id="enh-hlg-note" style="display:none;font-size:.72rem;color:var(--text-dim);margin-bottom:12px;line-height:1.5">
+  <div id="enh-hlg-note" style="display:none;font-size:.72rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5">
     ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). Provides extra color headroom to survive Instagram re-encode. Full HDR display requires an iPhone 12+ or HDR-capable Android.
   </div>
 
-  <!-- Output spec summary (live update) -->
-  <div class="spec-grid">
-    <div class="si"><div class="sl">Output Resolution</div><div class="sv" id="spec-res">1080 × 1920</div></div>
-    <div class="si"><div class="sl">Frame Rate</div><div class="sv">≤ 30 fps</div></div>
-    <div class="si"><div class="sl">Codec</div><div class="sv" id="spec-codec">H.264 High</div></div>
-    <div class="si"><div class="sl">Scale Algorithm</div><div class="sv">Lanczos</div></div>
-    <div class="si"><div class="sl">Audio</div><div class="sv">AAC 256k / 48kHz</div></div>
-    <div class="si"><div class="sl">Color Space</div><div class="sv" id="spec-color">BT.709 sRGB</div></div>
+  <!-- Broadcast Telemetry Deck -->
+  <div class="telemetry-deck">
+    <div class="telemetry-header">
+      <div class="telemetry-title">
+        <div class="telemetry-beacon"></div>
+        Live Mastering Telemetry
+      </div>
+      <span class="telemetry-tag">BROADCAST INSPECTOR</span>
+    </div>
+    
+    <div class="spec-grid">
+      <div class="si">
+        <div class="sl">Spatial Resolution</div>
+        <div class="sv" id="spec-res">1080 × 1920</div>
+        <div class="si-sub">Target Box</div>
+      </div>
+      <div class="si">
+        <div class="sl">Frame Rate Cap</div>
+        <div class="sv">≤ 30.00 FPS</div>
+        <div class="si-sub">Zero Stutter</div>
+      </div>
+      <div class="si">
+        <div class="sl">Video Codec</div>
+        <div class="sv" id="spec-codec">H.264 High</div>
+        <div class="si-sub">Level 4.2</div>
+      </div>
+      <div class="si">
+        <div class="sl">Resampling Filter</div>
+        <div class="sv">Lanczos-3</div>
+        <div class="si-sub">Super-sampled</div>
+      </div>
+      <div class="si">
+        <div class="sl">Audio Engine</div>
+        <div class="sv">AAC · 48.0 kHz</div>
+        <div class="si-sub">-14 LUFS Norm</div>
+      </div>
+      <div class="si">
+        <div class="sl">Color Profile</div>
+        <div class="sv" id="spec-color">BT.709 sRGB</div>
+        <div class="si-sub">Calibrated</div>
+      </div>
+    </div>
   </div>
 
-  <div class="row" style="margin-top:16px">
+  <!-- Hardware Metadata & Destination -->
+  <div class="row">
     <div class="col">
-      <label>Device Signature to Spoof</label>
+      <label>Device Signature to Inject</label>
       <select id="dev"></select>
     </div>
     <div class="col">
-      <label>Save destination</label>
+      <label>Save Destination</label>
       <select id="odir">
         <option value="downloads">Downloads Folder</option>
         <option value="desktop">Desktop</option>
@@ -1151,6 +1739,17 @@ let selectedEnh  = 'standard';
 let jobId        = null;
 let processStart = 0;
 
+// Spotlight cursor tracking across cards
+document.querySelectorAll('.jlp-window').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  });
+});
+
 // Format dimensions map (mirrors backend OUTPUT_FORMATS)
 const FMT_DIMS = {
   reels:     {w:1080, h:1920, ar:'9:16'},
@@ -1213,9 +1812,6 @@ document.querySelectorAll('.fc').forEach(el=>{
     el.classList.add('selected');
     selectedFmt = el.dataset.fmt;
     const d = FMT_DIMS[selectedFmt] || FMT_DIMS.reels;
-    const canvas = document.getElementById('sz-canvas');
-    canvas.style.aspectRatio = `${d.w}/${d.h}`;
-    updateSafeZoneForFormat(selectedFmt);
     document.getElementById('spec-res').textContent = `${d.w} × ${d.h}`;
   });
 });
@@ -1248,26 +1844,14 @@ function updateSpecGrid() {
   }
 }
 
-function updateSafeZoneForFormat(fmt) {
-  const bot = document.querySelector('.sz-bot');
-  const right = document.querySelector('.sz-right');
-  if (fmt === 'landscape') {
-    bot.style.height = '20%';
-    right.style.width = '8%';
-  } else {
-    bot.style.height = '35%';
-    right.style.width = '10%';
-  }
-}
-
 function toggleSafeZone() {
   const wrap = document.getElementById('sz-wrap');
-  const toggle = document.getElementById('sz-toggle');
+  const txt = document.getElementById('sz-toggle-text');
   const visible = wrap.style.display === 'block';
   wrap.style.display = visible ? 'none' : 'block';
-  toggle.textContent = visible
-    ? '📐 Show Instagram Safe Zone guide'
-    : '📐 Hide Instagram Safe Zone guide';
+  txt.textContent = visible
+    ? 'Preview Instagram UI Safe Zone Overlay'
+    : 'Hide Instagram UI Safe Zone Overlay';
 }
 
 // ── Drop zone ──
@@ -1351,7 +1935,6 @@ document.getElementById('gobtn').addEventListener('click', async () => {
 
   jobId = 'job_' + Date.now();
 
-  // Start SSE early
   startSSE(jobId);
 
   const fd = new FormData();
@@ -1476,7 +2059,6 @@ document.getElementById('bnew').addEventListener('click', () => {
   resetDrop();
 });
 
-// Helpers
 function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
 function hideErr(id){ document.getElementById(id).style.display='none'; }
 function fmtSize(b){
