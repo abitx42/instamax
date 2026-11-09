@@ -354,6 +354,59 @@ body{
   100% { box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), 0 30px 80px rgba(0, 0, 0, 0.9); }
 }
 
+/* ── TAP STREAK EASTER EGG SPEECH BUBBLE ── */
+.tap-speech-bubble {
+  position: fixed;
+  padding: 8px 18px;
+  background: rgba(13, 17, 28, 0.94);
+  border: 1.5px solid rgba(244, 114, 182, 0.85);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.8),
+              0 0 25px rgba(244, 114, 182, 0.5),
+              inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(14px);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10001;
+  transform: translate(-50%, -100%) scale(0.6);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.3), opacity 0.2s ease, left 0.12s ease, top 0.12s ease;
+  user-select: none;
+}
+.tap-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(13, 17, 28, 0.94);
+}
+.tap-speech-bubble.active {
+  transform: translate(-50%, -140%) scale(1);
+  opacity: 1;
+}
+.tap-speech-bubble.escalated {
+  border-color: rgba(239, 68, 68, 0.95);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85),
+              0 0 30px rgba(239, 68, 68, 0.65),
+              inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  animation: shakeBubble 0.35s ease infinite alternate;
+}
+.tap-speech-bubble.escalated::after {
+  border-top-color: rgba(239, 68, 68, 0.95);
+}
+@keyframes shakeBubble {
+  0% { transform: translate(-50%, -140%) rotate(-2.5deg) scale(1.04); }
+  100% { transform: translate(-50%, -140%) rotate(2.5deg) scale(1.04); }
+}
+
 /* ── AMBIENT BACKDROP LIGHTS ── */
 .ambient-bg{
   position:fixed;
@@ -2517,6 +2570,37 @@ document.addEventListener('mouseout', e => {
   }
 });
 
+// ── TAP STREAK SPEECH BUBBLE NEAR CURSOR ──
+let tapStreakStart = 0;
+let lastTapTimestamp = 0;
+let tapBubbleEl = null;
+let tapBubbleHideTimer = null;
+
+function showTapSpeechBubble(x, y, text, isEscalated = false) {
+  if (!tapBubbleEl) {
+    tapBubbleEl = document.createElement('div');
+    tapBubbleEl.className = 'tap-speech-bubble';
+    document.body.appendChild(tapBubbleEl);
+  }
+  tapBubbleEl.textContent = text;
+  tapBubbleEl.style.left = `${x}px`;
+  tapBubbleEl.style.top = `${y}px`;
+  tapBubbleEl.className = 'tap-speech-bubble active' + (isEscalated ? ' escalated' : '');
+
+  clearTimeout(tapBubbleHideTimer);
+  tapBubbleHideTimer = setTimeout(() => {
+    if (tapBubbleEl) {
+      tapBubbleEl.classList.remove('active');
+      setTimeout(() => {
+        if (tapBubbleEl && !tapBubbleEl.classList.contains('active')) {
+          tapBubbleEl.remove();
+          tapBubbleEl = null;
+        }
+      }, 300);
+    }
+  }, 2200);
+}
+
 // Cursor mousedown click squish, shockwave & Easter eggs
 window.addEventListener('mousedown', e => {
   document.body.classList.add('cursor-down');
@@ -2538,6 +2622,24 @@ window.addEventListener('mousedown', e => {
   const isInteractive = e.target.closest('button, a, input, select, .qc, .fc, .ec, #dz, .fi-rm, .si, .bsec, .bpri, label');
   if (!isInteractive) {
     const tapNow = performance.now();
+    
+    // Continuous tapping streak tracking (resets if idle > 850ms)
+    if (tapNow - lastTapTimestamp > 850) {
+      tapStreakStart = tapNow;
+    }
+    lastTapTimestamp = tapNow;
+
+    const streakSec = (tapNow - tapStreakStart) / 1000;
+
+    // Check milestones for funny localized messages near cursor
+    if (streakSec >= 10) {
+      showTapSpeechBubble(e.clientX, e.clientY - 16, 'bs kr bhai 😂', true);
+      showEasterToast('🛑', 'bs kr bhai 😂', 2500);
+    } else if (streakSec >= 5) {
+      showTapSpeechBubble(e.clientX, e.clientY - 16, 'maza aarha hai na 😉', false);
+      showEasterToast('😉', 'maza aarha hai na', 2500);
+    }
+
     tapHistory.push({ time: tapNow, x: e.clientX, y: e.clientY });
     while (tapHistory.length > 0 && tapNow - tapHistory[0].time > 1300) {
       tapHistory.shift();
