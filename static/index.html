@@ -977,204 +977,6 @@ body{
   border:1px solid rgba(56, 189, 248, 0.3);
 }
 
-/* ── 3. INTERACTIVE INSTAGRAM SAFE ZONE OVERLAY WIDGET ── */
-.sz-btn-trigger{
-  width:100%;
-  padding:11px 14px;
-  border-radius:12px;
-  border:1px solid rgba(56, 189, 248, 0.25);
-  background:rgba(56, 189, 248, 0.05);
-  color:var(--cyan);
-  font-size:.78rem;
-  font-weight:600;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  transition:all 0.3s var(--spring);
-  margin-bottom:20px;
-}
-.sz-btn-trigger:hover{
-  background:rgba(56, 189, 248, 0.12);
-  border-color:rgba(56, 189, 248, 0.5);
-  box-shadow:0 0 25px rgba(56, 189, 248, 0.2);
-  transform:translateY(-1px);
-}
-.sz-btn-trigger:active{
-  transform:scale(0.98);
-}
-
-.sz-wrap{
-  position:relative;
-  margin-bottom:20px;
-  display:none;
-  transform-origin:top center;
-  animation:springOpen 0.45s var(--spring);
-}
-@keyframes springOpen{
-  0%{opacity:0;transform:scaleY(0.8) translateY(-10px)}
-  100%{opacity:1;transform:scaleY(1) translateY(0)}
-}
-.sz-canvas{
-  width:100%;
-  max-width:320px;
-  margin:0 auto;
-  aspect-ratio:9/16;
-  background:linear-gradient(180deg, #0b0f1d 0%, #050811 100%);
-  border-radius:22px;
-  overflow:hidden;
-  border:2px solid rgba(255, 255, 255, 0.15);
-  position:relative;
-  box-shadow:0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.15);
-}
-
-.ig-top-header{
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  height:14%;
-  background:repeating-linear-gradient(
-    -45deg,
-    rgba(244, 63, 94, 0.22),
-    rgba(244, 63, 94, 0.22) 8px,
-    rgba(244, 63, 94, 0.32) 8px,
-    rgba(244, 63, 94, 0.32) 16px
-  );
-  border-bottom:1px dashed var(--rose);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:2;
-}
-.ig-top-header span{
-  font-size:.62rem;
-  font-weight:700;
-  color:#ff859c;
-  text-transform:uppercase;
-  letter-spacing:.6px;
-  background:rgba(0, 0, 0, 0.6);
-  padding:2px 8px;
-  border-radius:4px;
-}
-.ig-right-rail{
-  position:absolute;
-  top:14%;
-  bottom:35%;
-  right:0;
-  width:14%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-end;
-  gap:12px;
-  padding-bottom:10px;
-  background:rgba(244, 63, 94, 0.15);
-  border-left:1px dashed var(--rose);
-  z-index:2;
-}
-.ig-icon-chip{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:2px;
-  font-size:.5rem;
-  color:#ff9bb0;
-  font-weight:600;
-}
-.ig-bot-footer{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:35%;
-  background:repeating-linear-gradient(
-    -45deg,
-    rgba(244, 63, 94, 0.22),
-    rgba(244, 63, 94, 0.22) 8px,
-    rgba(244, 63, 94, 0.32) 8px,
-    rgba(244, 63, 94, 0.32) 16px
-  );
-  border-top:1px dashed var(--rose);
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  padding:12px;
-  gap:6px;
-  z-index:2;
-}
-.ig-bot-footer span.danger-tag{
-  align-self:center;
-  font-size:.62rem;
-  font-weight:700;
-  color:#ff859c;
-  text-transform:uppercase;
-  letter-spacing:.6px;
-  background:rgba(0, 0, 0, 0.65);
-  padding:2px 8px;
-  border-radius:4px;
-  margin-bottom:auto;
-}
-.ig-user-row{
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.ig-avatar{
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:linear-gradient(135deg, #c13584, #fd1d1d);
-}
-.ig-handle{
-  font-size:.68rem;
-  font-weight:700;
-  color:#fff;
-}
-.ig-caption{
-  font-size:.58rem;
-  color:rgba(255, 255, 255, 0.7);
-  line-height:1.3;
-}
-
-.sz-safe-viewport{
-  position:absolute;
-  top:14%;
-  bottom:35%;
-  left:0;
-  right:14%;
-  border:2px dashed var(--emerald);
-  background:rgba(16, 185, 129, 0.04);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:12px;
-  text-align:center;
-  z-index:1;
-}
-.safe-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  background:rgba(16, 185, 129, 0.2);
-  color:var(--emerald);
-  border:1px solid rgba(16, 185, 129, 0.5);
-  padding:4px 10px;
-  border-radius:var(--radius-pill);
-  font-size:.68rem;
-  font-weight:700;
-  box-shadow:0 0 14px rgba(16, 185, 129, 0.3);
-}
-.safe-desc{
-  font-size:.58rem;
-  color:var(--text-dim);
-  margin-top:6px;
-  line-height:1.4;
-}
-
 /* ── 4. ENHANCEMENT MODE: THE CROWN JEWEL ── */
 .enh-cards{
   display:grid;
@@ -1954,46 +1756,6 @@ code{
     </div>
   </div>
 
-  <!-- Interactive Instagram Safe Zone Guide Button -->
-  <button type="button" class="sz-btn-trigger" id="sz-toggle" onclick="toggleSafeZone()" data-cursor-label="Safe Zone Overlay 📐">
-    <span>📐</span>
-    <span id="sz-toggle-text">Preview Instagram UI Safe Zone Overlay</span>
-  </button>
-  
-  <!-- Interactive Safe Zone Phone Mockup Canvas -->
-  <div class="sz-wrap" id="sz-wrap">
-    <div class="sz-canvas" id="sz-canvas">
-      <!-- Simulated IG Top Danger Bar -->
-      <div class="ig-top-header">
-        <span>⚠ Top Danger Zone (14%) — Header & Stories Bar</span>
-      </div>
-      
-      <!-- Safe Viewport Center -->
-      <div class="sz-safe-viewport">
-        <div class="safe-badge">✓ 100% SAFE VIEWPORT</div>
-        <div class="safe-desc">Place all titles, typography, faces, and core visual hooks inside this region.</div>
-      </div>
-      
-      <!-- Simulated IG Right Rail Icons -->
-      <div class="ig-right-rail">
-        <div class="ig-icon-chip">❤️<span>64.2k</span></div>
-        <div class="ig-icon-chip">💬<span>1.8k</span></div>
-        <div class="ig-icon-chip">✈️<span>12.4k</span></div>
-        <div class="ig-icon-chip">🎵<span>Audio</span></div>
-      </div>
-      
-      <!-- Simulated IG Bottom Danger Footer -->
-      <div class="ig-bot-footer">
-        <span class="danger-tag">⚠ Bottom Danger Zone (35%) — Captions & Action UI</span>
-        <div class="ig-user-row">
-          <div class="ig-avatar"></div>
-          <div class="ig-handle">@creator_studio · Follow</div>
-        </div>
-        <div class="ig-caption">Best 4K-to-1080p workflow for ultra-crisp uploads 🔥 #reels #cinematic</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Enhancement Mode (Thematic Visual Cards) -->
   <div class="ctitle"><span class="cdot"></span> Enhancement Mode</div>
   <div class="enh-cards" id="enh-cards">
@@ -2326,7 +2088,7 @@ function renderCursor() {
 requestAnimationFrame(renderCursor);
 
 // Cursor hover scale and tooltip badge
-const interactiveSelectors = 'button, a, input, select, .qc, .fc, .ec, .stp, #dz, .fi-rm, .sz-btn-trigger, .si, .bento-card';
+const interactiveSelectors = 'button, a, input, select, .qc, .fc, .ec, .stp, #dz, .fi-rm, .si, .bento-card';
 document.addEventListener('mouseover', e => {
   const target = e.target.closest(interactiveSelectors);
   if (target) {
@@ -2490,16 +2252,6 @@ function updateSpecGrid() {
     if (codec) codec.textContent = 'H.264 High';
     if (color) color.textContent = 'BT.709 sRGB';
   }
-}
-
-function toggleSafeZone() {
-  const wrap = document.getElementById('sz-wrap');
-  const txt = document.getElementById('sz-toggle-text');
-  const visible = wrap.style.display === 'block';
-  wrap.style.display = visible ? 'none' : 'block';
-  txt.textContent = visible
-    ? 'Preview Instagram UI Safe Zone Overlay'
-    : 'Hide Instagram UI Safe Zone Overlay';
 }
 
 // ── Drop zone ──
