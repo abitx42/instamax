@@ -3,255 +3,948 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>InstaMax — Compress & Boost</title>
+<title>InstaMax — Ultra-Quality Instagram AI Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#09090f;--s1:#12121c;--s2:#1a1a28;--b:#252535;
-  --text:#eeeef5;--muted:#7777a0;
-  --acc:#c13584;--a2:#833ab4;--a3:#fd1d1d;--gold:#fcaf45;
-  --green:#2ed573;--warn:#ffa502;--r:13px;
-  --shadow:0 12px 50px rgba(0,0,0,.65);
+  --bg:#03050a;
+  --surface-base:rgba(12, 16, 28, 0.72);
+  --surface-raised:rgba(20, 26, 42, 0.65);
+  --surface-active:rgba(255, 255, 255, 0.08);
+  --border-subtle:rgba(255, 255, 255, 0.08);
+  --border-strong:rgba(255, 255, 255, 0.16);
+  --border-lit:rgba(255, 255, 255, 0.85);
+  
+  --text-main:#f4f6fb;
+  --text-dim:rgba(244, 246, 251, 0.58);
+  --text-faint:rgba(244, 246, 251, 0.36);
+  --text-dark:#071331;
+  
+  --cyan:#38bdf8;
+  --violet:#a855f7;
+  --rose:#f43f5e;
+  --gold:#fbbf24;
+  --emerald:#10b981;
+  --warn:#fb923c;
+  
+  --glow-cta: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 12px 44px rgba(214, 226, 255, 0.32), 0 0 85px rgba(120, 150, 255, 0.22);
+  --glow-cta-hover: 0 0 0 1px #ffffff, 0 16px 50px rgba(214, 226, 255, 0.45), 0 0 100px rgba(140, 175, 255, 0.32);
+  --glow-card: 0 30px 90px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --radius-window:24px;
+  --radius-pill:999px;
+  --radius-card:14px;
 }
+
 *{box-sizing:border-box;margin:0;padding:0}
+
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  background:var(--bg);color:var(--text);min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;
-  padding:28px 14px 72px;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text-main);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:32px 18px 84px;
+  position:relative;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ── HEADER ── */
-header{display:flex;align-items:center;gap:14px;margin-bottom:28px}
-.logo{
-  width:50px;height:50px;border-radius:50%;flex-shrink:0;
-  background:conic-gradient(from 180deg,#833ab4,#c13584,#fd1d1d,#fcaf45,#833ab4);
-  display:flex;align-items:center;justify-content:center;
+/* Ambient backdrop lights (Jimo AI aesthetic) */
+.ambient-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
 }
-.logo svg{width:26px;height:26px;fill:#fff}
-.ht h1{font-size:1.5rem;font-weight:700;letter-spacing:-.4px}
-.ht p{font-size:.74rem;color:var(--muted);margin-top:2px}
+.ambient-mesh{
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(circle at 50% 20%, black 30%, transparent 80%);
+  -webkit-mask-image:radial-gradient(circle at 50% 20%, black 30%, transparent 80%);
+  opacity:0.45;
+}
+.ambient-light-1{
+  position:absolute;
+  top:-250px;
+  left:50%;
+  transform:translateX(-50%);
+  width:1100px;
+  height:650px;
+  background:radial-gradient(ellipse at center, rgba(100, 145, 255, 0.15) 0%, rgba(131, 58, 180, 0.08) 45%, transparent 70%);
+  filter:blur(60px);
+}
+.ambient-light-2{
+  position:absolute;
+  top:380px;
+  left:15%;
+  width:550px;
+  height:450px;
+  background:radial-gradient(circle, rgba(193, 53, 132, 0.08) 0%, transparent 65%);
+  filter:blur(70px);
+}
+.ambient-light-3{
+  position:absolute;
+  top:650px;
+  right:15%;
+  width:500px;
+  height:400px;
+  background:radial-gradient(circle, rgba(56, 189, 248, 0.07) 0%, transparent 65%);
+  filter:blur(70px);
+}
 
-/* ── STEPS ── */
-.steps{display:flex;width:100%;max-width:640px;margin-bottom:24px}
-.stp{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
-.stp::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:var(--b);z-index:0}
-.stp:last-child::after{display:none}
+/* ── NAV / FLOATING BADGE ── */
+.top-nav{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 16px;
+  background:rgba(18, 22, 36, 0.7);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-pill);
+  box-shadow:0 12px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(20px);
+  margin-bottom:32px;
+  z-index:2;
+}
+.status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--emerald);
+  box-shadow:0 0 10px var(--emerald);
+  animation:pulse 2s infinite ease-in-out;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.6;transform:scale(.85)}
+}
+.nav-text{
+  font-size:.76rem;
+  font-weight:500;
+  letter-spacing:-.01em;
+  color:var(--text-dim);
+}
+.nav-text strong{
+  color:var(--text-main);
+  font-weight:600;
+}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  max-width:740px;
+  margin-bottom:34px;
+  z-index:2;
+}
+.hero h1{
+  font-size:clamp(2.1rem, 4.5vw, 3.2rem);
+  font-weight:400;
+  letter-spacing:-.035em;
+  line-height:1.15;
+  color:var(--text-main);
+  margin-bottom:12px;
+}
+.hero h1 span.gradient-text{
+  font-weight:600;
+  background:linear-gradient(135deg, #ffffff 10%, #d8e5ff 45%, #a8c4ff 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero h1 span.accent-glow{
+  font-weight:600;
+  background:linear-gradient(135deg, #ff7ab8 0%, #ff5277 50%, #fca545 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero p{
+  font-size:clamp(.92rem, 1.6vw, 1.05rem);
+  color:var(--text-dim);
+  font-weight:400;
+  line-height:1.6;
+  max-width:540px;
+  margin:0 auto;
+}
+
+/* ── STEPS BAR ── */
+.steps-wrap{
+  display:flex;
+  width:100%;
+  max-width:680px;
+  margin-bottom:24px;
+  background:rgba(12, 16, 28, 0.6);
+  border:1px solid var(--border-subtle);
+  border-radius:18px;
+  padding:5px;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  backdrop-filter:blur(16px);
+  z-index:2;
+}
+.stp{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 8px;
+  border-radius:13px;
+  transition:all .25s ease;
+  position:relative;
+}
+.stp.active{
+  background:rgba(255, 255, 255, 0.08);
+  border:1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+}
 .snum{
-  width:30px;height:30px;border-radius:50%;background:var(--s2);border:2px solid var(--b);
-  display:flex;align-items:center;justify-content:center;font-size:.77rem;font-weight:700;
-  z-index:1;position:relative;transition:all .3s;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(255, 255, 255, 0.06);
+  border:1px solid var(--border-subtle);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.72rem;
+  font-weight:600;
+  color:var(--text-dim);
+  transition:all .25s ease;
 }
-.stp.active .snum{background:var(--acc);border-color:var(--acc)}
-.stp.done   .snum{background:var(--green);border-color:var(--green);color:#000;font-size:.85rem}
-.slbl{font-size:.59rem;color:var(--muted);margin-top:5px;text-align:center}
-.stp.active .slbl{color:var(--text)}
+.stp.active .snum{
+  background:#ffffff;
+  color:var(--text-dark);
+  border-color:#ffffff;
+  box-shadow:0 0 14px rgba(255,255,255,.5);
+}
+.stp.done .snum{
+  background:var(--emerald);
+  border-color:var(--emerald);
+  color:#000;
+}
+.slbl{
+  font-size:.76rem;
+  font-weight:500;
+  color:var(--text-dim);
+  letter-spacing:-.01em;
+}
+.stp.active .slbl{
+  color:var(--text-main);
+  font-weight:600;
+}
 
-/* ── CARD ── */
-.card{
-  width:100%;max-width:640px;background:var(--s1);
-  border:1px solid var(--b);border-radius:var(--r);
-  padding:22px 24px;margin-bottom:14px;box-shadow:var(--shadow);
+/* ── JIMO GLASS WINDOW CARD ── */
+.jlp-window{
+  width:100%;
+  max-width:680px;
+  background:var(--surface-base);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-window);
+  padding:26px 28px;
+  margin-bottom:16px;
+  box-shadow:var(--glow-card);
+  backdrop-filter:blur(24px) saturate(150%);
+  position:relative;
+  z-index:2;
+  overflow:hidden;
 }
+
+/* Subtle hairline highlight edge on top border */
+.jlp-window-edge{
+  position:absolute;
+  inset-x:24px;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent 5%, rgba(190, 215, 255, 0.38) 50%, transparent 95%);
+  pointer-events:none;
+}
+
 .ctitle{
-  font-size:.64rem;text-transform:uppercase;letter-spacing:1.5px;
-  color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;
+  font-size:.67rem;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--text-dim);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:600;
 }
-.cdot{width:6px;height:6px;border-radius:50%;background:conic-gradient(#833ab4,#fd1d1d,#fcaf45);flex-shrink:0}
+.cdot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--cyan), var(--violet));
+  box-shadow:0 0 8px rgba(56, 189, 248, 0.6);
+  flex-shrink:0;
+}
 
-/* ── DROP ZONE ── */
+/* ── DROP ZONE (Jimo AI ask bar / terminal vibe) ── */
 #dz{
-  border:2px dashed var(--b);border-radius:11px;padding:36px 20px;
-  text-align:center;cursor:pointer;transition:.2s;position:relative;overflow:hidden;
+  border:1.5px dashed rgba(255, 255, 255, 0.14);
+  border-radius:18px;
+  padding:42px 24px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .25s ease;
+  position:relative;
+  overflow:hidden;
+  background:rgba(255, 255, 255, 0.015);
 }
-#dz:hover,#dz.over{border-color:var(--acc);background:rgba(193,53,132,.06)}
-#dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.di{font-size:2.4rem;margin-bottom:7px}
-.dt{font-size:.96rem;font-weight:600;margin-bottom:4px}
-.ds{font-size:.74rem;color:var(--muted)}
+#dz:hover, #dz.over{
+  border-color:rgba(255, 255, 255, 0.4);
+  background:rgba(255, 255, 255, 0.04);
+  box-shadow:0 0 40px rgba(120, 160, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+#dz input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+  width:100%;
+  height:100%;
+}
+.di{
+  font-size:2.6rem;
+  margin-bottom:10px;
+  filter:drop-shadow(0 6px 16px rgba(120, 160, 255, 0.3));
+}
+.dt{
+  font-size:1.05rem;
+  font-weight:600;
+  letter-spacing:-.015em;
+  color:var(--text-main);
+  margin-bottom:4px;
+}
+.ds{
+  font-size:.78rem;
+  color:var(--text-dim);
+}
 .dpill{
-  display:inline-block;margin-top:10px;padding:3px 10px;border-radius:20px;
-  background:var(--s2);font-size:.67rem;color:var(--muted);border:1px solid var(--b);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:14px;
+  padding:4px 12px;
+  border-radius:var(--radius-pill);
+  background:rgba(255, 255, 255, 0.05);
+  font-size:.7rem;
+  font-weight:500;
+  color:var(--text-dim);
+  border:1px solid var(--border-subtle);
 }
+
 /* File preview */
-#fp{display:none;align-items:center;gap:11px;background:var(--s2);border-radius:9px;padding:12px 14px;margin-top:12px}
-.fi-ic{font-size:1.6rem}
-.fi-info strong{display:block;font-size:.88rem}
-.fi-info span{font-size:.7rem;color:var(--muted)}
-.fi-rm{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;transition:color .2s}
-.fi-rm:hover{color:var(--a3)}
+#fp{
+  display:none;
+  align-items:center;
+  gap:14px;
+  background:var(--surface-raised);
+  border:1px solid var(--border-strong);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-top:14px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.fi-ic{font-size:1.8rem}
+.fi-info strong{
+  display:block;
+  font-size:.9rem;
+  font-weight:600;
+  color:var(--text-main);
+  letter-spacing:-.01em;
+}
+.fi-info span{
+  font-size:.72rem;
+  color:var(--text-dim);
+}
+.fi-rm{
+  margin-left:auto;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border-subtle);
+  color:var(--text-dim);
+  cursor:pointer;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.85rem;
+  transition:all .2s;
+}
+.fi-rm:hover{
+  background:rgba(244, 63, 94, 0.2);
+  border-color:var(--rose);
+  color:#ff90a0;
+}
 
-/* Source probe badge */
+/* Source probe HUD */
 #probe-badge{
-  display:none;margin-top:10px;padding:11px 14px;
-  background:var(--s2);border-radius:9px;border:1px solid var(--b);
+  display:none;
+  margin-top:14px;
+  padding:14px 18px;
+  background:rgba(10, 14, 24, 0.85);
+  border-radius:14px;
+  border:1px solid var(--border-subtle);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
-.pb-row{display:flex;gap:16px;flex-wrap:wrap}
-.pb-item{display:flex;flex-direction:column;gap:2px}
-.pb-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted)}
-.pb-val{font-size:.88rem;font-weight:700;color:var(--gold)}
+.pb-row{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.pb-item{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  flex:1;
+  min-width:80px;
+}
+.pb-label{
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text-faint);
+  font-weight:600;
+}
+.pb-val{
+  font-size:.92rem;
+  font-weight:600;
+  color:var(--cyan);
+  letter-spacing:-.01em;
+}
 
-/* ── SETTINGS ── */
-.row{display:flex;gap:12px;margin-bottom:14px}
+/* ── SETTINGS & INTERACTIVE SELECTORS ── */
+.row{
+  display:flex;
+  gap:14px;
+  margin-bottom:16px;
+}
 .col{flex:1}
-label{font-size:.74rem;color:var(--muted);display:block;margin-bottom:5px}
+label{
+  font-size:.75rem;
+  font-weight:500;
+  color:var(--text-dim);
+  display:block;
+  margin-bottom:6px;
+  letter-spacing:-.01em;
+}
 select{
-  width:100%;padding:10px 13px;background:var(--s2);border:1px solid var(--b);
-  border-radius:8px;color:var(--text);font-size:.87rem;appearance:none;
-  outline:none;transition:border-color .2s;cursor:pointer;
+  width:100%;
+  padding:11px 14px;
+  background:rgba(18, 23, 38, 0.85);
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  color:var(--text-main);
+  font-size:.87rem;
+  font-family:inherit;
+  appearance:none;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
-select:focus{border-color:var(--acc)}
+select:focus{
+  border-color:rgba(255, 255, 255, 0.4);
+  box-shadow:0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 20px rgba(120, 160, 255, 0.2);
+}
 
-/* Quality cards / Format cards */
-.q-cards,.fmt-cards{display:flex;gap:8px;margin-bottom:14px}
-.qc,.fc{
-  flex:1;padding:11px 10px;border-radius:9px;border:2px solid var(--b);
-  background:var(--s2);cursor:pointer;transition:.2s;text-align:center;
+/* Quality, Format, Enhancement cards */
+.q-cards, .fmt-cards, .enh-cards{
+  display:flex;
+  gap:10px;
+  margin-bottom:16px;
 }
-.qc:hover,.fc:hover{border-color:var(--muted)}
-.qc.selected,.fc.selected{border-color:var(--acc);background:rgba(193,53,132,.1)}
-.qc-title,.fc-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
-.qc-sub,.fc-sub{font-size:.65rem;color:var(--muted)}
-.qc.selected .qc-title,.fc.selected .fc-title{color:var(--acc)}
+.qc, .fc, .ec{
+  flex:1;
+  padding:13px 10px;
+  border-radius:var(--radius-card);
+  border:1px solid var(--border-subtle);
+  background:rgba(20, 25, 42, 0.4);
+  cursor:pointer;
+  transition:all .22s ease;
+  text-align:center;
+  position:relative;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.qc:hover, .fc:hover, .ec:hover{
+  border-color:rgba(255, 255, 255, 0.25);
+  background:rgba(255, 255, 255, 0.035);
+  transform:translateY(-1px);
+}
+.qc.selected, .fc.selected, .ec.selected{
+  border-color:var(--border-lit);
+  background:rgba(255, 255, 255, 0.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3), 0 0 25px rgba(120, 160, 255, 0.15);
+}
+.qc-title, .fc-title, .ec-title{
+  font-size:.84rem;
+  font-weight:600;
+  margin-bottom:3px;
+  color:var(--text-main);
+  letter-spacing:-.01em;
+}
+.qc-sub, .fc-sub, .ec-sub{
+  font-size:.66rem;
+  color:var(--text-dim);
+  line-height:1.4;
+}
+.ec.selected .ec-title{color:#ffffff}
+.ec[data-disabled="true"]{
+  opacity:.35;
+  cursor:not-allowed;
+  border-color:var(--border-subtle);
+  transform:none !important;
+}
 
 /* Safe zone overlay */
-.sz-wrap{position:relative;margin-top:12px;display:none}
-
-/* Enhancement mode cards */
-.enh-cards{display:flex;gap:8px;margin-bottom:14px}
-.ec{flex:1;padding:11px 10px;border-radius:9px;border:2px solid var(--b);background:var(--s2);cursor:pointer;transition:.2s;text-align:center}
-.ec:hover{border-color:var(--muted)}
-.ec.selected{border-color:var(--gold);background:rgba(252,175,69,.08)}
-.ec-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
-.ec-sub{font-size:.6rem;color:var(--muted);line-height:1.4}
-.ec.selected .ec-title{color:var(--gold)}
-.ec[data-disabled="true"]{opacity:.4;cursor:not-allowed;border-color:var(--b)}
-.sz-canvas{width:100%;aspect-ratio:9/16;background:var(--s2);border-radius:9px;overflow:hidden;border:1px solid var(--b);position:relative;max-height:300px}
-.sz-zone{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.sz-top{top:0;height:14%;background:rgba(253,29,29,.35);color:#ff9090}
-.sz-bot{bottom:0;height:35%;background:rgba(253,29,29,.35);color:#ff9090}
-.sz-right{position:absolute;top:0;bottom:0;right:0;width:10%;background:rgba(253,29,29,.25);display:flex;align-items:center;justify-content:center}
-.sz-right span{font-size:.5rem;color:#ff9090;writing-mode:vertical-rl;text-transform:uppercase;letter-spacing:.5px}
-.sz-safe{position:absolute;top:14%;bottom:35%;left:0;right:10%;border:1.5px dashed var(--green);display:flex;align-items:center;justify-content:center}
-.sz-safe span{font-size:.65rem;color:var(--green);font-weight:700}
-.sz-toggle{font-size:.7rem;color:var(--acc);cursor:pointer;text-decoration:underline;margin-top:7px;display:inline-block}
+.sz-wrap{
+  position:relative;
+  margin-top:14px;
+  display:none;
+}
+.sz-canvas{
+  width:100%;
+  aspect-ratio:9/16;
+  background:rgba(12, 16, 26, 0.85);
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--border-subtle);
+  position:relative;
+  max-height:280px;
+}
+.sz-zone{
+  position:absolute;
+  left:0;
+  right:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.62rem;
+  font-weight:600;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+}
+.sz-top{
+  top:0;
+  height:14%;
+  background:rgba(244, 63, 94, 0.28);
+  color:#ff9bb0;
+}
+.sz-bot{
+  bottom:0;
+  height:35%;
+  background:rgba(244, 63, 94, 0.28);
+  color:#ff9bb0;
+}
+.sz-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  right:0;
+  width:10%;
+  background:rgba(244, 63, 94, 0.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.sz-right span{
+  font-size:.52rem;
+  color:#ff9bb0;
+  writing-mode:vertical-rl;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+.sz-safe{
+  position:absolute;
+  top:14%;
+  bottom:35%;
+  left:0;
+  right:10%;
+  border:1.5px dashed var(--emerald);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.sz-safe span{
+  font-size:.68rem;
+  color:var(--emerald);
+  font-weight:700;
+  text-align:center;
+}
+.sz-toggle{
+  font-size:.74rem;
+  color:var(--cyan);
+  cursor:pointer;
+  margin-top:6px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  transition:opacity .2s;
+}
+.sz-toggle:hover{opacity:.8}
 
 /* Export spec grid */
-.spec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
-.si{background:var(--s2);border-radius:8px;padding:10px 12px}
-.sl{font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:3px}
-.sv{font-size:.88rem;font-weight:700;color:var(--gold)}
+.spec-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:14px;
+}
+.si{
+  background:rgba(18, 23, 38, 0.6);
+  border:1px solid var(--border-subtle);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.sl{
+  font-size:.6rem;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text-faint);
+  margin-bottom:2px;
+  font-weight:600;
+}
+.sv{
+  font-size:.88rem;
+  font-weight:600;
+  color:var(--text-main);
+  letter-spacing:-.01em;
+}
 
 /* ── PROGRESS ── */
-.pbg{height:6px;background:var(--s2);border-radius:9px;overflow:hidden;margin-top:14px;display:none}
-.pfill{height:100%;width:0;background:linear-gradient(90deg,#833ab4,#c13584,#fd1d1d,#fcaf45);border-radius:9px;transition:width .6s ease;animation:sh 2s infinite}
-@keyframes sh{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
-.plbl{font-size:.74rem;color:var(--muted);margin-top:7px;text-align:center;display:none}
-.pstats{font-size:.7rem;color:var(--muted);margin-top:5px;text-align:center;display:none}
-.eta{font-size:.68rem;color:var(--gold);margin-top:3px;text-align:center;display:none}
-
-/* ── BUTTON ── */
-.btn-go{
-  width:100%;padding:14px;border-radius:9px;border:none;
-  background:linear-gradient(135deg,#833ab4,#c13584,#fd1d1d);
-  color:#fff;font-size:.96rem;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:9px;
-  transition:opacity .2s,transform .1s;margin-top:8px;
+.pbg{
+  height:7px;
+  background:rgba(255, 255, 255, 0.08);
+  border-radius:var(--radius-pill);
+  overflow:hidden;
+  margin-top:18px;
+  display:none;
+  position:relative;
 }
-.btn-go:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
-.btn-go:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.pfill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg, #38bdf8, #818cf8, #f43f5e, #fbbf24);
+  border-radius:var(--radius-pill);
+  transition:width .5s ease;
+  box-shadow:0 0 16px rgba(56, 189, 248, 0.7);
+}
+.plbl{
+  font-size:.78rem;
+  font-weight:500;
+  color:var(--text-main);
+  margin-top:9px;
+  text-align:center;
+  display:none;
+}
+.pstats{
+  font-size:.72rem;
+  color:var(--text-dim);
+  margin-top:4px;
+  text-align:center;
+  display:none;
+}
+.eta{
+  font-size:.72rem;
+  color:var(--cyan);
+  margin-top:3px;
+  text-align:center;
+  font-weight:500;
+  display:none;
+}
+
+/* ── PRIMARY CTA BUTTON (Iconic Jimo lit white button) ── */
+.btn-go{
+  width:100%;
+  padding:15px;
+  border-radius:16px;
+  border:none;
+  background:#ffffff;
+  color:var(--text-dark);
+  font-size:.96rem;
+  font-weight:600;
+  font-family:inherit;
+  letter-spacing:-.015em;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  box-shadow:var(--glow-cta);
+  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  margin-top:16px;
+}
+.btn-go:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:var(--glow-cta-hover);
+}
+.btn-go:active:not(:disabled){
+  transform:translateY(0);
+}
+.btn-go:disabled{
+  opacity:.32;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
 
 /* ── ERROR ── */
 .err{
-  display:none;background:rgba(253,29,29,.1);border:1px solid rgba(253,29,29,.35);
-  border-radius:8px;padding:11px 13px;font-size:.8rem;color:#ff7070;
-  margin-top:11px;line-height:1.5;white-space:pre-wrap;
+  display:none;
+  background:rgba(244, 63, 94, 0.1);
+  border:1px solid rgba(244, 63, 94, 0.35);
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:.8rem;
+  color:#ff9bb0;
+  margin-top:12px;
+  line-height:1.5;
+  white-space:pre-wrap;
 }
 
-/* ── RESULT ── */
+/* ── RESULT CARD ── */
 #res-card{
-  display:none;width:100%;max-width:640px;
-  background:var(--s1);border:1px solid var(--green);border-radius:var(--r);
-  padding:22px 24px;box-shadow:0 0 36px rgba(46,213,115,.13);
+  display:none;
+  width:100%;
+  max-width:680px;
+  background:var(--surface-base);
+  border:1px solid rgba(16, 185, 129, 0.5);
+  border-radius:var(--radius-window);
+  padding:26px 28px;
+  box-shadow:0 0 50px rgba(16, 185, 129, 0.15), var(--glow-card);
+  backdrop-filter:blur(24px);
+  margin-bottom:16px;
+  position:relative;
+  z-index:2;
 }
-.rh{display:flex;align-items:center;gap:9px;font-size:1.05rem;font-weight:700;color:var(--green);margin-bottom:16px}
+.rh{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:1.1rem;
+  font-weight:600;
+  color:var(--emerald);
+  margin-bottom:18px;
+  letter-spacing:-.02em;
+}
 .mrow{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:9px 0;border-bottom:1px solid var(--b);font-size:.85rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255, 255, 255, 0.06);
+  font-size:.86rem;
 }
 .mrow:last-of-type{border-bottom:none}
-.ml{color:var(--muted)}.mv{font-weight:600;color:var(--gold)}
-.mv.g{color:var(--green)}.mv.r{color:#ff7070}
+.ml{color:var(--text-dim)}
+.mv{font-weight:600;color:var(--text-main)}
+.mv.g{color:var(--emerald)}
+.mv.r{color:#ff8598}
 
 /* Size comparison bar */
-.size-compare{margin:12px 0 4px}
-.sc-label{font-size:.68rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
-.sc-bar-bg{height:9px;background:var(--s2);border-radius:9px;overflow:hidden;position:relative}
-.sc-bar-orig{height:100%;background:var(--muted);opacity:.4;border-radius:9px;position:absolute}
-.sc-bar-new{height:100%;background:linear-gradient(90deg,var(--green),var(--acc));border-radius:9px;position:absolute;transition:width 1.2s ease}
-
-.rbrow{display:flex;gap:9px;margin-top:16px}
-.bsec{flex:1;padding:11px;border-radius:8px;border:1px solid var(--b);background:var(--s2);color:var(--text);font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s}
-.bsec:hover{background:var(--b)}
-.bpri{flex:1;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#833ab4,#c13584);color:#fff;font-size:.84rem;font-weight:700;cursor:pointer;transition:opacity .2s}
-.bpri:hover{opacity:.85}
-
-/* ── TIPS ── */
-.tips{max-width:640px;width:100%;margin-top:6px}
-.tip{
-  display:flex;gap:9px;padding:10px 13px;background:var(--s2);border-radius:8px;
-  margin-bottom:7px;font-size:.77rem;color:var(--muted);line-height:1.55;border:1px solid var(--b);
+.size-compare{margin:14px 0 6px}
+.sc-label{
+  font-size:.7rem;
+  color:var(--text-dim);
+  margin-bottom:6px;
+  display:flex;
+  justify-content:space-between;
 }
-.tip-i{font-size:.93rem;flex-shrink:0;margin-top:1px}
-.tip a{color:var(--acc);text-decoration:none}.tip a:hover{text-decoration:underline}
-.tip strong{color:var(--text)}
-code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radius:4px;font-size:.8em}
+.sc-bar-bg{
+  height:9px;
+  background:rgba(255, 255, 255, 0.08);
+  border-radius:var(--radius-pill);
+  overflow:hidden;
+  position:relative;
+}
+.sc-bar-orig{
+  height:100%;
+  background:var(--text-dim);
+  opacity:.35;
+  border-radius:var(--radius-pill);
+  position:absolute;
+}
+.sc-bar-new{
+  height:100%;
+  background:linear-gradient(90deg, var(--emerald), var(--cyan));
+  border-radius:var(--radius-pill);
+  position:absolute;
+  transition:width 1.2s cubic-bezier(.16, 1, .3, 1);
+  box-shadow:0 0 14px rgba(16, 185, 129, 0.6);
+}
+
+.rbrow{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+.bsec{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border-strong);
+  background:rgba(255, 255, 255, 0.06);
+  color:var(--text-main);
+  font-size:.86rem;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all .2s;
+}
+.bsec:hover{
+  background:rgba(255, 255, 255, 0.12);
+  border-color:rgba(255, 255, 255, 0.3);
+}
+.bpri{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:#ffffff;
+  color:var(--text-dark);
+  font-size:.86rem;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  box-shadow:0 0 25px rgba(255, 255, 255, 0.35);
+  transition:all .2s;
+}
+.bpri:hover{
+  transform:translateY(-1px);
+  box-shadow:0 0 35px rgba(255, 255, 255, 0.5);
+}
+
+/* ── TIPS & INSIGHTS (Jimo feature highlights) ── */
+.tips{
+  max-width:680px;
+  width:100%;
+  margin-top:8px;
+  z-index:2;
+}
+.tip{
+  display:flex;
+  gap:12px;
+  padding:13px 16px;
+  background:rgba(12, 16, 28, 0.5);
+  border-radius:14px;
+  margin-bottom:8px;
+  font-size:.78rem;
+  color:var(--text-dim);
+  line-height:1.6;
+  border:1px solid var(--border-subtle);
+  backdrop-filter:blur(16px);
+  transition:border-color .2s;
+}
+.tip:hover{
+  border-color:rgba(255, 255, 255, 0.14);
+}
+.tip-i{
+  font-size:1.05rem;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.tip a{
+  color:var(--cyan);
+  text-decoration:none;
+  font-weight:500;
+}
+.tip a:hover{text-decoration:underline}
+.tip strong{
+  color:var(--text-main);
+  font-weight:600;
+}
+code{
+  background:rgba(255, 255, 255, 0.08);
+  border:1px solid rgba(255, 255, 255, 0.12);
+  padding:1px 6px;
+  border-radius:5px;
+  font-size:.82em;
+  color:var(--text-main);
+}
 
 /* ── TOOL WARNING ── */
 .tool-warn{
-  max-width:640px;width:100%;background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.3);
-  border-radius:10px;padding:11px 15px;font-size:.77rem;color:var(--warn);
-  margin-bottom:14px;line-height:1.6;
+  max-width:680px;
+  width:100%;
+  background:rgba(251, 146, 60, 0.08);
+  border:1px solid rgba(251, 146, 60, 0.3);
+  border-radius:14px;
+  padding:13px 18px;
+  font-size:.78rem;
+  color:var(--warn);
+  margin-bottom:16px;
+  line-height:1.6;
+  z-index:2;
 }
-.tool-warn code{background:rgba(255,165,2,.1);border-color:rgba(255,165,2,.3);color:var(--warn)}
+.tool-warn code{
+  background:rgba(251, 146, 60, 0.12);
+  border-color:rgba(251, 146, 60, 0.35);
+  color:var(--warn);
+}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-  </div>
-  <div class="ht">
-    <h1>InstaMax</h1>
-    <p>4K → 1080p Ultra-Quality Compressor & Flagship Metadata Spoof for Instagram</p>
-  </div>
-</header>
+<!-- Ambient Atmospheric Glows -->
+<div class="ambient-bg">
+  <div class="ambient-mesh"></div>
+  <div class="ambient-light-1"></div>
+  <div class="ambient-light-2"></div>
+  <div class="ambient-light-3"></div>
+</div>
 
-<!-- TOOL WARNING (shown if ffmpeg missing) -->
+<!-- TOP FLOATING STATUS NAV -->
+<div class="top-nav">
+  <div class="status-dot"></div>
+  <div class="nav-text">Engine <strong>FFmpeg 9 + ExifTool</strong> Active</div>
+  <div style="width:1px;height:12px;background:var(--border-subtle)"></div>
+  <div class="nav-text">Tier <strong>Lanczos · CRF 18 · HLG</strong></div>
+</div>
+
+<!-- HERO HEADER -->
+<div class="hero">
+  <h1>
+    <span class="gradient-text">Studio Quality</span> for <span class="accent-glow">Instagram</span>
+  </h1>
+  <p>
+    Lanczos 4K-to-1080p super-sampling, -14 LUFS loudness normalisation, and authentic flagship hardware spoofing to prevent compression loss.
+  </p>
+</div>
+
+<!-- TOOL WARNING -->
 <div class="tool-warn" id="tool-warn" style="display:none">
-  ⚠️  <strong>ffmpeg not found.</strong> Open Terminal and run:<br>
-  <code>brew install ffmpeg</code> — then refresh this page. (Takes ~2 min.)
+  ⚠️ <strong>ffmpeg not found.</strong> Open Terminal and run:<br>
+  <code>brew install ffmpeg</code> — then refresh this page.
 </div>
 
-<!-- STEPS -->
-<div class="steps" id="steps">
-  <div class="stp active" id="s1"><div class="snum">1</div><div class="slbl">Drop Video</div></div>
-  <div class="stp"        id="s2"><div class="snum">2</div><div class="slbl">Settings</div></div>
-  <div class="stp"        id="s3"><div class="snum">3</div><div class="slbl">Compress</div></div>
-  <div class="stp"        id="s4"><div class="snum">✓</div><div class="slbl">Done</div></div>
+<!-- INTERACTIVE STEPS -->
+<div class="steps-wrap" id="steps">
+  <div class="stp active" id="s1"><div class="snum">1</div><div class="slbl">Source</div></div>
+  <div class="stp" id="s2"><div class="snum">2</div><div class="slbl">Settings</div></div>
+  <div class="stp" id="s3"><div class="snum">3</div><div class="slbl">Optimize</div></div>
+  <div class="stp" id="s4"><div class="snum">✓</div><div class="slbl">Complete</div></div>
 </div>
 
-<!-- CARD: DROP -->
-<div class="card">
-  <div class="ctitle"><span class="cdot"></span> Step 1 — Drop Your 4K Video</div>
+<!-- STEP 1 CARD: DROP -->
+<div class="jlp-window">
+  <div class="jlp-window-edge"></div>
+  <div class="ctitle"><span class="cdot"></span> Step 1 — Select High-Resolution Source</div>
+  
   <div id="dz">
     <input type="file" id="fi" accept=".mp4,.mov,.m4v,.mkv,.avi,.webm"/>
-    <div class="di">🎬</div>
+    <div class="di">⚡</div>
     <div class="dt">Drag & drop your 4K video here</div>
-    <div class="ds">or click to browse</div>
+    <div class="ds">or click to browse your media</div>
     <div class="dpill">MP4 · MOV · M4V · MKV · AVI · WEBM &nbsp;(up to 10 GB)</div>
   </div>
+  
   <div id="fp">
     <div class="fi-ic">📹</div>
     <div class="fi-info">
@@ -260,7 +953,8 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
     </div>
     <button class="fi-rm" id="frm">✕</button>
   </div>
-  <!-- Source probe -->
+  
+  <!-- Source probe badge -->
   <div id="probe-badge">
     <div class="pb-row">
       <div class="pb-item"><div class="pb-label">Resolution</div><div class="pb-val" id="pb-res">—</div></div>
@@ -273,15 +967,16 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
   <div class="err" id="d-err"></div>
 </div>
 
-<!-- CARD: CONFIG -->
-<div class="card">
-  <div class="ctitle"><span class="cdot"></span> Step 2 — Compression Quality</div>
+<!-- STEP 2 CARD: CONFIG -->
+<div class="jlp-window">
+  <div class="jlp-window-edge"></div>
+  <div class="ctitle"><span class="cdot"></span> Step 2 — Compression & Enhancement Pipeline</div>
 
   <!-- Quality preset selector -->
   <div class="q-cards" id="q-cards">
     <div class="qc selected" data-q="best">
       <div class="qc-title">🏆 Best</div>
-      <div class="qc-sub">CRF 18 · Slow encode<br>Near-lossless</div>
+      <div class="qc-sub">CRF 18 · Slow encode<br>Near-lossless VMAF</div>
     </div>
     <div class="qc" data-q="great">
       <div class="qc-title">⚡ Great</div>
@@ -289,12 +984,12 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
     </div>
     <div class="qc" data-q="good">
       <div class="qc-title">🚀 Fast</div>
-      <div class="qc-sub">CRF 23 · Medium<br>Faster, still great</div>
+      <div class="qc-sub">CRF 23 · Medium<br>Quick turnaround</div>
     </div>
   </div>
 
   <!-- Output format selector -->
-  <div class="ctitle" style="margin-top:4px"><span class="cdot"></span> Output Format</div>
+  <div class="ctitle" style="margin-top:14px"><span class="cdot"></span> Target Aspect Ratio</div>
   <div class="fmt-cards" id="fmt-cards">
     <div class="fc selected" data-fmt="reels">
       <div class="fc-title">📱 Reels</div>
@@ -319,21 +1014,21 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
   <div class="sz-wrap" id="sz-wrap">
     <div class="sz-canvas" id="sz-canvas">
       <div class="sz-top sz-zone">⚠ Top danger — navigation / header</div>
-      <div class="sz-safe"><span>✅ Safe Zone<br><small style="font-weight:400;font-size:.55rem">Keep text & logos here</small></span></div>
+      <div class="sz-safe"><span>✅ Safe Zone<br><small style="font-weight:400;font-size:.55rem">Keep text, stickers & logos here</small></span></div>
       <div class="sz-right"><span>Buttons</span></div>
-      <div class="sz-bot sz-zone">⚠ Bottom danger — captions, handle, like/comment</div>
+      <div class="sz-bot sz-zone">⚠ Bottom danger — captions, handle, reaction buttons</div>
     </div>
-    <div style="font-size:.65rem;color:var(--muted);margin-top:5px">
-      ⬆ Top 14% · Bottom 35% · Right 10% = covered by Instagram UI
+    <div style="font-size:.67rem;color:var(--text-dim);margin-top:6px">
+      ⬆ Top 14% · Bottom 35% · Right 10% = covered by Instagram native UI
     </div>
   </div>
 
   <!-- Enhancement Mode -->
-  <div class="ctitle" style="margin-top:14px"><span class="cdot"></span> Enhancement Mode</div>
+  <div class="ctitle" style="margin-top:16px"><span class="cdot"></span> Enhancement Mode</div>
   <div class="enh-cards" id="enh-cards">
     <div class="ec selected" data-enh="standard">
       <div class="ec-title">🎞️ Standard</div>
-      <div class="ec-sub">Optimised H.264<br>BT.709 SDR</div>
+      <div class="ec-sub">Optimised H.264<br>BT.709 Broadcast</div>
     </div>
     <div class="ec" data-enh="cinema">
       <div class="ec-title">🎬 Cinema</div>
@@ -344,11 +1039,11 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
       <div class="ec-sub">HLG / BT.2020<br>H.265 Main 10</div>
     </div>
   </div>
-  <div id="enh-hlg-warn" style="display:none;font-size:.7rem;color:var(--warn);margin-bottom:8px">
+  <div id="enh-hlg-warn" style="display:none;font-size:.72rem;color:var(--warn);margin-bottom:8px">
     ⚠️ libx265 not available on this machine — HDR mode disabled
   </div>
-  <div id="enh-hlg-note" style="display:none;font-size:.7rem;color:var(--muted);margin-bottom:10px;line-height:1.5">
-    ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). No gamut conversion is applied — this gives the encoder more headroom and survives Instagram's re-encode better. Full HDR display requires an iPhone 12+ or modern Android with an HDR screen.
+  <div id="enh-hlg-note" style="display:none;font-size:.72rem;color:var(--text-dim);margin-bottom:12px;line-height:1.5">
+    ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). Provides extra color headroom to survive Instagram re-encode. Full HDR display requires an iPhone 12+ or HDR-capable Android.
   </div>
 
   <!-- Output spec summary (live update) -->
@@ -361,22 +1056,22 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
     <div class="si"><div class="sl">Color Space</div><div class="sv" id="spec-color">BT.709 sRGB</div></div>
   </div>
 
-  <div class="row" style="margin-top:14px">
+  <div class="row" style="margin-top:16px">
     <div class="col">
-      <label>Device Profile to Spoof</label>
+      <label>Device Signature to Spoof</label>
       <select id="dev"></select>
     </div>
     <div class="col">
-      <label>Save processed file to…</label>
+      <label>Save destination</label>
       <select id="odir">
-        <option value="downloads">Downloads</option>
+        <option value="downloads">Downloads Folder</option>
         <option value="desktop">Desktop</option>
-        <option value="same">Temp (same as app)</option>
+        <option value="same">Temp (app cache)</option>
       </select>
     </div>
   </div>
 
-  <!-- Progress -->
+  <!-- Progress HUD -->
   <div class="pbg" id="pbg"><div class="pfill" id="pf"></div></div>
   <div class="plbl" id="pl">Starting…</div>
   <div class="pstats" id="pstats"></div>
@@ -384,73 +1079,66 @@ code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radiu
 
   <div class="err" id="p-err"></div>
 
+  <!-- Iconic Jimo Lit Button -->
   <button class="btn-go" id="gobtn" disabled>
-    <span>🪄</span> Compress + Spoof + Save
+    <span>🪄</span> Boost & Export Video
   </button>
 </div>
 
-<!-- RESULT -->
+<!-- RESULT CARD -->
 <div id="res-card">
-  <div class="rh">✅ Done — Upload this to Instagram!</div>
+  <div class="rh">✨ Processing Complete — Ready for Instagram!</div>
 
   <div class="size-compare">
     <div class="sc-label">
-      <span>Original size</span><span>Compressed size</span>
+      <span>Original size</span><span>Optimized size</span>
     </div>
     <div class="sc-bar-bg">
       <div class="sc-bar-orig" id="bar-orig" style="width:100%"></div>
-      <div class="sc-bar-new"  id="bar-new"  style="width:0%"></div>
+      <div class="sc-bar-new" id="bar-new" style="width:0%"></div>
     </div>
   </div>
 
   <div class="mrow"><span class="ml">Original size</span> <span class="mv r" id="r-orig">—</span></div>
   <div class="mrow"><span class="ml">Compressed size</span><span class="mv g" id="r-size">—</span></div>
   <div class="mrow"><span class="ml">Size reduction</span> <span class="mv g" id="r-red">—</span></div>
-  <div class="mrow"><span class="ml">Output</span>          <span class="mv g" id="r-name">—</span></div>
-  <div class="mrow"><span class="ml">Resolution</span>      <span class="mv"   id="r-res">1080 × 1920</span></div>
-  <div class="mrow"><span class="ml">Make injected</span>   <span class="mv g" id="r-make">—</span></div>
-  <div class="mrow"><span class="ml">Model injected</span>  <span class="mv g" id="r-model">—</span></div>
+  <div class="mrow"><span class="ml">Output file</span>    <span class="mv g" id="r-name">—</span></div>
+  <div class="mrow"><span class="ml">Resolution</span>     <span class="mv" id="r-res">1080 × 1920</span></div>
+  <div class="mrow"><span class="ml">Make signature</span> <span class="mv g" id="r-make">—</span></div>
+  <div class="mrow"><span class="ml">Model signature</span><span class="mv g" id="r-model">—</span></div>
   <div class="mrow"><span class="ml">Codec / Mode</span>   <span class="mv g" id="r-codec">—</span></div>
 
   <div class="rbrow">
-    <button class="bsec" id="bfind">📂 Show in Finder</button>
+    <button class="bsec" id="bfind">📂 Reveal in Finder</button>
     <button class="bpri" id="bnew">+ Process Another</button>
   </div>
 </div>
 
-<!-- TIPS -->
+<!-- TIPS & INSIGHTS -->
 <div class="tips">
   <div class="tip">
     <span class="tip-i">🧠</span>
-    <span><strong>Why CRF 18?</strong> Constant Rate Factor 18 is considered "visually lossless" — it gives complex scenes more bits automatically. Instagram evaluates your upload using VMAF (perceptual quality scoring). A higher CRF source → better VMAF score → cleaner served video.</span>
+    <span><strong>Why CRF 18?</strong> Constant Rate Factor 18 is visually lossless. Instagram evaluates your upload with VMAF (perceptual quality). A high-VMAF source triggers Instagram's top delivery ladder tier with maximum bitrate.</span>
   </div>
   <div class="tip">
     <span class="tip-i">🔬</span>
-    <span><strong>Lanczos scaling</strong> is the highest-quality downscale algorithm. It preserves sharp edges better than Bilinear or Bicubic when going from 4K to 1080p — same method professional broadcast tools use.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">🎵</span>
-    <span><strong>Audio at 48 kHz / -14 LUFS</strong> — 48 kHz is Instagram's native broadcast sample rate (no resampling needed). The loudness filter targets -14 LUFS, matching Instagram's normalisation target, so your audio isn't turned down or dynamically crushed post-upload.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">📐</span>
-    <span><strong>Safe Zones matter.</strong> Instagram overlays your handle, caption, audio track, and like/comment/share buttons on top of the video. Keep all text, logos, and hooks inside the green safe zone (shown above) or nobody sees them.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">📡</span>
-    <span><strong>Transfer without compression</strong> — Use <a href="https://localsend.org" target="_blank">LocalSend</a> or <a href="https://snapdrop.net" target="_blank">Snapdrop</a>. Never WhatsApp/Telegram — they re-compress and wipe metadata.</span>
-  </div>
-  <div class="tip">
-    <span class="tip-i">📱</span>
-    <span><strong>Android Instagram</strong> — Before uploading: <strong>Profile → ☰ → Settings → Media Quality → "Upload at Highest Quality" = ON</strong>, Data Saver = OFF.</span>
+    <span><strong>Lanczos Super-Sampling:</strong> Downscaling 4K to 1080p via 3-lobed Lanczos packs 4 real sensor pixels into 1 crisp destination pixel, generating cleaner micro-edges than native 1080p recording.</span>
   </div>
   <div class="tip">
     <span class="tip-i">👑</span>
-    <span><strong>Flagship Profiles (iPhone 17 Pro Max / Galaxy S26 Ultra)</strong> — Instagram gives priority ingestion bandwidth to top-tier hardware signatures. Injecting an iPhone 17 Pro Max or Samsung Galaxy S26 Ultra profile ensures Instagram routes the video into its best transcode profile.</span>
+    <span><strong>Flagship Profiles (iPhone 17 Pro Max / Galaxy S26 Ultra):</strong> Ingest servers prioritize top hardware signatures. Injecting an authentic profile routes the file through the cleanest encoding pipeline.</span>
   </div>
   <div class="tip">
-    <span class="tip-i">🎬</span>
-    <span><strong>Cinema vs HDR Mode</strong> — Use <strong>Cinema</strong> for ultra-crisp movie/edit aesthetic (removes sensor noise + sharpens micro-details in SDR). Use <strong>HDR</strong> for vibrant HLG 10-bit playback with wide color on HDR-capable mobile displays.</span>
+    <span class="tip-i">🎵</span>
+    <span><strong>Audio at 48 kHz / -14 LUFS:</strong> 48 kHz is Instagram's native audio broadcast standard. -14 LUFS matches Instagram's loudness target so your sound never gets dynamically crushed.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📡</span>
+    <span><strong>Zero-Loss Transfer:</strong> Transfer the output to your phone using <a href="https://localsend.org" target="_blank">LocalSend</a> or <a href="https://snapdrop.net" target="_blank">Snapdrop</a>. Never use WhatsApp or Telegram as they strip metadata and re-encode.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📱</span>
+    <span><strong>Android Upload Setting:</strong> In Instagram: <strong>Profile → ☰ → Settings → Media Quality → "Upload at Highest Quality" = ON</strong>, Data Saver = OFF.</span>
   </div>
 </div>
 
@@ -524,12 +1212,10 @@ document.querySelectorAll('.fc').forEach(el=>{
     document.querySelectorAll('.fc').forEach(x=>x.classList.remove('selected'));
     el.classList.add('selected');
     selectedFmt = el.dataset.fmt;
-    // Update safe zone canvas aspect ratio
     const d = FMT_DIMS[selectedFmt] || FMT_DIMS.reels;
     const canvas = document.getElementById('sz-canvas');
     canvas.style.aspectRatio = `${d.w}/${d.h}`;
     updateSafeZoneForFormat(selectedFmt);
-    // Update spec grid resolution
     document.getElementById('spec-res').textContent = `${d.w} × ${d.h}`;
   });
 });
@@ -542,7 +1228,6 @@ document.querySelectorAll('.ec').forEach(el=>{
     el.classList.add('selected');
     selectedEnh = el.dataset.enh;
     updateSpecGrid();
-    // Show/hide HDR info note
     document.getElementById('enh-hlg-note').style.display =
       selectedEnh === 'hlg' ? 'block' : 'none';
   });
@@ -597,7 +1282,7 @@ fi.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[
 function handleFile(f) {
   const ext = f.name.split('.').pop().toLowerCase();
   const ok  = ['mp4','mov','m4v','mkv','avi','webm'].includes(ext);
-  if (!ok) { showErr('d-err',`Unsupported: .${ext}`); return; }
+  if (!ok) { showErr('d-err',`Unsupported file format: .${ext}`); return; }
   hideErr('d-err');
   selectedFile = f;
 
@@ -609,7 +1294,6 @@ function handleFile(f) {
   document.getElementById('gobtn').disabled = false;
   step(2);
 
-  // Show rough probe from filename/size (actual ffprobe happens server-side)
   const badge = document.getElementById('probe-badge');
   badge.style.display = 'block';
   document.getElementById('pb-size').textContent  = fmtSize(f.size);
@@ -630,7 +1314,7 @@ function resetDrop() {
   step(1);
 }
 
-// ── Populate probe badge from probe data object ──
+// ── Populate probe badge ──
 function fillProbeBadge(p) {
   if (!p) return;
   const badge = document.getElementById('probe-badge');
@@ -652,26 +1336,24 @@ document.getElementById('gobtn').addEventListener('click', async () => {
   const btn = document.getElementById('gobtn');
   btn.disabled = true;
 
-  const pbg  = document.getElementById('pbg');
-  const pf   = document.getElementById('pf');
-  const pl   = document.getElementById('pl');
-  const ps   = document.getElementById('pstats');
+  const pbg   = document.getElementById('pbg');
+  const pf    = document.getElementById('pf');
+  const pl    = document.getElementById('pl');
+  const ps    = document.getElementById('pstats');
   const etaEl = document.getElementById('eta');
   pbg.style.display  = 'block';
   pl.style.display   = 'block';
   ps.style.display   = 'block';
   etaEl.style.display = 'block';
-  pl.textContent  = 'Uploading…';
+  pl.textContent  = 'Uploading to optimizer…';
   pf.style.width  = '3%';
   etaEl.textContent = '';
 
-  // Generate job id
   jobId = 'job_' + Date.now();
 
-  // Start SSE BEFORE uploading so we don't miss early events
+  // Start SSE early
   startSSE(jobId);
 
-  // Build form data
   const fd = new FormData();
   fd.append('video',         selectedFile);
   fd.append('device',        document.getElementById('dev').value);
@@ -689,9 +1371,8 @@ document.getElementById('gobtn').addEventListener('click', async () => {
       btn.disabled = false;
       return;
     }
-    // Populate probe badge immediately from /api/process response
     if (data.probe) fillProbeBadge(data.probe);
-    pl.textContent = 'Compressing…';
+    pl.textContent = 'Optimizing video stream…';
   } catch (e) {
     showErr('p-err', 'Upload failed: ' + e.message);
     btn.disabled = false;
@@ -702,7 +1383,6 @@ function startSSE(jid) {
   const es = new EventSource(`/api/events/${jid}`);
 
   es.addEventListener('probe', e => {
-    // Server-sent probe data (arrives early in do_work)
     try { fillProbeBadge(JSON.parse(e.data)); } catch {}
   });
 
@@ -713,13 +1393,12 @@ function startSSE(jid) {
     document.getElementById('pl').textContent  = d.label || 'Processing…';
     document.getElementById('pstats').textContent = `${pct}% complete`;
 
-    // ETA calculation
     if (pct > 5 && pct < 97 && processStart) {
       const elapsed = (Date.now() - processStart) / 1000;
       const totalEst = elapsed / (pct / 100);
       const remaining = Math.max(0, Math.round(totalEst - elapsed));
       document.getElementById('eta').textContent = remaining > 2
-        ? `~${remaining}s remaining` : 'Almost done…';
+        ? `~${remaining}s remaining` : 'Finalizing metadata…';
     }
   });
 
@@ -729,11 +1408,10 @@ function startSSE(jid) {
     outputPath = d.output;
 
     document.getElementById('pf').style.width = '100%';
-    document.getElementById('pl').textContent = '✅ Done!';
+    document.getElementById('pl').textContent = '✨ Complete!';
     document.getElementById('pstats').textContent = `${d.size_mb} MB · ${d.width}×${d.height} · CRF ${d.crf}`;
     document.getElementById('eta').textContent = '';
 
-    // Fill result card
     document.getElementById('r-orig').textContent  = `${d.orig_mb} MB`;
     document.getElementById('r-size').textContent  = `${d.size_mb} MB`;
     document.getElementById('r-red').textContent   = `−${d.reduction}% smaller`;
@@ -742,15 +1420,13 @@ function startSSE(jid) {
     document.getElementById('r-make').textContent  = d.make;
     document.getElementById('r-model').textContent = d.model;
 
-    // Codec / Mode label
     const codecLabels = {
       hevc: 'H.265 HLG HDR (10-bit)',
-      h264: d.enhancement === 'cinema' ? 'H.264 Cinema Mode' : 'H.264 SDR',
+      h264: d.enhancement === 'cinema' ? 'H.264 Cinema Mode' : 'H.264 Broadcast SDR',
     };
     document.getElementById('r-codec').textContent =
       codecLabels[d.codec] || (d.codec ? d.codec.toUpperCase() : 'H.264');
 
-    // Size comparison bar
     setTimeout(()=>{
       document.getElementById('bar-new').style.width = Math.max(5, 100 - d.reduction) + '%';
     }, 300);
@@ -769,12 +1445,10 @@ function startSSE(jid) {
     document.getElementById('eta').textContent = '';
   });
 
-  es.onerror = () => {
-    // SSE connection closed normally after done/error — ignore
-  };
+  es.onerror = () => {};
 }
 
-// Open finder
+// Open in Finder
 document.getElementById('bfind').addEventListener('click', async () => {
   await fetch('/api/open-folder', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -782,7 +1456,7 @@ document.getElementById('bfind').addEventListener('click', async () => {
   });
 });
 
-// New
+// Reset for another video
 document.getElementById('bnew').addEventListener('click', () => {
   outputPath = ''; jobId = null; processStart = 0;
   document.getElementById('res-card').style.display = 'none';
@@ -793,7 +1467,6 @@ document.getElementById('bnew').addEventListener('click', () => {
   document.getElementById('pf').style.width       = '0%';
   document.getElementById('bar-new').style.width  = '0%';
   hideErr('p-err');
-  // Reset enhancement selection back to Standard
   selectedEnh = 'standard';
   document.querySelectorAll('.ec').forEach(x=>x.classList.remove('selected'));
   const stdCard = document.querySelector('.ec[data-enh="standard"]');
