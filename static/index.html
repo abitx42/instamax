@@ -324,60 +324,7 @@ body{
   }
 }
 
-.easter-toast {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-35px);
-  padding: 10px 24px;
-  background: rgba(13, 17, 23, 0.88);
-  border: 1px solid rgba(56, 189, 248, 0.55);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), 0 0 25px rgba(56, 189, 248, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(16px);
-  border-radius: 9999px;
-  color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 10000;
-  pointer-events: none;
-  opacity: 0;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-}
-.easter-toast.active {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-.easter-toast .toast-icon {
-  font-size: 16px;
-  display: inline-block;
-  animation: toastSpin 2s infinite linear;
-}
-@keyframes toastSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
-.cursor-badge.rainbow-badge {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3), rgba(244, 114, 182, 0.3));
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 25px rgba(168, 85, 247, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-.overclock-active {
-  animation: overclockBorder 3s infinite linear !important;
-}
-@keyframes overclockBorder {
-  0% { box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), 0 30px 80px rgba(0, 0, 0, 0.9); }
-  33% { box-shadow: 0 0 55px rgba(168, 85, 247, 0.75), 0 30px 80px rgba(0, 0, 0, 0.9); }
-  66% { box-shadow: 0 0 55px rgba(244, 114, 182, 0.75), 0 30px 80px rgba(0, 0, 0, 0.9); }
-  100% { box-shadow: 0 0 45px rgba(56, 189, 248, 0.7), 0 30px 80px rgba(0, 0, 0, 0.9); }
-}
 
 /* ── TAP STREAK EASTER EGG SPEECH BUBBLE ── */
 .tap-speech-bubble {
@@ -1661,11 +1608,7 @@ code{
   <span class="badge-label" id="cursor-badge-text">ACTION</span>
 </div>
 
-<!-- Futuristic Glass Easter Egg Toast Notification -->
-<div class="easter-toast" id="easter-toast">
-  <span class="toast-icon" id="easter-toast-icon">✨</span>
-  <span class="toast-text" id="easter-toast-text">EASTER EGG UNLOCKED</span>
-</div>
+
 
 <!-- Ambient Atmospheric Glows -->
 <div class="ambient-bg">
@@ -1980,9 +1923,6 @@ const cursorGlow      = document.getElementById('cursor-glow');
 const cursorBadge     = document.getElementById('cursor-badge');
 const cursorBadgeText = document.getElementById('cursor-badge-text');
 const cursorCanvas    = document.getElementById('cursor-canvas');
-const easterToast     = document.getElementById('easter-toast');
-const easterToastIcon = document.getElementById('easter-toast-icon');
-const easterToastText = document.getElementById('easter-toast-text');
 
 let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
@@ -2039,44 +1979,11 @@ function spawnParticle(x, y, speedMult = 1, customProps = null) {
 }
 
 // ── EASTER EGG SYSTEM ──
-let easterToastTimeout = null;
-
-function showEasterToast(icon, text, duration = 3200) {
-  if (!easterToast) return;
-  if (easterToastIcon) easterToastIcon.textContent = icon;
-  if (easterToastText) easterToastText.textContent = text;
-  easterToast.classList.add('active');
-  clearTimeout(easterToastTimeout);
-  easterToastTimeout = setTimeout(() => {
-    easterToast.classList.remove('active');
-  }, duration);
-}
-
-function showCursorEasterBadge(icon, text, duration = 2500) {
-  if (cursorBadge && cursorBadgeText) {
-    const iconEl = cursorBadge.querySelector('.badge-icon');
-    const oldIcon = iconEl ? iconEl.textContent : '✦';
-    if (iconEl) iconEl.textContent = icon;
-    cursorBadgeText.textContent = text;
-    cursorBadge.classList.add('visible', 'rainbow-badge');
-    setTimeout(() => {
-      cursorBadge.classList.remove('rainbow-badge');
-      if (iconEl) iconEl.textContent = oldIcon;
-      if (!document.body.classList.contains('cursor-hover')) {
-        cursorBadge.classList.remove('visible');
-      }
-    }, duration);
-  }
-}
-
 // 1. STARDUST METEOR SHOWER (Frantic Mouse Shake)
 let lastShakeTrigger = 0;
 const shakeHistory = [];
 
 function triggerMeteorShower() {
-  showEasterToast('☄️', 'Stardust Meteor Shower Unlocked!');
-  showCursorEasterBadge('✨', 'STARDUST SHOWER');
-
   for (let i = 0; i < 140; i++) {
     setTimeout(() => {
       const fromTop = Math.random() < 0.65;
@@ -2138,9 +2045,6 @@ function checkMouseShake(e) {
 
 // 2. SUPERNOVA COSMIC BURST (5 Rapid Taps on Empty Space)
 function triggerSupernova(x, y) {
-  showEasterToast('💥', 'Supernova Cosmic Burst!');
-  showCursorEasterBadge('💥', 'SUPERNOVA');
-
   // Giant supernova shockwave ring
   const ring = document.createElement('div');
   ring.className = 'supernova-shockwave';
@@ -2198,8 +2102,6 @@ let tapHistory = [];
 function activateZeroG() {
   if (isZeroGActive) return;
   isZeroGActive = true;
-  showEasterToast('🌌', 'Zero-G Inversion Engaged');
-  showCursorEasterBadge('🌌', 'ZERO-G MODE', 3000);
 
   particles.forEach(p => {
     p.gravity = -0.22 - Math.random() * 0.15;
@@ -2236,57 +2138,6 @@ function deactivateZeroG() {
     }
   });
 }
-
-// 4. OVERCLOCK 8K PARTY MODE (Double-Click Hero Title or typing "insta")
-function triggerOverclockParty() {
-  showEasterToast('⚡', '8K Quantum Overclock Activated!');
-  showCursorEasterBadge('⚡', '8K OVERCLOCK', 4000);
-
-  const mainWin = document.querySelector('.jlp-window');
-  if (mainWin) {
-    mainWin.classList.add('overclock-active');
-    setTimeout(() => mainWin.classList.remove('overclock-active'), 5000);
-  }
-
-  const goldColors = ['#fbbf24', '#f59e0b', '#fef08a', '#ffffff', '#38bdf8'];
-  for (let i = 0; i < 90; i++) {
-    setTimeout(() => {
-      spawnParticle(Math.random() * window.innerWidth, -10, 1, {
-        vx: (Math.random() - 0.5) * 3,
-        vy: 2.5 + Math.random() * 4.5,
-        gravity: 0.14,
-        bounce: 0.6,
-        size: 3.0 + Math.random() * 2.5,
-        alpha: 1.0,
-        alphaDecay: 0.992,
-        decay: 0.006,
-        glow: 14,
-        color: goldColors[Math.floor(Math.random() * goldColors.length)]
-      });
-    }, i * 25);
-  }
-}
-
-// Hero Title Double Click
-const heroTitle = document.querySelector('.hero h1');
-if (heroTitle) {
-  heroTitle.addEventListener('dblclick', e => {
-    e.stopPropagation();
-    triggerOverclockParty();
-  });
-}
-
-// Secret Keyword Sequence Listener ("insta")
-let keyBuffer = '';
-window.addEventListener('keydown', e => {
-  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-  keyBuffer += e.key.toLowerCase();
-  if (keyBuffer.length > 8) keyBuffer = keyBuffer.slice(-8);
-  if (keyBuffer.endsWith('insta')) {
-    keyBuffer = '';
-    triggerOverclockParty();
-  }
-});
 
 window.addEventListener('mousemove', e => {
   mouseX = e.clientX;
@@ -2405,12 +2256,12 @@ requestAnimationFrame(renderCursor);
 // Cursor hover scale and tooltip badge
 const interactiveSelectors = 'button, a, input, select, .qc, .fc, .ec, .stp, #dz, .fi-rm, .si, .bsec, .bpri';
 document.addEventListener('mouseover', e => {
-  const target = e.target.closest(interactiveSelectors);
+  const target = e.target?.closest?.(interactiveSelectors);
   if (target) {
     document.body.classList.add('cursor-hover');
     
     // Check for custom cursor label
-    const labelEl = e.target.closest('[data-cursor-label]');
+    const labelEl = e.target?.closest?.('[data-cursor-label]');
     if (labelEl && cursorBadge && cursorBadgeText) {
       cursorBadgeText.textContent = labelEl.getAttribute('data-cursor-label');
       cursorBadge.classList.add('visible');
@@ -2418,7 +2269,7 @@ document.addEventListener('mouseover', e => {
   }
 });
 document.addEventListener('mouseout', e => {
-  const target = e.target.closest(interactiveSelectors);
+  const target = e.target?.closest?.(interactiveSelectors);
   if (target) {
     document.body.classList.remove('cursor-hover');
     if (cursorBadge) {
@@ -2476,7 +2327,7 @@ window.addEventListener('mousedown', e => {
   }
 
   // Easter Egg: Multi-Tap & Zero-G Check on Empty Space
-  const isInteractive = e.target.closest('button, a, input, select, .qc, .fc, .ec, #dz, .fi-rm, .si, .bsec, .bpri, label');
+  const isInteractive = e.target?.closest?.('button, a, input, select, .qc, .fc, .ec, #dz, .fi-rm, .si, .bsec, .bpri, label');
   if (!isInteractive) {
     const tapNow = performance.now();
     
@@ -2491,10 +2342,8 @@ window.addEventListener('mousedown', e => {
     // Check milestones for funny localized messages near cursor
     if (streakSec >= 10) {
       showTapSpeechBubble(e.clientX, e.clientY - 16, 'bs kr bhai 😂', true);
-      showEasterToast('🛑', 'bs kr bhai 😂', 2500);
     } else if (streakSec >= 5) {
       showTapSpeechBubble(e.clientX, e.clientY - 16, 'maza aarha hai na 😉', false);
-      showEasterToast('😉', 'maza aarha hai na', 2500);
     }
 
     tapHistory.push({ time: tapNow, x: e.clientX, y: e.clientY });
