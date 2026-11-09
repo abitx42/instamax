@@ -102,9 +102,24 @@ body{
     pointer-events: none;
     z-index: 9998;
     transform: translate(-50%, -50%);
-    transition: width 0.35s var(--spring), height 0.35s var(--spring), border-color 0.25s ease, background 0.25s ease, opacity 0.3s ease;
+    transition: width 0.32s var(--spring), height 0.32s var(--spring), border-color 0.25s ease, background 0.25s ease, box-shadow 0.3s ease, backdrop-filter 0.25s ease, opacity 0.3s ease;
     backdrop-filter: blur(3px) saturate(180%);
     will-change: transform;
+  }
+  /* Specular Glare Arc on Lens */
+  .cursor-ring::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 9px;
+    width: 9px;
+    height: 4.5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.75);
+    transform: rotate(-35deg);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
   }
   .cursor-ring-pulse {
     position: absolute;
@@ -195,6 +210,28 @@ body{
     100% { transform: scale(1.6); opacity: 0; }
   }
 
+  /* ── Magnifier Lens Active State on Text Hover ── */
+  body.cursor-magnify .cursor-ring {
+    width: 50px;
+    height: 50px;
+    border: 1.8px solid rgba(255, 255, 255, 0.9);
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(56, 189, 248, 0.09) 75%, rgba(56, 189, 248, 0.24) 100%);
+    backdrop-filter: blur(0.3px) brightness(1.22) contrast(1.16) saturate(1.35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
+                inset 0 1px 2px rgba(255, 255, 255, 0.9),
+                inset 0 0 14px rgba(56, 189, 248, 0.3),
+                0 0 25px rgba(56, 189, 248, 0.4);
+  }
+  body.cursor-magnify .cursor-ring::after {
+    opacity: 1;
+  }
+  body.cursor-magnify .cursor-dot {
+    width: 5px;
+    height: 5px;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.95), 0 0 16px var(--cyan);
+  }
+
   /* Cursor mousedown click state */
   body.cursor-down .cursor-ring {
     width: 26px;
@@ -214,6 +251,22 @@ body{
   body.cursor-hidden .cursor-badge {
     opacity: 0;
   }
+}
+
+/* Subtle Fish-Eye Optical Text Magnification */
+.fisheye-text {
+  display: inline-block;
+  transition: transform 0.22s var(--spring),
+              letter-spacing 0.22s ease,
+              filter 0.2s ease,
+              text-shadow 0.2s ease;
+  will-change: transform;
+}
+.fisheye-text.magnified {
+  transform: scale(1.055) translateZ(0);
+  letter-spacing: 0.012em;
+  filter: brightness(1.15);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.25);
 }
 
 /* Click Shockwave Ring */
@@ -332,12 +385,14 @@ body{
   background:linear-gradient(135deg, #ffffff 10%, #d8e5ff 45%, #a8c4ff 100%);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
+  margin-right:0.25em;
 }
 .hero h1 span.accent-glow{
   font-weight:600;
   background:linear-gradient(135deg, #ff7ab8 0%, #ff5277 50%, #fca545 100%);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
+  margin-left:0.25em;
 }
 .hero p{
   font-size:clamp(.92rem, 1.6vw, 1.05rem);
@@ -2159,6 +2214,32 @@ function initCardTilt() {
   });
 }
 initCardTilt();
+
+// ── SUBTLE FISH-EYE OPTICAL TEXT MAGNIFIER ──
+function initTextMagnifier() {
+  const textSelector = 'h1, h1 span, .hero p, .ctitle, .qc-title, .qc-sub, .fc-title, .fc-badge, .ec-title, .ec-sub, .sl, .sv, .si-sub, .dt, .ds, .dpill, .btn-go span, label, .tip span, .tip strong, .bsec, .bpri';
+  const textNodes = document.querySelectorAll(textSelector);
+
+  textNodes.forEach(node => {
+    node.classList.add('fisheye-text');
+    
+    node.addEventListener('mousemove', e => {
+      document.body.classList.add('cursor-magnify');
+      const rect = node.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      node.style.transformOrigin = `${x}px ${y}px`;
+      node.classList.add('magnified');
+    });
+
+    node.addEventListener('mouseleave', () => {
+      document.body.classList.remove('cursor-magnify');
+      node.classList.remove('magnified');
+      node.style.transformOrigin = '';
+    });
+  });
+}
+initTextMagnifier();
 
 // ── FORMAT DIMENSIONS MAP ──
 const FMT_DIMS = {
