@@ -46,7 +46,30 @@
   --radius-card:14px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+::selection {
+  background: transparent;
+  color: inherit;
+}
+::-moz-selection {
+  background: transparent;
+  color: inherit;
+}
+
+input, textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
 
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -60,6 +83,8 @@ body{
   position:relative;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ── INTERACTIVE CUSTOM CURSOR & STARDUST ENGINE ── */
@@ -2501,6 +2526,13 @@ document.addEventListener('mouseleave', () => {
   if (cursorBadge) cursorBadge.classList.remove('visible');
 });
 document.addEventListener('mouseenter', () => document.body.classList.remove('cursor-hidden'));
+
+// Prevent accidental text selection highlights anywhere on the app
+document.addEventListener('selectstart', e => {
+  if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+    e.preventDefault();
+  }
+});
 
 // ── 3D PERSPECTIVE TILT ON HOVER ──
 function initCardTilt() {
