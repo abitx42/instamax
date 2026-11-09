@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>InstaMax — Ultra-Quality Instagram AI Optimizer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -34,6 +35,9 @@
   --emerald-glow:rgba(16, 185, 129, 0.35);
   --warn:#fb923c;
   
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  
   --glow-cta: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 12px 44px rgba(214, 226, 255, 0.35), 0 0 85px rgba(120, 150, 255, 0.25);
   --glow-cta-hover: 0 0 0 1px #ffffff, 0 16px 50px rgba(214, 226, 255, 0.5), 0 0 100px rgba(140, 175, 255, 0.35);
   --glow-card: 0 30px 90px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -58,7 +62,187 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* Ambient backdrop lights (Jimo AI aesthetic) */
+/* ── INTERACTIVE CUSTOM CURSOR & STARDUST ENGINE ── */
+@media (pointer: fine) {
+  body {
+    cursor: default;
+  }
+  .cursor-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9996;
+  }
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    background: #ffffff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 0 22px var(--cyan);
+    transform: translate(-50%, -50%);
+    transition: width 0.2s var(--spring), height 0.2s var(--spring), background 0.2s ease, opacity 0.2s ease;
+    will-change: transform;
+  }
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.35s var(--spring), height 0.35s var(--spring), border-color 0.25s ease, background 0.25s ease, opacity 0.3s ease;
+    backdrop-filter: blur(3px) saturate(180%);
+    will-change: transform;
+  }
+  .cursor-ring-pulse {
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.3s ease;
+  }
+  .cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.09) 0%, rgba(168, 85, 247, 0.04) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.4s ease;
+    will-change: transform;
+  }
+  
+  /* Floating Cursor Reticle Badge */
+  .cursor-badge {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(5, 8, 18, 0.88);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 18px rgba(56, 189, 248, 0.3);
+    backdrop-filter: blur(14px);
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(22px, 20px) scale(0.8);
+    transition: opacity 0.25s var(--ease-out), transform 0.25s var(--spring);
+    will-change: transform, opacity;
+  }
+  .cursor-badge.visible {
+    opacity: 1;
+    transform: translate(22px, 20px) scale(1);
+  }
+  .cursor-badge .badge-icon {
+    color: var(--cyan);
+    font-size: 0.72rem;
+    animation: spinSlow 6s linear infinite;
+  }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Cursor hover state on interactive targets */
+  body.cursor-hover .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+    box-shadow: 0 0 16px var(--cyan);
+  }
+  body.cursor-hover .cursor-ring {
+    width: 56px;
+    height: 56px;
+    border-color: rgba(56, 189, 248, 0.75);
+    background: rgba(56, 189, 248, 0.08);
+    box-shadow: 0 0 35px rgba(56, 189, 248, 0.3), inset 0 0 16px rgba(56, 189, 248, 0.2);
+  }
+  body.cursor-hover .cursor-ring-pulse {
+    opacity: 1;
+    animation: pulseRing 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  }
+  @keyframes pulseRing {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* Cursor mousedown click state */
+  body.cursor-down .cursor-ring {
+    width: 26px;
+    height: 26px;
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.25);
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  body.cursor-down .cursor-dot {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  
+  /* Cursor hidden when leaving window */
+  body.cursor-hidden .cursor-dot,
+  body.cursor-hidden .cursor-ring,
+  body.cursor-hidden .cursor-glow,
+  body.cursor-hidden .cursor-badge {
+    opacity: 0;
+  }
+}
+
+/* Click Shockwave Ring */
+.click-shockwave {
+  position: fixed;
+  border-radius: 50%;
+  border: 1.5px solid rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  pointer-events: none;
+  z-index: 9997;
+  transform: translate(-50%, -50%);
+  animation: shockwaveExpand 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes shockwaveExpand {
+  0% {
+    width: 14px;
+    height: 14px;
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  100% {
+    width: 130px;
+    height: 130px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+}
+
+/* ── AMBIENT BACKDROP LIGHTS ── */
 .ambient-bg{
   position:fixed;
   inset:0;
@@ -84,6 +268,7 @@ body{
   height:650px;
   background:radial-gradient(ellipse at center, rgba(100, 145, 255, 0.15) 0%, rgba(131, 58, 180, 0.08) 45%, transparent 70%);
   filter:blur(60px);
+  animation:floatSlow 14s ease-in-out infinite alternate;
 }
 .ambient-light-2{
   position:absolute;
@@ -93,6 +278,7 @@ body{
   height:450px;
   background:radial-gradient(circle, rgba(193, 53, 132, 0.08) 0%, transparent 65%);
   filter:blur(70px);
+  animation:floatSlow2 18s ease-in-out infinite alternate;
 }
 .ambient-light-3{
   position:absolute;
@@ -102,6 +288,28 @@ body{
   height:400px;
   background:radial-gradient(circle, rgba(56, 189, 248, 0.07) 0%, transparent 65%);
   filter:blur(70px);
+  animation:floatSlow 16s ease-in-out infinite alternate-reverse;
+}
+@keyframes floatSlow{
+  0%{transform:translateX(-50%) translateY(0px) scale(1)}
+  100%{transform:translateX(-48%) translateY(25px) scale(1.05)}
+}
+@keyframes floatSlow2{
+  0%{transform:translateY(0px) scale(1)}
+  100%{transform:translateY(-30px) scale(1.08)}
+}
+
+/* ── STAGGERED ENTRANCE ANIMATION ── */
+.anim-fade-in{
+  animation:fadeInUp 0.7s var(--ease-out) both;
+}
+.anim-delay-1{animation-delay:0.1s}
+.anim-delay-2{animation-delay:0.2s}
+.anim-delay-3{animation-delay:0.3s}
+.anim-delay-4{animation-delay:0.4s}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 /* ── NAV / FLOATING BADGE ── */
@@ -117,6 +325,12 @@ body{
   backdrop-filter:blur(20px);
   margin-bottom:32px;
   z-index:2;
+  transition:all 0.3s var(--spring);
+}
+.top-nav:hover{
+  transform:translateY(-1px) scale(1.01);
+  border-color:rgba(255, 255, 255, 0.2);
+  box-shadow:0 16px 36px rgba(0,0,0,.5), 0 0 20px rgba(56, 189, 248, 0.15);
 }
 .status-dot{
   width:7px;
@@ -199,13 +413,26 @@ body{
   gap:8px;
   padding:10px 8px;
   border-radius:13px;
-  transition:all .25s ease;
+  transition:all 0.3s var(--spring);
   position:relative;
+  cursor:pointer;
+}
+.stp:hover{
+  background:rgba(255, 255, 255, 0.04);
+}
+.stp:active{
+  transform:scale(0.96);
 }
 .stp.active{
   background:rgba(255, 255, 255, 0.08);
   border:1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 4px 14px rgba(0,0,0,.3);
+  animation:stepBounce 0.4s var(--spring);
+}
+@keyframes stepBounce{
+  0%{transform:scale(0.92)}
+  50%{transform:scale(1.04)}
+  100%{transform:scale(1)}
 }
 .snum{
   width:22px;
@@ -219,7 +446,7 @@ body{
   font-size:.72rem;
   font-weight:600;
   color:var(--text-dim);
-  transition:all .25s ease;
+  transition:all 0.3s var(--spring);
 }
 .stp.active .snum{
   background:#ffffff;
@@ -253,10 +480,14 @@ body{
   padding:28px 30px;
   margin-bottom:18px;
   box-shadow:var(--glow-card);
-  backdrop-filter:blur(24px) saturate(150%);
+  backdrop-filter:blur(28px) saturate(160%);
   position:relative;
   z-index:2;
   overflow:hidden;
+  transition:border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s var(--spring);
+}
+.jlp-window:hover{
+  border-color:rgba(255, 255, 255, 0.14);
 }
 
 /* Spotlight flashlight effect that follows cursor */
@@ -264,18 +495,32 @@ body{
   content:'';
   position:absolute;
   inset:0;
-  background:radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 0), rgba(120, 160, 255, 0.07), transparent 40%);
+  background:radial-gradient(650px circle at var(--mouse-x, 50%) var(--mouse-y, 0), rgba(120, 160, 255, 0.08), transparent 45%);
   pointer-events:none;
 }
 
-/* Hairline highlight on top border */
+/* Hairline highlight with sweeping reflection */
 .jlp-window-edge{
   position:absolute;
   inset-x:24px;
   top:0;
   height:1px;
-  background:linear-gradient(90deg, transparent 5%, rgba(190, 215, 255, 0.45) 50%, transparent 95%);
+  background:linear-gradient(90deg, transparent 5%, rgba(190, 215, 255, 0.5) 50%, transparent 95%);
   pointer-events:none;
+}
+.jlp-window-edge::after{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation:sweepBeam 6s ease-in-out infinite;
+}
+@keyframes sweepBeam{
+  0%, 40%{left:-100%}
+  70%, 100%{left:100%}
 }
 
 .ctitle{
@@ -296,6 +541,7 @@ body{
   background:linear-gradient(135deg, var(--cyan), var(--violet));
   box-shadow:0 0 8px rgba(56, 189, 248, 0.6);
   flex-shrink:0;
+  animation:pulse 2s infinite ease-in-out;
 }
 
 /* ── DROP ZONE ── */
@@ -305,15 +551,19 @@ body{
   padding:42px 24px;
   text-align:center;
   cursor:pointer;
-  transition:all .25s ease;
+  transition:all 0.35s var(--spring);
   position:relative;
   overflow:hidden;
   background:rgba(255, 255, 255, 0.015);
 }
 #dz:hover, #dz.over{
-  border-color:rgba(255, 255, 255, 0.4);
-  background:rgba(255, 255, 255, 0.04);
-  box-shadow:0 0 40px rgba(120, 160, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-color:rgba(56, 189, 248, 0.6);
+  background:rgba(56, 189, 248, 0.035);
+  box-shadow:0 0 45px rgba(56, 189, 248, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform:scale(1.008);
+}
+#dz:active{
+  transform:scale(0.99);
 }
 #dz input{
   position:absolute;
@@ -324,9 +574,13 @@ body{
   height:100%;
 }
 .di{
-  font-size:2.6rem;
+  font-size:2.8rem;
   margin-bottom:10px;
-  filter:drop-shadow(0 6px 16px rgba(120, 160, 255, 0.3));
+  filter:drop-shadow(0 6px 18px rgba(120, 160, 255, 0.35));
+  transition:transform 0.35s var(--spring);
+}
+#dz:hover .di{
+  transform:scale(1.15) rotate(-5deg);
 }
 .dt{
   font-size:1.05rem;
@@ -351,6 +605,12 @@ body{
   font-weight:500;
   color:var(--text-dim);
   border:1px solid var(--border-subtle);
+  transition:all 0.2s ease;
+}
+#dz:hover .dpill{
+  background:rgba(56, 189, 248, 0.12);
+  border-color:rgba(56, 189, 248, 0.3);
+  color:var(--cyan);
 }
 
 /* File preview */
@@ -364,6 +624,12 @@ body{
   padding:14px 16px;
   margin-top:14px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  animation:popBounce 0.4s var(--spring);
+}
+@keyframes popBounce{
+  0%{transform:scale(0.9);opacity:0}
+  70%{transform:scale(1.03)}
+  100%{transform:scale(1);opacity:1}
 }
 .fi-ic{font-size:1.8rem}
 .fi-info strong{
@@ -390,12 +656,13 @@ body{
   align-items:center;
   justify-content:center;
   font-size:.85rem;
-  transition:all .2s;
+  transition:all 0.25s var(--spring);
 }
 .fi-rm:hover{
-  background:rgba(244, 63, 94, 0.2);
+  background:rgba(244, 63, 94, 0.25);
   border-color:var(--rose);
   color:#ff90a0;
+  transform:scale(1.15) rotate(90deg);
 }
 
 /* Source probe HUD */
@@ -407,6 +674,7 @@ body{
   border-radius:14px;
   border:1px solid var(--border-subtle);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  animation:popBounce 0.45s var(--spring);
 }
 .pb-row{
   display:flex;
@@ -435,7 +703,7 @@ body{
 }
 
 /* ══════════════════════════════════════════════════════
-   STEP 2 REDESIGN: CREATIVE, VISUAL, INTERACTIVE
+   STEP 2 INTERACTIVE CARDS: BOUNCY SPRING PHYSICS
    ══════════════════════════════════════════════════════ */
 
 /* ── 1. QUALITY PRESETS: VISUAL TIERS WITH METERS ── */
@@ -451,7 +719,7 @@ body{
   border:1px solid var(--border-subtle);
   background:rgba(16, 21, 36, 0.45);
   cursor:pointer;
-  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  transition:transform 0.3s var(--spring), border-color 0.25s ease, background 0.25s ease, box-shadow 0.3s var(--spring);
   text-align:left;
   position:relative;
   overflow:hidden;
@@ -460,15 +728,27 @@ body{
   gap:6px;
 }
 .qc:hover{
-  border-color:rgba(255, 255, 255, 0.28);
+  border-color:rgba(255, 255, 255, 0.3);
   background:rgba(255, 255, 255, 0.04);
-  transform:translateY(-2px);
+  transform:translateY(-3px) scale(1.015);
+  box-shadow:0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.qc:active{
+  transform:scale(0.96) !important;
+  transition-duration:0.1s;
 }
 .qc.selected{
-  border-color:rgba(255, 255, 255, 0.85);
-  background:rgba(255, 255, 255, 0.07);
-  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 30px rgba(120, 160, 255, 0.16);
+  border-color:rgba(255, 255, 255, 0.9);
+  background:rgba(255, 255, 255, 0.08);
+  box-shadow:0 14px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 30px rgba(120, 160, 255, 0.18);
+  animation:bounceSelect 0.4s var(--spring);
 }
+@keyframes bounceSelect{
+  0%{transform:scale(0.95)}
+  60%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+
 .qc-header{
   display:flex;
   align-items:center;
@@ -481,6 +761,7 @@ body{
   letter-spacing:.6px;
   padding:2px 7px;
   border-radius:var(--radius-pill);
+  transition:all 0.25s var(--spring);
 }
 .qc[data-q="best"] .qc-badge{
   background:rgba(251, 191, 36, 0.18);
@@ -509,14 +790,14 @@ body{
   width:3px;
   border-radius:2px;
   background:rgba(255, 255, 255, 0.15);
-  transition:all .2s;
+  transition:height 0.3s var(--spring), background 0.2s ease;
 }
 .meter-bar.b1{height:5px}
 .meter-bar.b2{height:8px}
 .meter-bar.b3{height:12px}
-.qc[data-q="best"] .meter-bar{background:var(--gold)}
-.qc[data-q="great"] .meter-bar.b1, .qc[data-q="great"] .meter-bar.b2{background:var(--cyan)}
-.qc[data-q="good"] .meter-bar.b1{background:var(--violet)}
+.qc[data-q="best"] .meter-bar{background:var(--gold);box-shadow:0 0 6px rgba(251, 191, 36, 0.5)}
+.qc[data-q="great"] .meter-bar.b1, .qc[data-q="great"] .meter-bar.b2{background:var(--cyan);box-shadow:0 0 6px rgba(56, 189, 248, 0.5)}
+.qc[data-q="good"] .meter-bar.b1{background:var(--violet);box-shadow:0 0 6px rgba(168, 85, 247, 0.5)}
 
 .qc-title{
   font-size:.9rem;
@@ -544,7 +825,7 @@ body{
   border:1px solid var(--border-subtle);
   background:rgba(16, 21, 36, 0.45);
   cursor:pointer;
-  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  transition:transform 0.3s var(--spring), border-color 0.25s ease, background 0.25s ease, box-shadow 0.3s var(--spring);
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -553,17 +834,22 @@ body{
   position:relative;
 }
 .fc:hover{
-  border-color:rgba(255, 255, 255, 0.3);
+  border-color:rgba(255, 255, 255, 0.35);
   background:rgba(255, 255, 255, 0.04);
-  transform:translateY(-2px);
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.fc:active{
+  transform:scale(0.96) !important;
+  transition-duration:0.1s;
 }
 .fc.selected{
   border-color:rgba(255, 255, 255, 0.9);
   background:rgba(255, 255, 255, 0.08);
-  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 25px rgba(56, 189, 248, 0.2);
+  box-shadow:0 14px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 28px rgba(56, 189, 248, 0.25);
+  animation:bounceSelect 0.4s var(--spring);
 }
 
-/* Wireframe Shape Miniature container */
 .shape-preview-wrap{
   height:44px;
   display:flex;
@@ -574,41 +860,111 @@ body{
   border:1.5px solid rgba(255, 255, 255, 0.25);
   border-radius:4px;
   background:rgba(255, 255, 255, 0.04);
-  transition:all .25s ease;
+  transition:all 0.35s var(--spring);
   position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-/* Specific aspect ratio dimensions */
 .shape-reels{
   width:22px;
   height:38px;
   border-radius:5px;
+  position:relative;
+  overflow:hidden;
 }
-.shape-reels::before{
-  content:'';
+.shape-notch{
   position:absolute;
   top:2px;
+  left:50%;
+  transform:translateX(-50%);
   width:7px;
   height:2px;
-  background:rgba(255, 255, 255, 0.35);
+  background:rgba(255, 255, 255, 0.4);
   border-radius:2px;
+  transition:background 0.3s ease;
+  z-index:2;
 }
+.shape-scanline{
+  position:absolute;
+  top:4px;
+  left:0;
+  right:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+  box-shadow:0 0 6px var(--cyan);
+  opacity:0.6;
+  animation:reelScan 2.4s ease-in-out infinite;
+  z-index:1;
+}
+@keyframes reelScan{
+  0%{top:4px;opacity:0}
+  20%{opacity:0.95}
+  80%{opacity:0.95}
+  100%{top:32px;opacity:0}
+}
+.shape-homebar{
+  position:absolute;
+  bottom:2px;
+  left:50%;
+  transform:translateX(-50%);
+  width:9px;
+  height:1.5px;
+  background:rgba(255, 255, 255, 0.3);
+  border-radius:1px;
+  z-index:2;
+}
+.fc.selected .shape-notch,
+.fc.selected .shape-homebar{
+  background:var(--cyan);
+}
+
 .shape-feed{
   width:26px;
   height:32px;
   border-radius:4px;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:3px;
 }
+.shape-feed-dots{
+  display:flex;
+  gap:2.5px;
+}
+.sfd{
+  width:2px;
+  height:2px;
+  border-radius:50%;
+  background:rgba(255, 255, 255, 0.35);
+  transition:background 0.25s ease;
+}
+.fc.selected .sfd:first-child{
+  background:var(--cyan);
+}
+
 .shape-square{
   width:28px;
   height:28px;
   border-radius:4px;
+  position:relative;
 }
+.shape-grid-cross{
+  position:absolute;
+  inset:4px;
+  border:1px dashed rgba(255, 255, 255, 0.2);
+  border-radius:2px;
+}
+
 .shape-landscape{
   width:38px;
   height:22px;
   border-radius:4px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .shape-landscape::after{
   content:'';
@@ -618,15 +974,28 @@ body{
   height:2px;
   background:rgba(255, 255, 255, 0.25);
   border-radius:1px;
+  transition:background 0.3s ease;
+}
+.shape-play-triangle{
+  width:0;
+  height:0;
+  border-top:3px solid transparent;
+  border-bottom:3px solid transparent;
+  border-left:5px solid rgba(255, 255, 255, 0.6);
+  margin-left:1px;
+  transition:border-left-color 0.25s ease;
+}
+.fc.selected .shape-play-triangle{
+  border-left-color:var(--cyan);
 }
 
 /* Active wireframe glow */
 .fc.selected .shape-box{
   border-color:var(--cyan);
-  background:linear-gradient(180deg, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0.05) 100%);
-  box-shadow:0 0 14px rgba(56, 189, 248, 0.5), inset 0 0 8px rgba(56, 189, 248, 0.3);
+  background:linear-gradient(180deg, rgba(56, 189, 248, 0.3) 0%, rgba(56, 189, 248, 0.08) 100%);
+  box-shadow:0 0 16px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.35);
+  transform:scale(1.08);
 }
-.fc.selected .shape-reels::before{background:var(--cyan)}
 .fc.selected .shape-landscape::after{background:var(--cyan)}
 
 .fc-title{
@@ -643,6 +1012,7 @@ body{
   border-radius:4px;
   background:rgba(255, 255, 255, 0.06);
   color:var(--text-dim);
+  transition:all 0.25s ease;
 }
 .fc.selected .fc-badge{
   background:rgba(56, 189, 248, 0.18);
@@ -653,7 +1023,7 @@ body{
 /* ── 3. INTERACTIVE INSTAGRAM SAFE ZONE OVERLAY WIDGET ── */
 .sz-btn-trigger{
   width:100%;
-  padding:10px 14px;
+  padding:11px 14px;
   border-radius:12px;
   border:1px solid rgba(56, 189, 248, 0.25);
   background:rgba(56, 189, 248, 0.05);
@@ -665,19 +1035,29 @@ body{
   align-items:center;
   justify-content:center;
   gap:8px;
-  transition:all .2s;
+  transition:all 0.3s var(--spring);
   margin-bottom:20px;
 }
 .sz-btn-trigger:hover{
-  background:rgba(56, 189, 248, 0.1);
-  border-color:rgba(56, 189, 248, 0.45);
-  box-shadow:0 0 20px rgba(56, 189, 248, 0.15);
+  background:rgba(56, 189, 248, 0.12);
+  border-color:rgba(56, 189, 248, 0.5);
+  box-shadow:0 0 25px rgba(56, 189, 248, 0.2);
+  transform:translateY(-1px);
+}
+.sz-btn-trigger:active{
+  transform:scale(0.98);
 }
 
 .sz-wrap{
   position:relative;
   margin-bottom:20px;
   display:none;
+  transform-origin:top center;
+  animation:springOpen 0.45s var(--spring);
+}
+@keyframes springOpen{
+  0%{opacity:0;transform:scaleY(0.8) translateY(-10px)}
+  100%{opacity:1;transform:scaleY(1) translateY(0)}
 }
 .sz-canvas{
   width:100%;
@@ -689,10 +1069,9 @@ body{
   overflow:hidden;
   border:2px solid rgba(255, 255, 255, 0.15);
   position:relative;
-  box-shadow:0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.12);
+  box-shadow:0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.15);
 }
 
-/* Simulated Instagram UI Overlays */
 .ig-top-header{
   position:absolute;
   top:0;
@@ -803,7 +1182,6 @@ body{
   line-height:1.3;
 }
 
-/* Green Safe Viewport Center */
 .sz-safe-viewport{
   position:absolute;
   top:14%;
@@ -853,7 +1231,7 @@ body{
   border:1px solid var(--border-subtle);
   background:rgba(16, 21, 36, 0.45);
   cursor:pointer;
-  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  transition:transform 0.3s var(--spring), border-color 0.25s ease, background 0.25s ease, box-shadow 0.3s var(--spring);
   text-align:left;
   position:relative;
   overflow:hidden;
@@ -862,23 +1240,30 @@ body{
   gap:6px;
 }
 .ec:hover{
-  border-color:rgba(255, 255, 255, 0.3);
+  border-color:rgba(255, 255, 255, 0.35);
   background:rgba(255, 255, 255, 0.04);
-  transform:translateY(-2px);
+  transform:translateY(-3px) scale(1.015);
+  box-shadow:0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.ec:active{
+  transform:scale(0.96) !important;
+  transition-duration:0.1s;
 }
 
 /* Standard Mode selected */
 .ec[data-enh="standard"].selected{
   border-color:rgba(255, 255, 255, 0.9);
   background:rgba(255, 255, 255, 0.08);
-  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:0 14px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation:bounceSelect 0.4s var(--spring);
 }
 
 /* Cinema Mode selected (Amber / Gold Lens Flare) */
 .ec[data-enh="cinema"].selected{
   border-color:rgba(245, 158, 11, 0.85);
-  background:linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(20, 26, 42, 0.7) 100%);
-  box-shadow:0 12px 35px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(251, 191, 36, 0.4);
+  background:linear-gradient(180deg, rgba(245, 158, 11, 0.14) 0%, rgba(20, 26, 42, 0.7) 100%);
+  box-shadow:0 14px 35px rgba(0, 0, 0, 0.5), 0 0 32px rgba(245, 158, 11, 0.28), inset 0 1px 0 rgba(251, 191, 36, 0.45);
+  animation:bounceSelect 0.4s var(--spring);
 }
 .ec[data-enh="cinema"].selected::before{
   content:'';
@@ -893,8 +1278,9 @@ body{
 /* HDR Mode: Animated Prismatic Hologram Rim */
 .ec[data-enh="hlg"].selected{
   border-color:transparent;
-  background:linear-gradient(180deg, rgba(168, 85, 247, 0.15) 0%, rgba(14, 18, 32, 0.85) 100%);
-  box-shadow:0 12px 40px rgba(0, 0, 0, 0.6), 0 0 35px rgba(168, 85, 247, 0.35);
+  background:linear-gradient(180deg, rgba(168, 85, 247, 0.16) 0%, rgba(14, 18, 32, 0.85) 100%);
+  box-shadow:0 14px 40px rgba(0, 0, 0, 0.6), 0 0 38px rgba(168, 85, 247, 0.4);
+  animation:bounceSelect 0.4s var(--spring);
 }
 .ec[data-enh="hlg"].selected::before{
   content:'';
@@ -971,6 +1357,11 @@ body{
   margin-bottom:20px;
   box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.3);
   backdrop-filter:blur(16px);
+  transition:all 0.3s ease;
+}
+.telemetry-deck:hover{
+  border-color:rgba(255, 255, 255, 0.16);
+  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 14px 40px rgba(0, 0, 0, 0.4);
 }
 .telemetry-header{
   display:flex;
@@ -1021,11 +1412,12 @@ body{
   display:flex;
   flex-direction:column;
   gap:3px;
-  transition:all .2s;
+  transition:all 0.25s var(--spring);
 }
 .si:hover{
-  background:rgba(255, 255, 255, 0.04);
-  border-color:rgba(255, 255, 255, 0.12);
+  background:rgba(255, 255, 255, 0.06);
+  border-color:rgba(255, 255, 255, 0.18);
+  transform:translateY(-2px);
 }
 .sl{
   font-size:.58rem;
@@ -1044,6 +1436,32 @@ body{
   font-size:.6rem;
   color:var(--cyan);
   font-family:'JetBrains Mono',monospace;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+/* Dancing Soundwave Bars in Audio Spec Tile */
+.soundwave-box{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  height:12px;
+  margin-left:4px;
+}
+.sw-bar{
+  width:2px;
+  border-radius:1px;
+  background:var(--cyan);
+  animation:audioWave 1.2s ease-in-out infinite;
+}
+.sw-bar:nth-child(1){animation-delay:0.1s;height:4px}
+.sw-bar:nth-child(2){animation-delay:0.3s;height:10px}
+.sw-bar:nth-child(3){animation-delay:0.5s;height:7px}
+.sw-bar:nth-child(4){animation-delay:0.2s;height:12px}
+@keyframes audioWave{
+  0%, 100%{transform:scaleY(0.4)}
+  50%{transform:scaleY(1.1)}
 }
 
 /* ── 6. DEVICE & DESTINATION SELECTORS ── */
@@ -1072,18 +1490,23 @@ select{
   font-family:inherit;
   appearance:none;
   outline:none;
-  transition:border-color .2s, box-shadow .2s;
+  transition:all 0.25s var(--spring);
   cursor:pointer;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
+select:hover{
+  border-color:rgba(255, 255, 255, 0.25);
+  background:rgba(22, 28, 46, 0.9);
+}
 select:focus{
   border-color:rgba(255, 255, 255, 0.4);
-  box-shadow:0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 20px rgba(120, 160, 255, 0.2);
+  box-shadow:0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 24px rgba(120, 160, 255, 0.25);
+  transform:translateY(-1px);
 }
 
 /* Progress HUD */
 .pbg{
-  height:7px;
+  height:8px;
   background:rgba(255, 255, 255, 0.08);
   border-radius:var(--radius-pill);
   overflow:hidden;
@@ -1096,8 +1519,20 @@ select:focus{
   width:0;
   background:linear-gradient(90deg, #38bdf8, #818cf8, #f43f5e, #fbbf24);
   border-radius:var(--radius-pill);
-  transition:width .5s ease;
-  box-shadow:0 0 16px rgba(56, 189, 248, 0.7);
+  transition:width 0.5s ease;
+  box-shadow:0 0 18px rgba(56, 189, 248, 0.8);
+  position:relative;
+}
+.pfill::after{
+  content:'';
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:12px;
+  background:#ffffff;
+  border-radius:50%;
+  box-shadow:0 0 12px #ffffff;
 }
 .plbl{
   font-size:.78rem;
@@ -1123,7 +1558,7 @@ select:focus{
   display:none;
 }
 
-/* Primary CTA Button (Iconic Jimo lit white button) */
+/* Primary CTA Button (Iconic Jimo lit white button with spring bounce) */
 .btn-go{
   width:100%;
   padding:15px;
@@ -1141,20 +1576,37 @@ select:focus{
   justify-content:center;
   gap:9px;
   box-shadow:var(--glow-cta);
-  transition:all .22s cubic-bezier(.16, 1, .3, 1);
+  transition:all 0.3s var(--spring);
   margin-top:16px;
+  position:relative;
+  overflow:hidden;
+}
+.btn-go::after{
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform:rotate(25deg) translateY(-100%);
+  transition:transform 0.75s ease;
+}
+.btn-go:hover:not(:disabled)::after{
+  transform:rotate(25deg) translateY(100%);
 }
 .btn-go:hover:not(:disabled){
-  transform:translateY(-2px);
+  transform:translateY(-3px) scale(1.015);
   box-shadow:var(--glow-cta-hover);
 }
 .btn-go:active:not(:disabled){
-  transform:translateY(0);
+  transform:scale(0.97) translateY(0);
+  transition-duration:0.1s;
 }
 .btn-go:disabled{
   opacity:.32;
   cursor:not-allowed;
-  transform:none;
+  transform:none !important;
   box-shadow:none;
 }
 
@@ -1170,6 +1622,7 @@ select:focus{
   margin-top:12px;
   line-height:1.5;
   white-space:pre-wrap;
+  animation:popBounce 0.35s var(--spring);
 }
 
 /* Result card */
@@ -1186,6 +1639,7 @@ select:focus{
   margin-bottom:16px;
   position:relative;
   z-index:2;
+  animation:popBounce 0.5s var(--spring);
 }
 .rh{
   display:flex;
@@ -1238,7 +1692,7 @@ select:focus{
   background:linear-gradient(90deg, var(--emerald), var(--cyan));
   border-radius:var(--radius-pill);
   position:absolute;
-  transition:width 1.2s cubic-bezier(.16, 1, .3, 1);
+  transition:width 1.2s var(--ease-out);
   box-shadow:0 0 14px rgba(16, 185, 129, 0.6);
 }
 
@@ -1258,11 +1712,15 @@ select:focus{
   font-weight:600;
   font-family:inherit;
   cursor:pointer;
-  transition:all .2s;
+  transition:all 0.25s var(--spring);
 }
 .bsec:hover{
   background:rgba(255, 255, 255, 0.12);
   border-color:rgba(255, 255, 255, 0.3);
+  transform:translateY(-2px);
+}
+.bsec:active{
+  transform:scale(0.97);
 }
 .bpri{
   flex:1;
@@ -1276,296 +1734,64 @@ select:focus{
   font-family:inherit;
   cursor:pointer;
   box-shadow:0 0 25px rgba(255, 255, 255, 0.35);
-  transition:all .2s;
+  transition:all 0.25s var(--spring);
 }
 .bpri:hover{
-  transform:translateY(-1px);
+  transform:translateY(-2px);
   box-shadow:0 0 35px rgba(255, 255, 255, 0.5);
 }
-
-/* ── INGEST INTELLIGENCE BENTO GRID ── */
-.bento-container{
-  margin-top:10px;
-}
-.bento-grid{
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:12px;
-}
-@media (max-width:640px){
-  .bento-grid{grid-template-columns:1fr}
-  .bento-wide{grid-column:span 1 !important}
-}
-.bento-card{
-  background:rgba(14, 19, 34, 0.55);
-  border:1px solid rgba(255, 255, 255, 0.08);
-  border-radius:18px;
-  padding:18px 20px;
-  transition:all .25s cubic-bezier(.16, 1, .3, 1);
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  backdrop-filter:blur(16px);
-}
-.bento-card:hover{
-  border-color:rgba(255, 255, 255, 0.22);
-  background:rgba(255, 255, 255, 0.035);
-  transform:translateY(-2px);
-  box-shadow:0 16px 40px rgba(0, 0, 0, 0.45);
-}
-.bento-wide{
-  grid-column:span 2;
-}
-.bento-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:2px;
-}
-.bento-pill{
-  font-size:.62rem;
-  font-weight:700;
-  letter-spacing:.6px;
-  text-transform:uppercase;
-  padding:2px 8px;
-  border-radius:var(--radius-pill);
-  white-space:nowrap;
-  flex-shrink:0;
-}
-.bento-pill.emerald{
-  background:rgba(16, 185, 129, 0.16);
-  color:var(--emerald);
-  border:1px solid rgba(16, 185, 129, 0.35);
-}
-.bento-pill.cyan{
-  background:rgba(56, 189, 248, 0.16);
-  color:var(--cyan);
-  border:1px solid rgba(56, 189, 248, 0.35);
-}
-.bento-pill.gold{
-  background:rgba(251, 191, 36, 0.16);
-  color:var(--gold);
-  border:1px solid rgba(251, 191, 36, 0.35);
-}
-.bento-pill.violet{
-  background:rgba(168, 85, 247, 0.16);
-  color:var(--violet);
-  border:1px solid rgba(168, 85, 247, 0.35);
-}
-.bento-pill.rose{
-  background:rgba(244, 63, 94, 0.16);
-  color:var(--rose);
-  border:1px solid rgba(244, 63, 94, 0.35);
-}
-.bento-tag{
-  font-size:.62rem;
-  font-family:'JetBrains Mono',monospace;
-  color:var(--text-faint);
-  background:rgba(255, 255, 255, 0.05);
-  padding:2px 6px;
-  border-radius:4px;
-}
-.bento-title{
-  font-size:.94rem;
-  font-weight:700;
-  color:var(--text-main);
-  letter-spacing:-.015em;
-}
-.bento-sub{
-  font-size:.74rem;
-  color:var(--text-dim);
-  line-height:1.55;
+.bpri:active{
+  transform:scale(0.97);
 }
 
-/* VMAF Meter comparison in Bento 1 */
-.vmaf-meter-wrap{
+/* Tips */
+.tips{
+  max-width:680px;
+  width:100%;
   margin-top:8px;
-  padding:12px 14px;
-  background:rgba(8, 11, 20, 0.7);
-  border-radius:12px;
-  border:1px solid rgba(255, 255, 255, 0.06);
+  z-index:2;
 }
-.vmaf-row{
+.tip{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:.7rem;
-  margin-bottom:4px;
-}
-.vmaf-lbl{color:var(--text-dim);font-weight:500}
-.vmaf-val{font-weight:700;font-family:'JetBrains Mono',monospace}
-.vmaf-val.emerald{color:var(--emerald)}
-.vmaf-val.rose{color:#ff8598}
-.vmaf-track{
-  height:7px;
-  background:rgba(255, 255, 255, 0.08);
-  border-radius:var(--radius-pill);
-  overflow:hidden;
-}
-.vmaf-fill-best{
-  height:100%;
-  background:linear-gradient(90deg, var(--emerald), var(--cyan));
-  border-radius:var(--radius-pill);
-  box-shadow:0 0 10px rgba(16, 185, 129, 0.6);
-}
-.vmaf-fill-raw{
-  height:100%;
-  background:linear-gradient(90deg, #fb923c, #f43f5e);
-  border-radius:var(--radius-pill);
-}
-
-/* Pixel fusion diagram in Bento 2 */
-.pixel-fusion-graphic{
-  display:flex;
-  align-items:center;
   gap:12px;
-  margin-top:10px;
-  padding:10px 14px;
-  background:rgba(8, 11, 20, 0.7);
-  border-radius:12px;
-  border:1px solid rgba(255, 255, 255, 0.06);
-}
-.pixel-grid-4k{
-  display:grid;
-  grid-template-columns:repeat(2, 9px);
-  gap:4px;
-}
-.px-dot{
-  width:9px;
-  height:9px;
-  border-radius:2px;
-  background:var(--cyan);
-  box-shadow:0 0 6px var(--cyan);
-}
-.fusion-arrow{
-  font-size:.85rem;
-  color:var(--text-faint);
-}
-.pixel-box-1080{
-  width:22px;
-  height:22px;
-  border-radius:4px;
-  background:linear-gradient(135deg, var(--gold), #ff8533);
-  box-shadow:0 0 14px rgba(251, 191, 36, 0.6);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.px-core{
-  width:8px;
-  height:8px;
-  background:#fff;
-  border-radius:2px;
-}
-.fusion-desc{
-  font-size:.68rem;
+  padding:13px 16px;
+  background:rgba(12, 16, 28, 0.5);
+  border-radius:14px;
+  margin-bottom:8px;
+  font-size:.78rem;
   color:var(--text-dim);
-  font-family:'JetBrains Mono',monospace;
+  line-height:1.6;
+  border:1px solid var(--border-subtle);
+  backdrop-filter:blur(16px);
+  transition:all 0.25s var(--spring);
 }
-
-/* Hardware chips in Bento 3 */
-.hw-chip-row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:6px;
+.tip:hover{
+  border-color:rgba(255, 255, 255, 0.18);
+  background:rgba(18, 23, 40, 0.6);
+  transform:translateY(-2px);
 }
-.hw-chip{
-  font-size:.68rem;
-  font-weight:600;
-  padding:5px 10px;
-  border-radius:8px;
-  background:rgba(255, 255, 255, 0.06);
-  border:1px solid rgba(255, 255, 255, 0.1);
-  color:var(--text-main);
-  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Soundwave visualizer in Bento 4 */
-.soundwave-deck{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  height:32px;
-  padding:6px 12px;
-  background:rgba(8, 11, 20, 0.7);
-  border-radius:10px;
-  border:1px solid rgba(255, 255, 255, 0.06);
-  margin-top:6px;
-}
-.sw-bar{
-  flex:1;
-  background:linear-gradient(180deg, var(--violet), var(--cyan));
-  border-radius:3px;
-  height:8px;
-  animation:swBounce 1.2s infinite ease-in-out alternate;
-}
-@keyframes swBounce{
-  0%{height:4px}
-  100%{height:26px}
-}
-
-/* P2P buttons in Bento 5 */
-.p2p-links{
-  display:flex;
-  gap:8px;
-  margin-top:6px;
-}
-.p2p-btn{
-  flex:1;
-  padding:8px;
-  text-align:center;
-  border-radius:10px;
-  background:rgba(56, 189, 248, 0.1);
-  border:1px solid rgba(56, 189, 248, 0.3);
-  color:var(--cyan);
-  font-size:.72rem;
-  font-weight:600;
-  text-decoration:none;
-  transition:all .2s;
-}
-.p2p-btn:hover{
-  background:rgba(56, 189, 248, 0.2);
-  border-color:var(--cyan);
-  box-shadow:0 0 16px rgba(56, 189, 248, 0.3);
-}
-
-/* Checklist in Bento 6 */
-.checklist-deck{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-top:10px;
-}
-.check-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:9px 12px;
-  background:rgba(8, 11, 20, 0.7);
-  border-radius:10px;
-  border:1px solid rgba(255, 255, 255, 0.06);
-  font-size:.74rem;
-  color:var(--text-dim);
-}
-.check-item strong{color:var(--text-main)}
-.chk-box{
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  background:rgba(16, 185, 129, 0.2);
-  border:1px solid var(--emerald);
-  color:var(--emerald);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.65rem;
-  font-weight:800;
+.tip-i{
+  font-size:1.05rem;
   flex-shrink:0;
-  box-shadow:0 0 10px rgba(16, 185, 129, 0.4);
+  margin-top:1px;
+}
+.tip a{
+  color:var(--cyan);
+  text-decoration:none;
+  font-weight:500;
+}
+.tip a:hover{text-decoration:underline}
+.tip strong{
+  color:var(--text-main);
+  font-weight:600;
+}
+code{
+  background:rgba(255, 255, 255, 0.08);
+  border:1px solid rgba(255, 255, 255, 0.12);
+  padding:1px 6px;
+  border-radius:5px;
+  font-size:.82em;
+  color:var(--text-main);
 }
 
 .tool-warn{
@@ -1590,6 +1816,18 @@ select:focus{
 </head>
 <body>
 
+<!-- Interactive Custom Cursor & Micro-FX Engine -->
+<canvas id="cursor-canvas" class="cursor-canvas"></canvas>
+<div class="cursor-glow" id="cursor-glow"></div>
+<div class="cursor-ring" id="cursor-ring">
+  <div class="cursor-ring-pulse"></div>
+</div>
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-badge" id="cursor-badge">
+  <span class="badge-icon">✦</span>
+  <span class="badge-label" id="cursor-badge-text">ACTION</span>
+</div>
+
 <!-- Ambient Atmospheric Glows -->
 <div class="ambient-bg">
   <div class="ambient-mesh"></div>
@@ -1599,7 +1837,7 @@ select:focus{
 </div>
 
 <!-- TOP FLOATING STATUS NAV -->
-<div class="top-nav">
+<div class="top-nav anim-fade-in">
   <div class="status-dot"></div>
   <div class="nav-text">Engine <strong>FFmpeg 9 + ExifTool</strong> Active</div>
   <div style="width:1px;height:12px;background:var(--border-subtle)"></div>
@@ -1607,7 +1845,7 @@ select:focus{
 </div>
 
 <!-- HERO HEADER -->
-<div class="hero">
+<div class="hero anim-fade-in anim-delay-1">
   <h1>
     <span class="gradient-text">Studio Quality</span> for <span class="accent-glow">Instagram</span>
   </h1>
@@ -1623,7 +1861,7 @@ select:focus{
 </div>
 
 <!-- INTERACTIVE STEPS -->
-<div class="steps-wrap" id="steps">
+<div class="steps-wrap anim-fade-in anim-delay-2" id="steps">
   <div class="stp active" id="s1"><div class="snum">1</div><div class="slbl">Source</div></div>
   <div class="stp" id="s2"><div class="snum">2</div><div class="slbl">Settings</div></div>
   <div class="stp" id="s3"><div class="snum">3</div><div class="slbl">Optimize</div></div>
@@ -1631,7 +1869,7 @@ select:focus{
 </div>
 
 <!-- STEP 1 CARD: DROP -->
-<div class="jlp-window" id="card-step1">
+<div class="jlp-window anim-fade-in anim-delay-3" id="card-step1">
   <div class="jlp-window-edge"></div>
   <div class="ctitle"><span class="cdot"></span> Step 1 — Select High-Resolution Source</div>
   
@@ -1666,14 +1904,14 @@ select:focus{
 </div>
 
 <!-- STEP 2 CARD: CONFIG & ENHANCEMENT ENGINE -->
-<div class="jlp-window" id="card-step2">
+<div class="jlp-window anim-fade-in anim-delay-4" id="card-step2">
   <div class="jlp-window-edge"></div>
   
   <!-- Quality preset selector -->
   <div class="ctitle"><span class="cdot"></span> Mastering Quality Tier</div>
   <div class="q-cards" id="q-cards">
     <!-- Best -->
-    <div class="qc selected" data-q="best">
+    <div class="qc selected" data-q="best" data-cursor-label="CRF 18 · Near Lossless Pro">
       <div class="qc-header">
         <span class="qc-badge">PRO MASTER</span>
         <div class="qc-meter" title="Visual Fidelity Tier: Maximum">
@@ -1687,7 +1925,7 @@ select:focus{
     </div>
     
     <!-- Great -->
-    <div class="qc" data-q="great">
+    <div class="qc" data-q="great" data-cursor-label="CRF 20 · Studio Crisp">
       <div class="qc-header">
         <span class="qc-badge">BALANCED</span>
         <div class="qc-meter" title="Visual Fidelity Tier: High">
@@ -1701,7 +1939,7 @@ select:focus{
     </div>
     
     <!-- Fast -->
-    <div class="qc" data-q="good">
+    <div class="qc" data-q="good" data-cursor-label="CRF 23 · Fast Render">
       <div class="qc-header">
         <span class="qc-badge">TURBO</span>
         <div class="qc-meter" title="Visual Fidelity Tier: Standard">
@@ -1719,36 +1957,48 @@ select:focus{
   <div class="ctitle"><span class="cdot"></span> Target Aspect Ratio & Framing</div>
   <div class="fmt-cards" id="fmt-cards">
     <!-- Reels 9:16 -->
-    <div class="fc selected" data-fmt="reels">
+    <div class="fc selected" data-fmt="reels" data-cursor-label="9:16 · Reels Fullscreen">
       <div class="shape-preview-wrap">
-        <div class="shape-box shape-reels"></div>
+        <div class="shape-box shape-reels">
+          <div class="shape-notch"></div>
+          <div class="shape-scanline"></div>
+          <div class="shape-homebar"></div>
+        </div>
       </div>
       <div class="fc-title">Reels</div>
       <div class="fc-badge">9:16 · 1080×1920</div>
     </div>
     
     <!-- Feed 4:5 -->
-    <div class="fc" data-fmt="portrait">
+    <div class="fc" data-fmt="portrait" data-cursor-label="4:5 · Feed Portrait">
       <div class="shape-preview-wrap">
-        <div class="shape-box shape-feed"></div>
+        <div class="shape-box shape-feed">
+          <div class="shape-feed-dots">
+            <span class="sfd"></span><span class="sfd"></span><span class="sfd"></span>
+          </div>
+        </div>
       </div>
       <div class="fc-title">Feed</div>
       <div class="fc-badge">4:5 · 1080×1350</div>
     </div>
     
     <!-- Square 1:1 -->
-    <div class="fc" data-fmt="square">
+    <div class="fc" data-fmt="square" data-cursor-label="1:1 · Classic Square">
       <div class="shape-preview-wrap">
-        <div class="shape-box shape-square"></div>
+        <div class="shape-box shape-square">
+          <div class="shape-grid-cross"></div>
+        </div>
       </div>
       <div class="fc-title">Square</div>
       <div class="fc-badge">1:1 · 1080×1080</div>
     </div>
     
     <!-- Landscape 16:9 -->
-    <div class="fc" data-fmt="landscape">
+    <div class="fc" data-fmt="landscape" data-cursor-label="16:9 · IGTV Monitor">
       <div class="shape-preview-wrap">
-        <div class="shape-box shape-landscape"></div>
+        <div class="shape-box shape-landscape">
+          <div class="shape-play-triangle"></div>
+        </div>
       </div>
       <div class="fc-title">IGTV</div>
       <div class="fc-badge">16:9 · 1920×1080</div>
@@ -1756,7 +2006,7 @@ select:focus{
   </div>
 
   <!-- Interactive Instagram Safe Zone Guide Button -->
-  <button type="button" class="sz-btn-trigger" id="sz-toggle" onclick="toggleSafeZone()">
+  <button type="button" class="sz-btn-trigger" id="sz-toggle" onclick="toggleSafeZone()" data-cursor-label="Safe Zone Overlay 📐">
     <span>📐</span>
     <span id="sz-toggle-text">Preview Instagram UI Safe Zone Overlay</span>
   </button>
@@ -1799,7 +2049,7 @@ select:focus{
   <div class="ctitle"><span class="cdot"></span> Enhancement Mode</div>
   <div class="enh-cards" id="enh-cards">
     <!-- Standard -->
-    <div class="ec selected" data-enh="standard">
+    <div class="ec selected" data-enh="standard" data-cursor-label="BT.709 Broadcast 📺">
       <div class="ec-top">
         <span class="ec-pill">BROADCAST</span>
         <span style="font-size:1.1rem">📺</span>
@@ -1809,7 +2059,7 @@ select:focus{
     </div>
     
     <!-- Cinema -->
-    <div class="ec" data-enh="cinema">
+    <div class="ec" data-enh="cinema" data-cursor-label="Cinema Master 🎬">
       <div class="ec-top">
         <span class="ec-pill">FILM EDIT</span>
         <span style="font-size:1.1rem">🎬</span>
@@ -1819,7 +2069,7 @@ select:focus{
     </div>
     
     <!-- HDR HLG -->
-    <div class="ec" data-enh="hlg" id="enh-hlg">
+    <div class="ec" data-enh="hlg" id="enh-hlg" data-cursor-label="Rec.2100 HLG HDR ✨">
       <div class="ec-top">
         <span class="ec-pill">REC.2100 HLG</span>
         <span style="font-size:1.1rem">✨</span>
@@ -1870,7 +2120,15 @@ select:focus{
       <div class="si">
         <div class="sl">Audio Engine</div>
         <div class="sv">AAC · 48.0 kHz</div>
-        <div class="si-sub">-14 LUFS Norm</div>
+        <div class="si-sub">
+          -14 LUFS Norm
+          <div class="soundwave-box">
+            <div class="sw-bar"></div>
+            <div class="sw-bar"></div>
+            <div class="sw-bar"></div>
+            <div class="sw-bar"></div>
+          </div>
+        </div>
       </div>
       <div class="si">
         <div class="sl">Color Profile</div>
@@ -1939,162 +2197,31 @@ select:focus{
   </div>
 </div>
 
-<!-- ARCHITECTURAL INGEST INTELLIGENCE BENTO GRID -->
-<div class="jlp-window bento-container" id="card-bento">
-  <div class="sh">📐 Ingest Intelligence & Architecture</div>
-  <div class="ss">The scientific compression benchmarks and routing protocols powering InstaMax quality retention</div>
-
-  <div class="bento-grid">
-    <!-- Bento 1 (Hero Wide): VMAF Engine -->
-    <div class="bento-card bento-wide">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">🧠</span>
-          <span class="bento-title">Perceptual VMAF Quality Ladder</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="bento-pill emerald">LADDER TIER 1</span>
-          <span class="bento-tag">CRF 18</span>
-        </div>
-      </div>
-      <div class="bento-sub">
-        Instagram rates every upload using Netflix's VMAF (Video Multi-Method Assessment Fusion). Files scoring ≥ 95 VMAF are granted Instagram's top delivery ladder tier with maximum bitrate allocation. Unoptimized uploads score ~78 VMAF and receive brutal secondary compression crushing.
-      </div>
-      <div class="vmaf-meter-wrap">
-        <div class="vmaf-row">
-          <span class="vmaf-lbl">InstaMax Master (CRF 18 · Lanczos-3)</span>
-          <span class="vmaf-val emerald">98.4 / 100 VMAF · Top Tier Bitrate</span>
-        </div>
-        <div class="vmaf-track" style="margin-bottom:8px">
-          <div class="vmaf-fill-best" style="width:98.4%"></div>
-        </div>
-        <div class="vmaf-row">
-          <span class="vmaf-lbl">Unconstrained Raw Upload (50Mbps+ 4K)</span>
-          <span class="vmaf-val rose">78.2 / 100 VMAF · Secondary Crushed</span>
-        </div>
-        <div class="vmaf-track">
-          <div class="vmaf-fill-raw" style="width:78.2%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bento 2: Optical Sub-Pixel Fusion -->
-    <div class="bento-card">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">🔬</span>
-          <span class="bento-title">Lanczos Optical Fusion</span>
-        </div>
-        <span class="bento-pill cyan">LANCZOS-3</span>
-      </div>
-      <div class="bento-sub">
-        Downscaling 4K to 1080p via 3-lobed sinc convolution condenses 4 physical camera sensor pixels into 1 ultra-sharp destination pixel, wiping out aliasing and moiré.
-      </div>
-      <div class="pixel-fusion-graphic">
-        <div class="pixel-grid-4k">
-          <div class="px-dot"></div><div class="px-dot"></div>
-          <div class="px-dot"></div><div class="px-dot"></div>
-        </div>
-        <span class="fusion-arrow">➔</span>
-        <div class="pixel-box-1080">
-          <div class="px-core"></div>
-        </div>
-        <div class="fusion-desc">4:1 Downsampling<br>Nyquist Filtered</div>
-      </div>
-    </div>
-
-    <!-- Bento 3: Hardware Signature Routing -->
-    <div class="bento-card">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">👑</span>
-          <span class="bento-title">Flagship Signature Spoofing</span>
-        </div>
-        <span class="bento-pill gold">VIP INGEST</span>
-      </div>
-      <div class="bento-sub">
-        Meta's ingestion servers inspect QuickTime & MP4 metadata. Files carrying authentic flagship device signatures bypass generic transcode buckets.
-      </div>
-      <div class="hw-chip-row">
-        <span class="hw-chip"> iPhone 17 Pro Max · iOS 26</span>
-        <span class="hw-chip">⚡ Galaxy S26 Ultra · One UI 8</span>
-        <span class="hw-chip">💎 Pixel 9 Pro · Tensor G4</span>
-      </div>
-    </div>
-
-    <!-- Bento 4: Acoustic Broadcast Engine -->
-    <div class="bento-card">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">🎵</span>
-          <span class="bento-title">Broadcast Acoustic Engine</span>
-        </div>
-        <span class="bento-pill violet">48 kHz · -14 LUFS</span>
-      </div>
-      <div class="bento-sub">
-        Instagram normalizes audio to -14 LUFS. InstaMax targets this exact broadcast ceiling at 48,000 Hz AAC, eliminating Meta's aggressive dynamic limiter pumping.
-      </div>
-      <div class="soundwave-deck">
-        <div class="sw-bar" style="animation-delay:0.05s;animation-duration:1.1s"></div>
-        <div class="sw-bar" style="animation-delay:0.25s;animation-duration:1.4s"></div>
-        <div class="sw-bar" style="animation-delay:0.12s;animation-duration:0.9s"></div>
-        <div class="sw-bar" style="animation-delay:0.42s;animation-duration:1.3s"></div>
-        <div class="sw-bar" style="animation-delay:0.18s;animation-duration:1.0s"></div>
-        <div class="sw-bar" style="animation-delay:0.35s;animation-duration:1.5s"></div>
-        <div class="sw-bar" style="animation-delay:0.08s;animation-duration:1.2s"></div>
-        <div class="sw-bar" style="animation-delay:0.28s;animation-duration:0.8s"></div>
-        <div class="sw-bar" style="animation-delay:0.48s;animation-duration:1.4s"></div>
-        <div class="sw-bar" style="animation-delay:0.15s;animation-duration:1.1s"></div>
-        <div class="sw-bar" style="animation-delay:0.38s;animation-duration:1.3s"></div>
-        <div class="sw-bar" style="animation-delay:0.22s;animation-duration:1.0s"></div>
-      </div>
-    </div>
-
-    <!-- Bento 5: P2P Zero-Loss Transfer -->
-    <div class="bento-card">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">📡</span>
-          <span class="bento-title">Zero-Loss P2P Protocol</span>
-        </div>
-        <span class="bento-pill rose">NO RE-ENCODING</span>
-      </div>
-      <div class="bento-sub">
-        Never transfer via WhatsApp, Telegram, or email — messaging channels compress video and erase hardware EXIF tags. Transfer bit-for-bit over local Wi-Fi:
-      </div>
-      <div class="p2p-links">
-        <a href="https://localsend.org" target="_blank" rel="noopener" class="p2p-btn">⚡ LocalSend (App)</a>
-        <a href="https://snapdrop.net" target="_blank" rel="noopener" class="p2p-btn">🌐 Snapdrop (Web P2P)</a>
-      </div>
-    </div>
-
-    <!-- Bento 6 (Hero Wide): Pre-Flight Checklist -->
-    <div class="bento-card bento-wide">
-      <div class="bento-top">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.15rem">🚀</span>
-          <span class="bento-title">Mobile Ingest Pre-Flight Checklist</span>
-        </div>
-        <span class="bento-pill emerald">VERIFIED PROTOCOL</span>
-      </div>
-      <div class="bento-sub">
-        Before uploading on Instagram, verify these three essential client settings to prevent the Instagram app from forcing low-bandwidth re-compression:
-      </div>
-      <div class="checklist-deck">
-        <div class="check-item">
-          <div class="chk-box">✓</div>
-          <div><strong>Upload at Highest Quality:</strong> In Instagram, navigate to <em>Profile → ☰ Menu → Settings and activity → Media quality</em> → toggle <strong>"Upload at highest quality" ON</strong>.</div>
-        </div>
-        <div class="check-item">
-          <div class="chk-box">✓</div>
-          <div><strong>Data Saver Disabled:</strong> In the same menu, ensure <strong>"Use less cellular data" is set to OFF</strong> to avoid network-side bit throttling.</div>
-        </div>
-        <div class="check-item">
-          <div class="chk-box">✓</div>
-          <div><strong>Native Mobile App Upload:</strong> Always publish directly through the official iOS or Android app — uploading via Desktop Web or Meta Business Suite enforces a legacy 720p 30fps transcode bucket.</div>
-        </div>
-      </div>
-    </div>
+<!-- TIPS & INSIGHTS -->
+<div class="tips anim-fade-in anim-delay-4">
+  <div class="tip">
+    <span class="tip-i">🧠</span>
+    <span><strong>Why CRF 18?</strong> Constant Rate Factor 18 is visually lossless. Instagram evaluates your upload with VMAF (perceptual quality). A high-VMAF source triggers Instagram's top delivery ladder tier with maximum bitrate.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">🔬</span>
+    <span><strong>Lanczos Super-Sampling:</strong> Downscaling 4K to 1080p via 3-lobed Lanczos packs 4 real sensor pixels into 1 crisp destination pixel, generating cleaner micro-edges than native 1080p recording.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">👑</span>
+    <span><strong>Flagship Profiles (iPhone 17 Pro Max / Galaxy S26 Ultra):</strong> Ingest servers prioritize top hardware signatures. Injecting an authentic profile routes the file through the cleanest encoding pipeline.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">🎵</span>
+    <span><strong>Audio at 48 kHz / -14 LUFS:</strong> 48 kHz is Instagram's native audio broadcast standard. -14 LUFS matches Instagram's loudness target so your sound never gets dynamically crushed.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📡</span>
+    <span><strong>Zero-Loss Transfer:</strong> Transfer the output to your phone using <a href="https://localsend.org" target="_blank">LocalSend</a> or <a href="https://snapdrop.net" target="_blank">Snapdrop</a>. Never use WhatsApp or Telegram as they strip metadata and re-encode.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📱</span>
+    <span><strong>Android Upload Setting:</strong> In Instagram: <strong>Profile → ☰ → Settings → Media Quality → "Upload at Highest Quality" = ON</strong>, Data Saver = OFF.</span>
   </div>
 </div>
 
@@ -2107,18 +2234,222 @@ let selectedEnh  = 'standard';
 let jobId        = null;
 let processStart = 0;
 
-// Spotlight cursor tracking across cards
-document.querySelectorAll('.jlp-window').forEach(card => {
-  card.addEventListener('mousemove', e => {
+// ── FLUID MAGNETIC CUSTOM CURSOR & STARDUST SPARKLE ENGINE ──
+const cursorDot       = document.getElementById('cursor-dot');
+const cursorRing      = document.getElementById('cursor-ring');
+const cursorGlow      = document.getElementById('cursor-glow');
+const cursorBadge     = document.getElementById('cursor-badge');
+const cursorBadgeText = document.getElementById('cursor-badge-text');
+const cursorCanvas    = document.getElementById('cursor-canvas');
+
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let prevMouseX = mouseX;
+let prevMouseY = mouseY;
+let ringX = mouseX;
+let ringY = mouseY;
+let glowX = mouseX;
+let glowY = mouseY;
+let badgeX = mouseX;
+let badgeY = mouseY;
+let isMouseActive = false;
+
+// Stardust particles pool
+const particles = [];
+const PARTICLE_COLORS = [
+  '#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#34d399', '#fbbf24', '#ffffff'
+];
+
+let ctx = null;
+if (cursorCanvas) {
+  ctx = cursorCanvas.getContext('2d');
+  function resizeCanvas() {
+    cursorCanvas.width = window.innerWidth;
+    cursorCanvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+}
+
+function spawnParticle(x, y, speedMult = 1) {
+  if (particles.length > 36) return;
+  const angle = Math.random() * Math.PI * 2;
+  const speed = (0.6 + Math.random() * 1.8) * speedMult;
+  particles.push({
+    x: x,
+    y: y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    size: 1.5 + Math.random() * 2.2,
+    alpha: 0.85 + Math.random() * 0.15,
+    color: PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+    life: 1.0,
+    decay: 0.025 + Math.random() * 0.035
+  });
+}
+
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (!isMouseActive) {
+    isMouseActive = true;
+    document.body.classList.remove('cursor-hidden');
+  }
+  // Move dot instantly for zero-latency feel
+  if (cursorDot) {
+    cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+  }
+  
+  // Calculate mouse speed for stardust spawn
+  const dist = Math.hypot(mouseX - prevMouseX, mouseY - prevMouseY);
+  if (dist > 4 && Math.random() > 0.3) {
+    spawnParticle(mouseX, mouseY, Math.min(dist / 10, 1.8));
+  }
+  prevMouseX = mouseX;
+  prevMouseY = mouseY;
+
+  // Spotlight tracking across all cards
+  document.querySelectorAll('.jlp-window, .bento-card').forEach(card => {
     const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    card.style.setProperty('--mouse-x', `${x}px`);
-    card.style.setProperty('--mouse-y', `${y}px`);
+    if (
+      e.clientX >= rect.left - 60 &&
+      e.clientX <= rect.right + 60 &&
+      e.clientY >= rect.top - 60 &&
+      e.clientY <= rect.bottom + 60
+    ) {
+      card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+      card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    }
   });
 });
 
-// Format dimensions map (mirrors backend OUTPUT_FORMATS)
+// Smooth fluid spring interpolation loop for cursor ring, badge & stardust
+function renderCursor() {
+  // Spring lerp
+  ringX += (mouseX - ringX) * 0.2;
+  ringY += (mouseY - ringY) * 0.2;
+  glowX += (mouseX - glowX) * 0.08;
+  glowY += (mouseY - glowY) * 0.08;
+  badgeX += (mouseX - badgeX) * 0.24;
+  badgeY += (mouseY - badgeY) * 0.24;
+
+  if (cursorRing) {
+    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+  }
+  if (cursorGlow) {
+    cursorGlow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0) translate(-50%, -50%)`;
+  }
+  if (cursorBadge) {
+    cursorBadge.style.left = `${badgeX}px`;
+    cursorBadge.style.top = `${badgeY}px`;
+  }
+
+  // Draw stardust particles
+  if (ctx && cursorCanvas) {
+    ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+      p.alpha *= 0.95;
+      p.size *= 0.96;
+
+      if (p.life <= 0 || p.alpha <= 0.05 || p.size <= 0.3) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  requestAnimationFrame(renderCursor);
+}
+requestAnimationFrame(renderCursor);
+
+// Cursor hover scale and tooltip badge
+const interactiveSelectors = 'button, a, input, select, .qc, .fc, .ec, .stp, #dz, .fi-rm, .sz-btn-trigger, .si, .bento-card';
+document.addEventListener('mouseover', e => {
+  const target = e.target.closest(interactiveSelectors);
+  if (target) {
+    document.body.classList.add('cursor-hover');
+    
+    // Check for custom cursor label
+    const labelEl = e.target.closest('[data-cursor-label]');
+    if (labelEl && cursorBadge && cursorBadgeText) {
+      cursorBadgeText.textContent = labelEl.getAttribute('data-cursor-label');
+      cursorBadge.classList.add('visible');
+    }
+  }
+});
+document.addEventListener('mouseout', e => {
+  const target = e.target.closest(interactiveSelectors);
+  if (target) {
+    document.body.classList.remove('cursor-hover');
+    if (cursorBadge) {
+      cursorBadge.classList.remove('visible');
+    }
+  }
+});
+
+// Cursor mousedown click squish & shockwave
+window.addEventListener('mousedown', e => {
+  document.body.classList.add('cursor-down');
+  
+  // Spawn shockwave ring
+  const shockwave = document.createElement('div');
+  shockwave.className = 'click-shockwave';
+  shockwave.style.left = `${e.clientX}px`;
+  shockwave.style.top = `${e.clientY}px`;
+  document.body.appendChild(shockwave);
+  setTimeout(() => shockwave.remove(), 600);
+  
+  // Burst of stardust particles
+  for (let i = 0; i < 6; i++) {
+    spawnParticle(e.clientX, e.clientY, 2.2);
+  }
+});
+window.addEventListener('mouseup', () => document.body.classList.remove('cursor-down'));
+document.addEventListener('mouseleave', () => {
+  document.body.classList.add('cursor-hidden');
+  if (cursorBadge) cursorBadge.classList.remove('visible');
+});
+document.addEventListener('mouseenter', () => document.body.classList.remove('cursor-hidden'));
+
+// ── 3D PERSPECTIVE TILT ON HOVER ──
+function initCardTilt() {
+  const tiltCards = document.querySelectorAll('.qc, .fc, .ec, .bento-card');
+  tiltCards.forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotX = (((y - centerY) / centerY) * -5).toFixed(2);
+      const rotY = (((x - centerX) / centerX) * 5).toFixed(2);
+      
+      card.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-2px)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+initCardTilt();
+
+// ── FORMAT DIMENSIONS MAP ──
 const FMT_DIMS = {
   reels:     {w:1080, h:1920, ar:'9:16'},
   portrait:  {w:1080, h:1350, ar:'4:5'},
@@ -2164,7 +2495,7 @@ function step(n) {
   }
 }
 
-// ── Quality cards ──
+// ── Quality cards with spring click ──
 document.querySelectorAll('.qc').forEach(el=>{
   el.addEventListener('click',()=>{
     document.querySelectorAll('.qc').forEach(x=>x.classList.remove('selected'));
@@ -2173,7 +2504,7 @@ document.querySelectorAll('.qc').forEach(el=>{
   });
 });
 
-// ── Format cards ──
+// ── Format cards with spring click ──
 document.querySelectorAll('.fc').forEach(el=>{
   el.addEventListener('click',()=>{
     document.querySelectorAll('.fc').forEach(x=>x.classList.remove('selected'));
@@ -2184,7 +2515,7 @@ document.querySelectorAll('.fc').forEach(el=>{
   });
 });
 
-// ── Enhancement cards ──
+// ── Enhancement cards with spring click ──
 document.querySelectorAll('.ec').forEach(el=>{
   el.addEventListener('click',()=>{
     if (el.dataset.disabled === 'true') return;

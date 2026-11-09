@@ -222,7 +222,11 @@ def run_ffmpeg_with_progress(cmd, job_id, duration_secs, label="Compressing…")
 # ─────────────────────────────────────────────
 @app.route("/")
 def index():
-    return send_from_directory("static", "index.html")
+    resp = send_from_directory("static", "index.html")
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 
 @app.route("/api/check")
