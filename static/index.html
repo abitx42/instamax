@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>InstaMax — Compress & Boost</title>
+<style>
+:root{
+  --bg:#09090f;--s1:#12121c;--s2:#1a1a28;--b:#252535;
+  --text:#eeeef5;--muted:#7777a0;
+  --acc:#c13584;--a2:#833ab4;--a3:#fd1d1d;--gold:#fcaf45;
+  --green:#2ed573;--warn:#ffa502;--r:13px;
+  --shadow:0 12px 50px rgba(0,0,0,.65);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 14px 72px;
+}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.logo{
+  width:50px;height:50px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(from 180deg,#833ab4,#c13584,#fd1d1d,#fcaf45,#833ab4);
+  display:flex;align-items:center;justify-content:center;
+}
+.logo svg{width:26px;height:26px;fill:#fff}
+.ht h1{font-size:1.5rem;font-weight:700;letter-spacing:-.4px}
+.ht p{font-size:.74rem;color:var(--muted);margin-top:2px}
+
+/* ── STEPS ── */
+.steps{display:flex;width:100%;max-width:640px;margin-bottom:24px}
+.stp{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.stp::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:var(--b);z-index:0}
+.stp:last-child::after{display:none}
+.snum{
+  width:30px;height:30px;border-radius:50%;background:var(--s2);border:2px solid var(--b);
+  display:flex;align-items:center;justify-content:center;font-size:.77rem;font-weight:700;
+  z-index:1;position:relative;transition:all .3s;
+}
+.stp.active .snum{background:var(--acc);border-color:var(--acc)}
+.stp.done   .snum{background:var(--green);border-color:var(--green);color:#000;font-size:.85rem}
+.slbl{font-size:.59rem;color:var(--muted);margin-top:5px;text-align:center}
+.stp.active .slbl{color:var(--text)}
+
+/* ── CARD ── */
+.card{
+  width:100%;max-width:640px;background:var(--s1);
+  border:1px solid var(--b);border-radius:var(--r);
+  padding:22px 24px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+.ctitle{
+  font-size:.64rem;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;
+}
+.cdot{width:6px;height:6px;border-radius:50%;background:conic-gradient(#833ab4,#fd1d1d,#fcaf45);flex-shrink:0}
+
+/* ── DROP ZONE ── */
+#dz{
+  border:2px dashed var(--b);border-radius:11px;padding:36px 20px;
+  text-align:center;cursor:pointer;transition:.2s;position:relative;overflow:hidden;
+}
+#dz:hover,#dz.over{border-color:var(--acc);background:rgba(193,53,132,.06)}
+#dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.di{font-size:2.4rem;margin-bottom:7px}
+.dt{font-size:.96rem;font-weight:600;margin-bottom:4px}
+.ds{font-size:.74rem;color:var(--muted)}
+.dpill{
+  display:inline-block;margin-top:10px;padding:3px 10px;border-radius:20px;
+  background:var(--s2);font-size:.67rem;color:var(--muted);border:1px solid var(--b);
+}
+/* File preview */
+#fp{display:none;align-items:center;gap:11px;background:var(--s2);border-radius:9px;padding:12px 14px;margin-top:12px}
+.fi-ic{font-size:1.6rem}
+.fi-info strong{display:block;font-size:.88rem}
+.fi-info span{font-size:.7rem;color:var(--muted)}
+.fi-rm{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;transition:color .2s}
+.fi-rm:hover{color:var(--a3)}
+
+/* Source probe badge */
+#probe-badge{
+  display:none;margin-top:10px;padding:11px 14px;
+  background:var(--s2);border-radius:9px;border:1px solid var(--b);
+}
+.pb-row{display:flex;gap:16px;flex-wrap:wrap}
+.pb-item{display:flex;flex-direction:column;gap:2px}
+.pb-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted)}
+.pb-val{font-size:.88rem;font-weight:700;color:var(--gold)}
+
+/* ── SETTINGS ── */
+.row{display:flex;gap:12px;margin-bottom:14px}
+.col{flex:1}
+label{font-size:.74rem;color:var(--muted);display:block;margin-bottom:5px}
+select{
+  width:100%;padding:10px 13px;background:var(--s2);border:1px solid var(--b);
+  border-radius:8px;color:var(--text);font-size:.87rem;appearance:none;
+  outline:none;transition:border-color .2s;cursor:pointer;
+}
+select:focus{border-color:var(--acc)}
+
+/* Quality cards / Format cards */
+.q-cards,.fmt-cards{display:flex;gap:8px;margin-bottom:14px}
+.qc,.fc{
+  flex:1;padding:11px 10px;border-radius:9px;border:2px solid var(--b);
+  background:var(--s2);cursor:pointer;transition:.2s;text-align:center;
+}
+.qc:hover,.fc:hover{border-color:var(--muted)}
+.qc.selected,.fc.selected{border-color:var(--acc);background:rgba(193,53,132,.1)}
+.qc-title,.fc-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
+.qc-sub,.fc-sub{font-size:.65rem;color:var(--muted)}
+.qc.selected .qc-title,.fc.selected .fc-title{color:var(--acc)}
+
+/* Safe zone overlay */
+.sz-wrap{position:relative;margin-top:12px;display:none}
+
+/* Enhancement mode cards */
+.enh-cards{display:flex;gap:8px;margin-bottom:14px}
+.ec{flex:1;padding:11px 10px;border-radius:9px;border:2px solid var(--b);background:var(--s2);cursor:pointer;transition:.2s;text-align:center}
+.ec:hover{border-color:var(--muted)}
+.ec.selected{border-color:var(--gold);background:rgba(252,175,69,.08)}
+.ec-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
+.ec-sub{font-size:.6rem;color:var(--muted);line-height:1.4}
+.ec.selected .ec-title{color:var(--gold)}
+.ec[data-disabled="true"]{opacity:.4;cursor:not-allowed;border-color:var(--b)}
+.sz-canvas{width:100%;aspect-ratio:9/16;background:var(--s2);border-radius:9px;overflow:hidden;border:1px solid var(--b);position:relative;max-height:300px}
+.sz-zone{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.sz-top{top:0;height:14%;background:rgba(253,29,29,.35);color:#ff9090}
+.sz-bot{bottom:0;height:35%;background:rgba(253,29,29,.35);color:#ff9090}
+.sz-right{position:absolute;top:0;bottom:0;right:0;width:10%;background:rgba(253,29,29,.25);display:flex;align-items:center;justify-content:center}
+.sz-right span{font-size:.5rem;color:#ff9090;writing-mode:vertical-rl;text-transform:uppercase;letter-spacing:.5px}
+.sz-safe{position:absolute;top:14%;bottom:35%;left:0;right:10%;border:1.5px dashed var(--green);display:flex;align-items:center;justify-content:center}
+.sz-safe span{font-size:.65rem;color:var(--green);font-weight:700}
+.sz-toggle{font-size:.7rem;color:var(--acc);cursor:pointer;text-decoration:underline;margin-top:7px;display:inline-block}
+
+/* Export spec grid */
+.spec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
+.si{background:var(--s2);border-radius:8px;padding:10px 12px}
+.sl{font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:3px}
+.sv{font-size:.88rem;font-weight:700;color:var(--gold)}
+
+/* ── PROGRESS ── */
+.pbg{height:6px;background:var(--s2);border-radius:9px;overflow:hidden;margin-top:14px;display:none}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,#833ab4,#c13584,#fd1d1d,#fcaf45);border-radius:9px;transition:width .6s ease;animation:sh 2s infinite}
+@keyframes sh{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+.plbl{font-size:.74rem;color:var(--muted);margin-top:7px;text-align:center;display:none}
+.pstats{font-size:.7rem;color:var(--muted);margin-top:5px;text-align:center;display:none}
+.eta{font-size:.68rem;color:var(--gold);margin-top:3px;text-align:center;display:none}
+
+/* ── BUTTON ── */
+.btn-go{
+  width:100%;padding:14px;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#833ab4,#c13584,#fd1d1d);
+  color:#fff;font-size:.96rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:opacity .2s,transform .1s;margin-top:8px;
+}
+.btn-go:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+.btn-go:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* ── ERROR ── */
+.err{
+  display:none;background:rgba(253,29,29,.1);border:1px solid rgba(253,29,29,.35);
+  border-radius:8px;padding:11px 13px;font-size:.8rem;color:#ff7070;
+  margin-top:11px;line-height:1.5;white-space:pre-wrap;
+}
+
+/* ── RESULT ── */
+#res-card{
+  display:none;width:100%;max-width:640px;
+  background:var(--s1);border:1px solid var(--green);border-radius:var(--r);
+  padding:22px 24px;box-shadow:0 0 36px rgba(46,213,115,.13);
+}
+.rh{display:flex;align-items:center;gap:9px;font-size:1.05rem;font-weight:700;color:var(--green);margin-bottom:16px}
+.mrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--b);font-size:.85rem;
+}
+.mrow:last-of-type{border-bottom:none}
+.ml{color:var(--muted)}.mv{font-weight:600;color:var(--gold)}
+.mv.g{color:var(--green)}.mv.r{color:#ff7070}
+
+/* Size comparison bar */
+.size-compare{margin:12px 0 4px}
+.sc-label{font-size:.68rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.sc-bar-bg{height:9px;background:var(--s2);border-radius:9px;overflow:hidden;position:relative}
+.sc-bar-orig{height:100%;background:var(--muted);opacity:.4;border-radius:9px;position:absolute}
+.sc-bar-new{height:100%;background:linear-gradient(90deg,var(--green),var(--acc));border-radius:9px;position:absolute;transition:width 1.2s ease}
+
+.rbrow{display:flex;gap:9px;margin-top:16px}
+.bsec{flex:1;padding:11px;border-radius:8px;border:1px solid var(--b);background:var(--s2);color:var(--text);font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s}
+.bsec:hover{background:var(--b)}
+.bpri{flex:1;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#833ab4,#c13584);color:#fff;font-size:.84rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.bpri:hover{opacity:.85}
+
+/* ── TIPS ── */
+.tips{max-width:640px;width:100%;margin-top:6px}
+.tip{
+  display:flex;gap:9px;padding:10px 13px;background:var(--s2);border-radius:8px;
+  margin-bottom:7px;font-size:.77rem;color:var(--muted);line-height:1.55;border:1px solid var(--b);
+}
+.tip-i{font-size:.93rem;flex-shrink:0;margin-top:1px}
+.tip a{color:var(--acc);text-decoration:none}.tip a:hover{text-decoration:underline}
+.tip strong{color:var(--text)}
+code{background:var(--s2);border:1px solid var(--b);padding:1px 5px;border-radius:4px;font-size:.8em}
+
+/* ── TOOL WARNING ── */
+.tool-warn{
+  max-width:640px;width:100%;background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.3);
+  border-radius:10px;padding:11px 15px;font-size:.77rem;color:var(--warn);
+  margin-bottom:14px;line-height:1.6;
+}
+.tool-warn code{background:rgba(255,165,2,.1);border-color:rgba(255,165,2,.3);color:var(--warn)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  </div>
+  <div class="ht">
+    <h1>InstaMax</h1>
+    <p>4K → 1080p Ultra-Quality Compressor & Flagship Metadata Spoof for Instagram</p>
+  </div>
+</header>
+
+<!-- TOOL WARNING (shown if ffmpeg missing) -->
+<div class="tool-warn" id="tool-warn" style="display:none">
+  ⚠️  <strong>ffmpeg not found.</strong> Open Terminal and run:<br>
+  <code>brew install ffmpeg</code> — then refresh this page. (Takes ~2 min.)
+</div>
+
+<!-- STEPS -->
+<div class="steps" id="steps">
+  <div class="stp active" id="s1"><div class="snum">1</div><div class="slbl">Drop Video</div></div>
+  <div class="stp"        id="s2"><div class="snum">2</div><div class="slbl">Settings</div></div>
+  <div class="stp"        id="s3"><div class="snum">3</div><div class="slbl">Compress</div></div>
+  <div class="stp"        id="s4"><div class="snum">✓</div><div class="slbl">Done</div></div>
+</div>
+
+<!-- CARD: DROP -->
+<div class="card">
+  <div class="ctitle"><span class="cdot"></span> Step 1 — Drop Your 4K Video</div>
+  <div id="dz">
+    <input type="file" id="fi" accept=".mp4,.mov,.m4v,.mkv,.avi,.webm"/>
+    <div class="di">🎬</div>
+    <div class="dt">Drag & drop your 4K video here</div>
+    <div class="ds">or click to browse</div>
+    <div class="dpill">MP4 · MOV · M4V · MKV · AVI · WEBM &nbsp;(up to 10 GB)</div>
+  </div>
+  <div id="fp">
+    <div class="fi-ic">📹</div>
+    <div class="fi-info">
+      <strong id="fn">—</strong>
+      <span id="fsz">—</span>
+    </div>
+    <button class="fi-rm" id="frm">✕</button>
+  </div>
+  <!-- Source probe -->
+  <div id="probe-badge">
+    <div class="pb-row">
+      <div class="pb-item"><div class="pb-label">Resolution</div><div class="pb-val" id="pb-res">—</div></div>
+      <div class="pb-item"><div class="pb-label">Frame Rate</div><div class="pb-val" id="pb-fps">—</div></div>
+      <div class="pb-item"><div class="pb-label">Duration</div><div class="pb-val" id="pb-dur">—</div></div>
+      <div class="pb-item"><div class="pb-label">Codec</div><div class="pb-val" id="pb-codec">—</div></div>
+      <div class="pb-item"><div class="pb-label">File Size</div><div class="pb-val" id="pb-size">—</div></div>
+    </div>
+  </div>
+  <div class="err" id="d-err"></div>
+</div>
+
+<!-- CARD: CONFIG -->
+<div class="card">
+  <div class="ctitle"><span class="cdot"></span> Step 2 — Compression Quality</div>
+
+  <!-- Quality preset selector -->
+  <div class="q-cards" id="q-cards">
+    <div class="qc selected" data-q="best">
+      <div class="qc-title">🏆 Best</div>
+      <div class="qc-sub">CRF 18 · Slow encode<br>Near-lossless</div>
+    </div>
+    <div class="qc" data-q="great">
+      <div class="qc-title">⚡ Great</div>
+      <div class="qc-sub">CRF 20 · Slow encode<br>Excellent quality</div>
+    </div>
+    <div class="qc" data-q="good">
+      <div class="qc-title">🚀 Fast</div>
+      <div class="qc-sub">CRF 23 · Medium<br>Faster, still great</div>
+    </div>
+  </div>
+
+  <!-- Output format selector -->
+  <div class="ctitle" style="margin-top:4px"><span class="cdot"></span> Output Format</div>
+  <div class="fmt-cards" id="fmt-cards">
+    <div class="fc selected" data-fmt="reels">
+      <div class="fc-title">📱 Reels</div>
+      <div class="fc-sub">9:16<br>1080×1920</div>
+    </div>
+    <div class="fc" data-fmt="portrait">
+      <div class="fc-title">🖼️ Feed</div>
+      <div class="fc-sub">4:5<br>1080×1350</div>
+    </div>
+    <div class="fc" data-fmt="square">
+      <div class="fc-title">⬛ Square</div>
+      <div class="fc-sub">1:1<br>1080×1080</div>
+    </div>
+    <div class="fc" data-fmt="landscape">
+      <div class="fc-title">🖥️ IGTV</div>
+      <div class="fc-sub">16:9<br>1920×1080</div>
+    </div>
+  </div>
+
+  <!-- Safe Zone Visual Guide -->
+  <span class="sz-toggle" id="sz-toggle" onclick="toggleSafeZone()">📐 Show Instagram Safe Zone guide</span>
+  <div class="sz-wrap" id="sz-wrap">
+    <div class="sz-canvas" id="sz-canvas">
+      <div class="sz-top sz-zone">⚠ Top danger — navigation / header</div>
+      <div class="sz-safe"><span>✅ Safe Zone<br><small style="font-weight:400;font-size:.55rem">Keep text & logos here</small></span></div>
+      <div class="sz-right"><span>Buttons</span></div>
+      <div class="sz-bot sz-zone">⚠ Bottom danger — captions, handle, like/comment</div>
+    </div>
+    <div style="font-size:.65rem;color:var(--muted);margin-top:5px">
+      ⬆ Top 14% · Bottom 35% · Right 10% = covered by Instagram UI
+    </div>
+  </div>
+
+  <!-- Enhancement Mode -->
+  <div class="ctitle" style="margin-top:14px"><span class="cdot"></span> Enhancement Mode</div>
+  <div class="enh-cards" id="enh-cards">
+    <div class="ec selected" data-enh="standard">
+      <div class="ec-title">🎞️ Standard</div>
+      <div class="ec-sub">Optimised H.264<br>BT.709 SDR</div>
+    </div>
+    <div class="ec" data-enh="cinema">
+      <div class="ec-title">🎬 Cinema</div>
+      <div class="ec-sub">Denoise + Sharpen<br>Micro-contrast SDR</div>
+    </div>
+    <div class="ec" data-enh="hlg" id="enh-hlg">
+      <div class="ec-title">✨ HDR</div>
+      <div class="ec-sub">HLG / BT.2020<br>H.265 Main 10</div>
+    </div>
+  </div>
+  <div id="enh-hlg-warn" style="display:none;font-size:.7rem;color:var(--warn);margin-bottom:8px">
+    ⚠️ libx265 not available on this machine — HDR mode disabled
+  </div>
+  <div id="enh-hlg-note" style="display:none;font-size:.7rem;color:var(--muted);margin-bottom:10px;line-height:1.5">
+    ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). No gamut conversion is applied — this gives the encoder more headroom and survives Instagram's re-encode better. Full HDR display requires an iPhone 12+ or modern Android with an HDR screen.
+  </div>
+
+  <!-- Output spec summary (live update) -->
+  <div class="spec-grid">
+    <div class="si"><div class="sl">Output Resolution</div><div class="sv" id="spec-res">1080 × 1920</div></div>
+    <div class="si"><div class="sl">Frame Rate</div><div class="sv">≤ 30 fps</div></div>
+    <div class="si"><div class="sl">Codec</div><div class="sv" id="spec-codec">H.264 High</div></div>
+    <div class="si"><div class="sl">Scale Algorithm</div><div class="sv">Lanczos</div></div>
+    <div class="si"><div class="sl">Audio</div><div class="sv">AAC 256k / 48kHz</div></div>
+    <div class="si"><div class="sl">Color Space</div><div class="sv" id="spec-color">BT.709 sRGB</div></div>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <div class="col">
+      <label>Device Profile to Spoof</label>
+      <select id="dev"></select>
+    </div>
+    <div class="col">
+      <label>Save processed file to…</label>
+      <select id="odir">
+        <option value="downloads">Downloads</option>
+        <option value="desktop">Desktop</option>
+        <option value="same">Temp (same as app)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="pbg" id="pbg"><div class="pfill" id="pf"></div></div>
+  <div class="plbl" id="pl">Starting…</div>
+  <div class="pstats" id="pstats"></div>
+  <div class="eta" id="eta"></div>
+
+  <div class="err" id="p-err"></div>
+
+  <button class="btn-go" id="gobtn" disabled>
+    <span>🪄</span> Compress + Spoof + Save
+  </button>
+</div>
+
+<!-- RESULT -->
+<div id="res-card">
+  <div class="rh">✅ Done — Upload this to Instagram!</div>
+
+  <div class="size-compare">
+    <div class="sc-label">
+      <span>Original size</span><span>Compressed size</span>
+    </div>
+    <div class="sc-bar-bg">
+      <div class="sc-bar-orig" id="bar-orig" style="width:100%"></div>
+      <div class="sc-bar-new"  id="bar-new"  style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="mrow"><span class="ml">Original size</span> <span class="mv r" id="r-orig">—</span></div>
+  <div class="mrow"><span class="ml">Compressed size</span><span class="mv g" id="r-size">—</span></div>
+  <div class="mrow"><span class="ml">Size reduction</span> <span class="mv g" id="r-red">—</span></div>
+  <div class="mrow"><span class="ml">Output</span>          <span class="mv g" id="r-name">—</span></div>
+  <div class="mrow"><span class="ml">Resolution</span>      <span class="mv"   id="r-res">1080 × 1920</span></div>
+  <div class="mrow"><span class="ml">Make injected</span>   <span class="mv g" id="r-make">—</span></div>
+  <div class="mrow"><span class="ml">Model injected</span>  <span class="mv g" id="r-model">—</span></div>
+  <div class="mrow"><span class="ml">Codec / Mode</span>   <span class="mv g" id="r-codec">—</span></div>
+
+  <div class="rbrow">
+    <button class="bsec" id="bfind">📂 Show in Finder</button>
+    <button class="bpri" id="bnew">+ Process Another</button>
+  </div>
+</div>
+
+<!-- TIPS -->
+<div class="tips">
+  <div class="tip">
+    <span class="tip-i">🧠</span>
+    <span><strong>Why CRF 18?</strong> Constant Rate Factor 18 is considered "visually lossless" — it gives complex scenes more bits automatically. Instagram evaluates your upload using VMAF (perceptual quality scoring). A higher CRF source → better VMAF score → cleaner served video.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">🔬</span>
+    <span><strong>Lanczos scaling</strong> is the highest-quality downscale algorithm. It preserves sharp edges better than Bilinear or Bicubic when going from 4K to 1080p — same method professional broadcast tools use.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">🎵</span>
+    <span><strong>Audio at 48 kHz / -14 LUFS</strong> — 48 kHz is Instagram's native broadcast sample rate (no resampling needed). The loudness filter targets -14 LUFS, matching Instagram's normalisation target, so your audio isn't turned down or dynamically crushed post-upload.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📐</span>
+    <span><strong>Safe Zones matter.</strong> Instagram overlays your handle, caption, audio track, and like/comment/share buttons on top of the video. Keep all text, logos, and hooks inside the green safe zone (shown above) or nobody sees them.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📡</span>
+    <span><strong>Transfer without compression</strong> — Use <a href="https://localsend.org" target="_blank">LocalSend</a> or <a href="https://snapdrop.net" target="_blank">Snapdrop</a>. Never WhatsApp/Telegram — they re-compress and wipe metadata.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">📱</span>
+    <span><strong>Android Instagram</strong> — Before uploading: <strong>Profile → ☰ → Settings → Media Quality → "Upload at Highest Quality" = ON</strong>, Data Saver = OFF.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">👑</span>
+    <span><strong>Flagship Profiles (iPhone 17 Pro Max / Galaxy S26 Ultra)</strong> — Instagram gives priority ingestion bandwidth to top-tier hardware signatures. Injecting an iPhone 17 Pro Max or Samsung Galaxy S26 Ultra profile ensures Instagram routes the video into its best transcode profile.</span>
+  </div>
+  <div class="tip">
+    <span class="tip-i">🎬</span>
+    <span><strong>Cinema vs HDR Mode</strong> — Use <strong>Cinema</strong> for ultra-crisp movie/edit aesthetic (removes sensor noise + sharpens micro-details in SDR). Use <strong>HDR</strong> for vibrant HLG 10-bit playback with wide color on HDR-capable mobile displays.</span>
+  </div>
+</div>
+
+<script>
+let selectedFile = null;
+let outputPath   = '';
+let selectedQ    = 'best';
+let selectedFmt  = 'reels';
+let selectedEnh  = 'standard';
+let jobId        = null;
+let processStart = 0;
+
+// Format dimensions map (mirrors backend OUTPUT_FORMATS)
+const FMT_DIMS = {
+  reels:     {w:1080, h:1920, ar:'9:16'},
+  portrait:  {w:1080, h:1350, ar:'4:5'},
+  square:    {w:1080, h:1080, ar:'1:1'},
+  landscape: {w:1920, h:1080, ar:'16:9'},
+};
+
+// ── Init ──
+(async () => {
+  const c = await fetch('/api/check').then(r=>r.json()).catch(()=>({}));
+  if (!c.ffmpeg) {
+    document.getElementById('tool-warn').style.display = 'block';
+    document.getElementById('gobtn').title = 'ffmpeg required';
+  }
+  if (!c.exiftool) {
+    showErr('p-err', '⚠️ exiftool missing — run: brew install exiftool');
+  }
+  // Disable HDR card if libx265 not available
+  if (!c.has_x265) {
+    const hlgCard = document.getElementById('enh-hlg');
+    if (hlgCard) hlgCard.dataset.disabled = 'true';
+    document.getElementById('enh-hlg-warn').style.display = 'block';
+  }
+
+  // Load devices
+  const devs = await fetch('/api/devices').then(r=>r.json()).catch(()=>[]);
+  const sel  = document.getElementById('dev');
+  devs.forEach((d,i) => {
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    if (i===0) o.selected = true;
+    sel.appendChild(o);
+  });
+})();
+
+// ── Steps ──
+function step(n) {
+  for (let i=1;i<=4;i++){
+    const e=document.getElementById('s'+i);
+    e.classList.remove('active','done');
+    if(i<n) e.classList.add('done');
+    if(i===n) e.classList.add('active');
+  }
+}
+
+// ── Quality cards ──
+document.querySelectorAll('.qc').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.qc').forEach(x=>x.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedQ = el.dataset.q;
+  });
+});
+
+// ── Format cards ──
+document.querySelectorAll('.fc').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.fc').forEach(x=>x.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedFmt = el.dataset.fmt;
+    // Update safe zone canvas aspect ratio
+    const d = FMT_DIMS[selectedFmt] || FMT_DIMS.reels;
+    const canvas = document.getElementById('sz-canvas');
+    canvas.style.aspectRatio = `${d.w}/${d.h}`;
+    updateSafeZoneForFormat(selectedFmt);
+    // Update spec grid resolution
+    document.getElementById('spec-res').textContent = `${d.w} × ${d.h}`;
+  });
+});
+
+// ── Enhancement cards ──
+document.querySelectorAll('.ec').forEach(el=>{
+  el.addEventListener('click',()=>{
+    if (el.dataset.disabled === 'true') return;
+    document.querySelectorAll('.ec').forEach(x=>x.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedEnh = el.dataset.enh;
+    updateSpecGrid();
+    // Show/hide HDR info note
+    document.getElementById('enh-hlg-note').style.display =
+      selectedEnh === 'hlg' ? 'block' : 'none';
+  });
+});
+
+function updateSpecGrid() {
+  const codec = document.getElementById('spec-codec');
+  const color = document.getElementById('spec-color');
+  if (selectedEnh === 'hlg') {
+    if (codec) codec.textContent = 'H.265 Main 10';
+    if (color) color.textContent = 'HLG BT.2020';
+  } else if (selectedEnh === 'cinema') {
+    if (codec) codec.textContent = 'H.264 High';
+    if (color) color.textContent = 'BT.709 + Denoise';
+  } else {
+    if (codec) codec.textContent = 'H.264 High';
+    if (color) color.textContent = 'BT.709 sRGB';
+  }
+}
+
+function updateSafeZoneForFormat(fmt) {
+  const bot = document.querySelector('.sz-bot');
+  const right = document.querySelector('.sz-right');
+  if (fmt === 'landscape') {
+    bot.style.height = '20%';
+    right.style.width = '8%';
+  } else {
+    bot.style.height = '35%';
+    right.style.width = '10%';
+  }
+}
+
+function toggleSafeZone() {
+  const wrap = document.getElementById('sz-wrap');
+  const toggle = document.getElementById('sz-toggle');
+  const visible = wrap.style.display === 'block';
+  wrap.style.display = visible ? 'none' : 'block';
+  toggle.textContent = visible
+    ? '📐 Show Instagram Safe Zone guide'
+    : '📐 Hide Instagram Safe Zone guide';
+}
+
+// ── Drop zone ──
+const dz = document.getElementById('dz');
+const fi = document.getElementById('fi');
+
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0])});
+
+function handleFile(f) {
+  const ext = f.name.split('.').pop().toLowerCase();
+  const ok  = ['mp4','mov','m4v','mkv','avi','webm'].includes(ext);
+  if (!ok) { showErr('d-err',`Unsupported: .${ext}`); return; }
+  hideErr('d-err');
+  selectedFile = f;
+
+  document.getElementById('fn').textContent  = f.name;
+  document.getElementById('fsz').textContent = fmtSize(f.size);
+  document.getElementById('fp').style.display = 'flex';
+  dz.style.display = 'none';
+
+  document.getElementById('gobtn').disabled = false;
+  step(2);
+
+  // Show rough probe from filename/size (actual ffprobe happens server-side)
+  const badge = document.getElementById('probe-badge');
+  badge.style.display = 'block';
+  document.getElementById('pb-size').textContent  = fmtSize(f.size);
+  document.getElementById('pb-res').textContent   = '…';
+  document.getElementById('pb-fps').textContent   = '…';
+  document.getElementById('pb-dur').textContent   = '…';
+  document.getElementById('pb-codec').textContent = '…';
+}
+
+document.getElementById('frm').addEventListener('click', resetDrop);
+function resetDrop() {
+  selectedFile = null;
+  document.getElementById('fp').style.display    = 'none';
+  document.getElementById('probe-badge').style.display = 'none';
+  fi.value = '';
+  dz.style.display = 'block';
+  document.getElementById('gobtn').disabled = true;
+  step(1);
+}
+
+// ── Populate probe badge from probe data object ──
+function fillProbeBadge(p) {
+  if (!p) return;
+  const badge = document.getElementById('probe-badge');
+  badge.style.display = 'block';
+  document.getElementById('pb-res').textContent   = p.width && p.height ? `${p.width} × ${p.height}` : '—';
+  document.getElementById('pb-fps').textContent   = p.fps   ? `${p.fps} fps`   : '—';
+  document.getElementById('pb-dur').textContent   = p.duration ? fmtDur(p.duration) : '—';
+  document.getElementById('pb-codec').textContent = p.codec || '—';
+  if (p.size_mb) document.getElementById('pb-size').textContent = `${p.size_mb} MB`;
+}
+
+// ── PROCESS ──
+document.getElementById('gobtn').addEventListener('click', async () => {
+  if (!selectedFile) return;
+  hideErr('p-err');
+  step(3);
+  processStart = Date.now();
+
+  const btn = document.getElementById('gobtn');
+  btn.disabled = true;
+
+  const pbg  = document.getElementById('pbg');
+  const pf   = document.getElementById('pf');
+  const pl   = document.getElementById('pl');
+  const ps   = document.getElementById('pstats');
+  const etaEl = document.getElementById('eta');
+  pbg.style.display  = 'block';
+  pl.style.display   = 'block';
+  ps.style.display   = 'block';
+  etaEl.style.display = 'block';
+  pl.textContent  = 'Uploading…';
+  pf.style.width  = '3%';
+  etaEl.textContent = '';
+
+  // Generate job id
+  jobId = 'job_' + Date.now();
+
+  // Start SSE BEFORE uploading so we don't miss early events
+  startSSE(jobId);
+
+  // Build form data
+  const fd = new FormData();
+  fd.append('video',         selectedFile);
+  fd.append('device',        document.getElementById('dev').value);
+  fd.append('quality',       selectedQ);
+  fd.append('output_format', selectedFmt);
+  fd.append('output_dir',    document.getElementById('odir').value);
+  fd.append('job_id',        jobId);
+  fd.append('enhancement',   selectedEnh);
+
+  try {
+    const res  = await fetch('/api/process', {method:'POST', body: fd});
+    const data = await res.json();
+    if (!data.ok) {
+      showErr('p-err', data.error || 'Server error.');
+      btn.disabled = false;
+      return;
+    }
+    // Populate probe badge immediately from /api/process response
+    if (data.probe) fillProbeBadge(data.probe);
+    pl.textContent = 'Compressing…';
+  } catch (e) {
+    showErr('p-err', 'Upload failed: ' + e.message);
+    btn.disabled = false;
+  }
+});
+
+function startSSE(jid) {
+  const es = new EventSource(`/api/events/${jid}`);
+
+  es.addEventListener('probe', e => {
+    // Server-sent probe data (arrives early in do_work)
+    try { fillProbeBadge(JSON.parse(e.data)); } catch {}
+  });
+
+  es.addEventListener('progress', e => {
+    const d = JSON.parse(e.data);
+    const pct = d.pct || 0;
+    document.getElementById('pf').style.width  = pct + '%';
+    document.getElementById('pl').textContent  = d.label || 'Processing…';
+    document.getElementById('pstats').textContent = `${pct}% complete`;
+
+    // ETA calculation
+    if (pct > 5 && pct < 97 && processStart) {
+      const elapsed = (Date.now() - processStart) / 1000;
+      const totalEst = elapsed / (pct / 100);
+      const remaining = Math.max(0, Math.round(totalEst - elapsed));
+      document.getElementById('eta').textContent = remaining > 2
+        ? `~${remaining}s remaining` : 'Almost done…';
+    }
+  });
+
+  es.addEventListener('done', e => {
+    es.close();
+    const d = JSON.parse(e.data);
+    outputPath = d.output;
+
+    document.getElementById('pf').style.width = '100%';
+    document.getElementById('pl').textContent = '✅ Done!';
+    document.getElementById('pstats').textContent = `${d.size_mb} MB · ${d.width}×${d.height} · CRF ${d.crf}`;
+    document.getElementById('eta').textContent = '';
+
+    // Fill result card
+    document.getElementById('r-orig').textContent  = `${d.orig_mb} MB`;
+    document.getElementById('r-size').textContent  = `${d.size_mb} MB`;
+    document.getElementById('r-red').textContent   = `−${d.reduction}% smaller`;
+    document.getElementById('r-name').textContent  = d.filename;
+    document.getElementById('r-res').textContent   = `${d.width} × ${d.height}`;
+    document.getElementById('r-make').textContent  = d.make;
+    document.getElementById('r-model').textContent = d.model;
+
+    // Codec / Mode label
+    const codecLabels = {
+      hevc: 'H.265 HLG HDR (10-bit)',
+      h264: d.enhancement === 'cinema' ? 'H.264 Cinema Mode' : 'H.264 SDR',
+    };
+    document.getElementById('r-codec').textContent =
+      codecLabels[d.codec] || (d.codec ? d.codec.toUpperCase() : 'H.264');
+
+    // Size comparison bar
+    setTimeout(()=>{
+      document.getElementById('bar-new').style.width = Math.max(5, 100 - d.reduction) + '%';
+    }, 300);
+
+    document.getElementById('res-card').style.display = 'block';
+    document.getElementById('res-card').scrollIntoView({behavior:'smooth', block:'nearest'});
+    step(4);
+  });
+
+  es.addEventListener('error', e => {
+    es.close();
+    let msg = 'Processing failed.';
+    try { msg = JSON.parse(e.data).error || msg; } catch {}
+    showErr('p-err', msg);
+    document.getElementById('gobtn').disabled = false;
+    document.getElementById('eta').textContent = '';
+  });
+
+  es.onerror = () => {
+    // SSE connection closed normally after done/error — ignore
+  };
+}
+
+// Open finder
+document.getElementById('bfind').addEventListener('click', async () => {
+  await fetch('/api/open-folder', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({path: outputPath})
+  });
+});
+
+// New
+document.getElementById('bnew').addEventListener('click', () => {
+  outputPath = ''; jobId = null; processStart = 0;
+  document.getElementById('res-card').style.display = 'none';
+  document.getElementById('pbg').style.display    = 'none';
+  document.getElementById('pl').style.display     = 'none';
+  document.getElementById('pstats').style.display = 'none';
+  document.getElementById('eta').style.display    = 'none';
+  document.getElementById('pf').style.width       = '0%';
+  document.getElementById('bar-new').style.width  = '0%';
+  hideErr('p-err');
+  // Reset enhancement selection back to Standard
+  selectedEnh = 'standard';
+  document.querySelectorAll('.ec').forEach(x=>x.classList.remove('selected'));
+  const stdCard = document.querySelector('.ec[data-enh="standard"]');
+  if (stdCard) stdCard.classList.add('selected');
+  document.getElementById('enh-hlg-note').style.display = 'none';
+  updateSpecGrid();
+  resetDrop();
+});
+
+// Helpers
+function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+function hideErr(id){ document.getElementById(id).style.display='none'; }
+function fmtSize(b){
+  if(b<1024)       return b+' B';
+  if(b<1048576)    return (b/1024).toFixed(1)+' KB';
+  if(b<1073741824) return (b/1048576).toFixed(1)+' MB';
+  return (b/1073741824).toFixed(2)+' GB';
+}
+function fmtDur(s){
+  s = Math.round(s);
+  const m = Math.floor(s/60), sec = s%60;
+  return m ? `${m}m ${sec}s` : `${sec}s`;
+}
+</script>
+</body>
+</html>

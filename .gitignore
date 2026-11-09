@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Video files (avoid committing large media)
+*.mp4
+*.mov
+*.m4v
+*.mkv
+*.avi
+*.webm
+
+# Temporary folders
+/tmp/
+/instamax_tmp/
