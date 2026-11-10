@@ -2265,6 +2265,95 @@ code{
     <button class="bsec" id="bfind">📂 Reveal in Finder</button>
     <button class="bsec" id="bnew">+ Process Another</button>
   </div>
+
+  <!-- ── RE-EXPORT PANEL ───────────────────────────────────────────── -->
+  <div id="reexport-panel" style="display:none;margin-top:18px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
+    <button id="reexport-toggle" style="background:none;border:1.5px solid rgba(255,255,255,0.18);color:#a0a0b8;border-radius:10px;padding:9px 18px;cursor:pointer;font-size:13px;width:100%;text-align:left;display:flex;align-items:center;gap:8px;transition:border-color .2s,color .2s;">
+      <span>🔄</span>
+      <span>Re-export with Different Settings</span>
+      <span style="margin-left:auto;font-size:11px;" id="reexport-chevron">▼</span>
+    </button>
+    <div id="reexport-body" style="display:none;margin-top:14px;">
+      <div style="font-size:11px;color:#6b6b88;margin-bottom:12px;padding:8px 12px;background:rgba(99,91,255,0.08);border-radius:8px;border-left:3px solid #635bff;">
+        ⚡ Original file is cached — no re-upload needed. Pick any combination below and re-export instantly.
+      </div>
+
+      <!-- Enhancement -->
+      <div style="font-size:11px;color:#8080a0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Enhancement Mode</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <button class="rx-enh" data-enh="standard" style="padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#c0c0d8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s;">
+          <div style="font-weight:600;margin-bottom:2px;">Standard</div>
+          <div style="font-size:10px;color:#6b6b88;">H.264 BT.709</div>
+        </button>
+        <button class="rx-enh" data-enh="cinema" style="padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#c0c0d8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s;">
+          <div style="font-weight:600;margin-bottom:2px;">Cinema</div>
+          <div style="font-size:10px;color:#6b6b88;">Denoise + Sharpen</div>
+        </button>
+        <button class="rx-enh" data-enh="hlg" style="padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#c0c0d8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s;">
+          <div style="font-weight:600;margin-bottom:2px;">HDR 10-bit</div>
+          <div style="font-size:10px;color:#6b6b88;">H.265 HLG</div>
+        </button>
+        <button class="rx-enh" data-enh="4k_passthrough" style="padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#c0c0d8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s;">
+          <div style="font-weight:600;margin-bottom:2px;">4K Pass-Through</div>
+          <div style="font-size:10px;color:#6b6b88;">Strict CBR 12M</div>
+        </button>
+      </div>
+
+      <!-- Format & Quality row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:11px;color:#8080a0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Format</div>
+          <select id="rx-fmt" style="width:100%;background:#1a1a2e;border:1.5px solid rgba(255,255,255,0.1);color:#c8c8e0;padding:8px 10px;border-radius:9px;font-size:12px;">
+            <option value="reels">Reels / Stories 9:16</option>
+            <option value="portrait">Feed Portrait 4:5</option>
+            <option value="square">Square 1:1</option>
+            <option value="landscape">Landscape 16:9</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#8080a0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Quality</div>
+          <select id="rx-qual" style="width:100%;background:#1a1a2e;border:1.5px solid rgba(255,255,255,0.1);color:#c8c8e0;padding:8px 10px;border-radius:9px;font-size:12px;">
+            <option value="best">Best (CRF 18)</option>
+            <option value="great">Great (CRF 20)</option>
+            <option value="good">Good / Faster (CRF 23)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Device & Save row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:11px;color:#8080a0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Device Signature</div>
+          <select id="rx-dev" style="width:100%;background:#1a1a2e;border:1.5px solid rgba(255,255,255,0.1);color:#c8c8e0;padding:8px 10px;border-radius:9px;font-size:12px;"></select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#8080a0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Save To</div>
+          <select id="rx-odir" style="width:100%;background:#1a1a2e;border:1.5px solid rgba(255,255,255,0.1);color:#c8c8e0;padding:8px 10px;border-radius:9px;font-size:12px;">
+            <option value="downloads">Downloads Folder</option>
+            <option value="desktop">Desktop</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Film grain toggle (shows only for 4k_passthrough) -->
+      <div id="rx-grain-row" style="display:none;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <label class="toggle-switch" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="rx-grain-toggle" style="display:none;">
+          <span class="toggle-slider" id="rx-grain-slider" style="width:38px;height:20px;background:#333;border-radius:10px;position:relative;transition:background .2s;display:inline-block;">
+            <span style="position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;display:inline-block;" id="rx-grain-knob"></span>
+          </span>
+          <span style="font-size:12px;color:#a0a0b8;">Film Grain Dither</span>
+        </label>
+      </div>
+
+      <div id="rx-err" style="display:none;color:#ff6b6b;font-size:12px;margin-bottom:10px;padding:8px 12px;background:rgba(255,70,70,0.08);border-radius:8px;"></div>
+
+      <button id="rx-go" style="width:100%;padding:13px;background:linear-gradient(135deg,#635bff,#8b5cf6);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;">
+        <span>🔄</span> Re-export Now
+      </button>
+    </div>
+  </div>
+  <!-- ──────────────────────────────────────────────────────────────── -->
 </div>
 
 <!-- TIPS & INSIGHTS -->
@@ -2323,6 +2412,7 @@ let selectedFmt  = 'reels';
 let selectedEnh  = 'standard';
 let jobId        = null;
 let processStart = 0;
+let currentSessionId = null;  // tracks uploaded original for re-export
 
 // ── FLUID MAGNETIC CUSTOM CURSOR & STARDUST SPARKLE ENGINE ──
 const cursorDot       = document.getElementById('cursor-dot');
@@ -3188,6 +3278,16 @@ function startSSE(jid) {
       document.getElementById('bar-new').style.width = Math.max(5, 100 - d.reduction) + '%';
     }, 300);
 
+    // Show re-export panel if we have a session
+    if (d.session_id) {
+      currentSessionId = d.session_id;
+      document.getElementById('reexport-panel').style.display = 'block';
+      // Sync rx-dev with current device
+      const rxDev = document.getElementById('rx-dev');
+      const mainDev = document.getElementById('dev');
+      if (rxDev && mainDev) rxDev.value = mainDev.value;
+    }
+
     document.getElementById('res-card').style.display = 'block';
     document.getElementById('res-card').scrollIntoView({behavior:'smooth', block:'nearest'});
     step(4);
@@ -3237,8 +3337,10 @@ document.getElementById('bfind').addEventListener('click', async () => {
 
 // Reset for another video
 document.getElementById('bnew').addEventListener('click', () => {
-  outputPath = ''; jobId = null; processStart = 0;
+  outputPath = ''; jobId = null; processStart = 0; currentSessionId = null;
   document.getElementById('res-card').style.display = 'none';
+  document.getElementById('reexport-panel').style.display = 'none';
+  document.getElementById('reexport-body').style.display = 'none';
   document.getElementById('pbg').style.display    = 'none';
   document.getElementById('pl').style.display     = 'none';
   document.getElementById('pstats').style.display = 'none';
@@ -3273,6 +3375,132 @@ function fmtDur(s){
   const m = Math.floor(s/60), sec = s%60;
   return m ? `${m}m ${sec}s` : `${sec}s`;
 }
+
+// ── RE-EXPORT PANEL LOGIC ──────────────────────────────────────────────────
+
+// Populate rx-dev dropdown from same device list as main UI
+fetch('/api/devices').then(r=>r.json()).then(devs=>{
+  const rxDev = document.getElementById('rx-dev');
+  if (!rxDev) return;
+  devs.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    rxDev.appendChild(o);
+  });
+  rxDev.value = 'iPhone 17 Pro Max';
+}).catch(()=>{});
+
+// Toggle collapse/expand
+let rxOpen = false;
+let rxSelectedEnh = 'standard';
+
+document.getElementById('reexport-toggle').addEventListener('click', () => {
+  rxOpen = !rxOpen;
+  document.getElementById('reexport-body').style.display = rxOpen ? 'block' : 'none';
+  document.getElementById('reexport-chevron').textContent = rxOpen ? '▲' : '▼';
+});
+
+// Enhancement card selection in re-export panel
+document.querySelectorAll('.rx-enh').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rx-enh').forEach(b => {
+      b.style.borderColor = 'rgba(255,255,255,0.1)';
+      b.style.background  = 'rgba(255,255,255,0.03)';
+      b.style.color       = '#c0c0d8';
+    });
+    btn.style.borderColor = '#635bff';
+    btn.style.background  = 'rgba(99,91,255,0.12)';
+    btn.style.color       = '#fff';
+    rxSelectedEnh = btn.dataset.enh;
+    // Show/hide film grain for 4k_passthrough
+    const grainRow = document.getElementById('rx-grain-row');
+    if (grainRow) grainRow.style.display = rxSelectedEnh === '4k_passthrough' ? 'flex' : 'none';
+  });
+});
+
+// Film grain toggle for re-export panel
+const rxGrainToggle = document.getElementById('rx-grain-toggle');
+const rxGrainSlider = document.getElementById('rx-grain-slider');
+const rxGrainKnob   = document.getElementById('rx-grain-knob');
+if (rxGrainToggle) {
+  rxGrainToggle.addEventListener('change', () => {
+    const on = rxGrainToggle.checked;
+    if (rxGrainSlider) rxGrainSlider.style.background = on ? '#635bff' : '#333';
+    if (rxGrainKnob)   rxGrainKnob.style.transform = on ? 'translateX(18px)' : 'translateX(0)';
+  });
+}
+
+// Re-export button
+document.getElementById('rx-go').addEventListener('click', async () => {
+  if (!currentSessionId) {
+    showErr('rx-err', 'No session found. Please upload the video again.');
+    return;
+  }
+  hideErr('rx-err');
+
+  const rxBtn = document.getElementById('rx-go');
+  rxBtn.disabled = true;
+  rxBtn.innerHTML = '<span>⏳</span> Re-exporting…';
+
+  const payload = {
+    session_id:    currentSessionId,
+    device:        document.getElementById('rx-dev').value  || 'iPhone 17 Pro Max',
+    quality:       document.getElementById('rx-qual').value || 'best',
+    output_format: document.getElementById('rx-fmt').value  || 'reels',
+    output_dir:    document.getElementById('rx-odir').value || 'downloads',
+    enhancement:   rxSelectedEnh,
+    film_grain:    rxGrainToggle ? rxGrainToggle.checked : false,
+    job_id:        'rxjob_' + Date.now(),
+  };
+
+  try {
+    const r = await fetch('/api/reprocess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!data.ok) {
+      showErr('rx-err', data.error || 'Re-export failed.');
+      rxBtn.disabled = false;
+      rxBtn.innerHTML = '<span>🔄</span> Re-export Now';
+      return;
+    }
+
+    // Show progress in the main progress section and scroll to it
+    const pbg = document.getElementById('pbg');
+    const pf  = document.getElementById('pf');
+    const pl  = document.getElementById('pl');
+    const ps  = document.getElementById('pstats');
+    const eta = document.getElementById('eta');
+    if (pbg) pbg.style.display = 'block';
+    if (pl)  { pl.style.display = 'block'; pl.textContent = '🔄 Re-exporting with new settings…'; }
+    if (ps)  { ps.style.display = 'block'; ps.textContent = ''; }
+    if (eta) { eta.style.display = 'block'; eta.textContent = ''; }
+    if (pf)  pf.style.width = '2%';
+    hideErr('p-err');
+    processStart = Date.now();
+    jobId = payload.job_id;
+
+    // Start SSE for the re-export job
+    startSSE(payload.job_id);
+
+    // Reset result card to pending state while re-encoding
+    document.getElementById('r-name').textContent  = 'Re-exporting…';
+    document.getElementById('r-size').textContent  = '—';
+    document.getElementById('r-red').textContent   = '—';
+    document.getElementById('r-codec').textContent = '—';
+
+    pbg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) {
+    showErr('rx-err', 'Network error: ' + err.message);
+  } finally {
+    rxBtn.disabled = false;
+    rxBtn.innerHTML = '<span>🔄</span> Re-export Now';
+  }
+});
+// ──────────────────────────────────────────────────────────────────────────
+
 </script>
 </body>
 </html>
