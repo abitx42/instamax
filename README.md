@@ -1,3 +1,14 @@
+---
+title: InstaMax — Ultra-Quality Instagram AI Optimizer
+emoji: 🚀
+colorFrom: purple
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # 🚀 InstaMax — Instagram Video Quality Booster & Compressor
 
 > **Bypass aggressive Instagram compression.** Compress 4K videos down to high-VMAF 1080p, normalize broadcast audio, and inject flagship hardware metadata signatures (iPhone 17 Pro Max / Samsung Galaxy S26 Ultra) so Instagram serves your videos at peak quality.

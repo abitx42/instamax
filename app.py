@@ -29,6 +29,8 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024 * 1024  # 10 GB
 
 UPLOAD_TMP = Path(tempfile.gettempdir()) / "instamax_tmp"
 UPLOAD_TMP.mkdir(exist_ok=True)
+OUTPUT_DIR = Path(tempfile.gettempdir()) / "instamax_out"
+OUTPUT_DIR.mkdir(exist_ok=True)
 
 SUPPORTED = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm"}
 
@@ -343,8 +345,13 @@ def api_process():
 
     # --- Output dir ---
     home = Path.home()
-    dir_map = {"desktop": home / "Desktop", "downloads": home / "Downloads", "same": UPLOAD_TMP}
-    out_dir = dir_map.get(out_choice, home / "Downloads")
+    default_out = home / "Downloads" if (home / "Downloads").exists() else OUTPUT_DIR
+    dir_map = {
+        "desktop": home / "Desktop" if (home / "Desktop").exists() else default_out,
+        "downloads": default_out,
+        "same": UPLOAD_TMP
+    }
+    out_dir = dir_map.get(out_choice, default_out)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_name = f"{orig_stem}_instamax.mp4"
     out_path = out_dir / out_name
@@ -728,19 +735,33 @@ def api_events(job_id):
 @app.route("/api/open-folder", methods=["POST"])
 def api_open_folder():
     path = (request.json or {}).get("path", "")
-    if path and Path(path).exists():
+    if path and Path(path).exists() and sys.platform == "darwin":
         subprocess.run(["open", "-R", path])
     return jsonify({"ok": True})
 
 
+@app.route("/api/download/<filename>")
+def api_download(filename):
+    """Direct web download for cloud/mobile access."""
+    safe_name = secure_filename(filename)
+    home = Path.home()
+    for folder in [home / "Downloads", home / "Desktop", OUTPUT_DIR, UPLOAD_TMP]:
+        target = folder / safe_name
+        if target.exists() and target.is_file():
+            return send_from_directory(str(folder), safe_name, as_attachment=True)
+    return jsonify({"ok": False, "error": "File not found"}), 404
+
+
 if __name__ == "__main__":
-    PORT = 7979
+    PORT = int(os.environ.get("PORT", 7979))
+    is_cloud = os.environ.get("SPACE_ID") is not None or not sys.platform.startswith("darwin")
 
-    def _open():
-        time.sleep(1.1)
-        webbrowser.open(f"http://localhost:{PORT}")
+    if not is_cloud:
+        def _open():
+            time.sleep(1.1)
+            webbrowser.open(f"http://localhost:{PORT}")
+        threading.Thread(target=_open, daemon=True).start()
 
-    threading.Thread(target=_open, daemon=True).start()
-    print(f"\n✅  InstaMax  →  http://localhost:{PORT}")
+    print(f"\n✅  InstaMax  →  http://0.0.0.0:{PORT}")
     print("   Ctrl+C to quit\n")
-    app.run(host="127.0.0.1", port=PORT, debug=False, use_reloader=False, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False, threaded=True)

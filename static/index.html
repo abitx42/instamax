@@ -2261,8 +2261,9 @@ code{
   <div class="mrow"><span class="ml">Codec / Mode</span>   <span class="mv g" id="r-codec">—</span></div>
 
   <div class="rbrow">
+    <a class="bpri" id="bdown" href="#" download style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;"><span>⬇️</span> Download Video</a>
     <button class="bsec" id="bfind">📂 Reveal in Finder</button>
-    <button class="bpri" id="bnew">+ Process Another</button>
+    <button class="bsec" id="bnew">+ Process Another</button>
   </div>
 </div>
 
@@ -3087,6 +3088,13 @@ function startSSE(jid) {
     document.getElementById('r-res').textContent   = `${d.width} × ${d.height}`;
     document.getElementById('r-make').textContent  = d.make;
     document.getElementById('r-model').textContent = d.model;
+
+    // Set download link
+    const bdown = document.getElementById('bdown');
+    if (bdown && d.filename) {
+      bdown.href = `/api/download/${encodeURIComponent(d.filename)}`;
+      bdown.download = d.filename;
+    }
 
     const codecLabels = {
       hevc:     'H.265 HLG HDR (10-bit)',
