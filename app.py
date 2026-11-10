@@ -31,6 +31,8 @@ UPLOAD_TMP = Path(tempfile.gettempdir()) / "instamax_tmp"
 UPLOAD_TMP.mkdir(exist_ok=True)
 OUTPUT_DIR = Path(tempfile.gettempdir()) / "instamax_out"
 OUTPUT_DIR.mkdir(exist_ok=True)
+UPLOAD_CHUNKS = UPLOAD_TMP / "chunks"
+UPLOAD_CHUNKS.mkdir(exist_ok=True)
 
 SUPPORTED = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm"}
 
@@ -286,28 +288,66 @@ def api_probe():
     return jsonify({"ok": True, **info})
 
 
+@app.route("/api/upload-chunk", methods=["POST"])
+def api_upload_chunk():
+    """
+    Accepts sliced video chunks (<25MB) to bypass Cloudflare's 100MB body upload limit.
+    Reassembles into the final file once all chunks arrive.
+    """
+    chunk = request.files.get("chunk")
+    upload_id = request.form.get("upload_id", "").strip()
+    try:
+        chunk_index = int(request.form.get("chunk_index", 0))
+        total_chunks = int(request.form.get("total_chunks", 1))
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Invalid chunk index"}), 400
+
+    raw_filename = request.form.get("filename", "video.mp4")
+    filename = secure_filename(raw_filename)
+    if not filename or not Path(filename).suffix:
+        orig_ext = Path(raw_filename).suffix
+        filename = f"{filename or 'video'}{orig_ext if orig_ext else '.mp4'}"
+
+    if not chunk or not upload_id:
+        return jsonify({"ok": False, "error": "Missing chunk data or upload_id"}), 400
+
+    chunk_dir = UPLOAD_CHUNKS / upload_id
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+    chunk_path = chunk_dir / f"chunk_{chunk_index:05d}"
+    chunk.save(str(chunk_path))
+
+    received = len(list(chunk_dir.glob("chunk_*")))
+    if received == total_chunks:
+        suffix = Path(filename).suffix.lower()
+        assembled_file = UPLOAD_TMP / f"{upload_id}{suffix}"
+        with open(assembled_file, "wb") as outfile:
+            for i in range(total_chunks):
+                p = chunk_dir / f"chunk_{i:05d}"
+                if not p.exists():
+                    return jsonify({"ok": False, "error": f"Missing chunk {i}"}), 400
+                with open(p, "rb") as infile:
+                    shutil.copyfileobj(infile, outfile)
+        shutil.rmtree(str(chunk_dir), ignore_errors=True)
+        return jsonify({"ok": True, "completed": True, "file_id": upload_id, "filename": filename})
+
+    return jsonify({"ok": True, "completed": False, "received": received, "total": total_chunks})
+
+
 @app.route("/api/process", methods=["POST"])
 def api_process():
     """
-    Upload + compress + spoof in one shot.
+    Compress + spoof in background thread.
+    Accepts either direct 'video' upload OR pre-assembled 'file_id' from chunked upload.
     Reports progress via /api/events/<job_id>.
-    Returns probe info alongside job_id for the UI probe badge.
     """
-    if "video" not in request.files:
-        return jsonify({"ok": False, "error": "No file uploaded."}), 400
-
-    f          = request.files["video"]
+    file_id    = request.form.get("file_id")
     device     = request.form.get("device",        "iPhone 17 Pro Max")
     quality    = request.form.get("quality",        "best")
     out_choice = request.form.get("output_dir",     "downloads")
     out_fmt    = request.form.get("output_format",  "reels")
     job_id     = request.form.get("job_id",         f"job_{int(time.time())}")
     enhancement = request.form.get("enhancement",   "standard")
-    film_grain  = request.form.get("film_grain",    "0") == "1"  # optional dither for 4K mode
-
-    suffix = Path(f.filename).suffix.lower()
-    if suffix not in SUPPORTED:
-        return jsonify({"ok": False, "error": f"Unsupported format: {suffix}"}), 400
+    film_grain  = request.form.get("film_grain",    "0") == "1"
 
     # --- Tools check ---
     ffmpeg   = find_bin("ffmpeg")
@@ -317,13 +357,31 @@ def api_process():
     if not exiftool:
         return jsonify({"ok": False, "error": "exiftool not found. Run: brew install exiftool"}), 500
 
-    # --- Save upload ---
     if job_id not in _progress:
         _progress[job_id] = Queue()
-    orig_stem = Path(f.filename).stem
-    tmp_in    = UPLOAD_TMP / f"{orig_stem}_orig{suffix}"
-    _push(job_id, "progress", {"pct": 0, "label": "Receiving file…"})
-    f.save(str(tmp_in))
+
+    if "video" in request.files:
+        f = request.files["video"]
+        orig_filename = f.filename
+        orig_stem = Path(orig_filename).stem
+        suffix = Path(orig_filename).suffix.lower()
+        if suffix not in SUPPORTED:
+            return jsonify({"ok": False, "error": f"Unsupported format: {suffix}"}), 400
+        tmp_in = UPLOAD_TMP / f"{orig_stem}_orig{suffix}"
+        _push(job_id, "progress", {"pct": 0, "label": "Receiving file…"})
+        f.save(str(tmp_in))
+    elif file_id:
+        orig_filename = request.form.get("filename", f"{file_id}.mp4")
+        orig_stem = Path(orig_filename).stem
+        suffix = Path(orig_filename).suffix.lower()
+        if suffix not in SUPPORTED:
+            return jsonify({"ok": False, "error": f"Unsupported format: {suffix}"}), 400
+        tmp_in = UPLOAD_TMP / f"{file_id}{suffix}"
+        if not tmp_in.exists():
+            return jsonify({"ok": False, "error": "Uploaded file expired or missing."}), 400
+    else:
+        return jsonify({"ok": False, "error": "No file uploaded."}), 400
+
     _push(job_id, "progress", {"pct": 5, "label": "Analyzing source…"})
 
     # --- Probe ---

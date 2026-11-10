@@ -2956,8 +2956,67 @@ function fillProbeBadge(p) {
 
 // ── PROCESS ──
 let activeES = null;
+const CHUNK_SIZE = 20 * 1024 * 1024; // 20 MB slices (bypasses Cloudflare 100MB body limit)
 
-document.getElementById('gobtn').addEventListener('click', () => {
+async function uploadFileInChunks(file, onProgress) {
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunkBlob = file.slice(start, end);
+    
+    let attempts = 0;
+    let res = null;
+
+    while (attempts < 3) {
+      try {
+        res = await new Promise((resolve, reject) => {
+          const chunkFd = new FormData();
+          chunkFd.append('chunk', chunkBlob, file.name);
+          chunkFd.append('upload_id', uploadId);
+          chunkFd.append('chunk_index', i);
+          chunkFd.append('total_chunks', totalChunks);
+          chunkFd.append('filename', file.name);
+
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/api/upload-chunk', true);
+          xhr.upload.onprogress = e => {
+            if (e.lengthComputable && onProgress) {
+              const loaded = start + e.loaded;
+              onProgress(loaded, file.size);
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try { resolve(JSON.parse(xhr.responseText)); } catch (err) { reject(err); }
+            } else {
+              let errText = 'Chunk upload failed with status ' + xhr.status;
+              try { errText = JSON.parse(xhr.responseText).error || errText; } catch {}
+              reject(new Error(errText));
+            }
+          };
+          xhr.onerror = () => reject(new Error('Network error during chunk upload'));
+          xhr.send(chunkFd);
+        });
+
+        if (res && res.ok) break;
+      } catch (err) {
+        attempts++;
+        if (attempts >= 3) throw err;
+        await new Promise(r => setTimeout(r, 1000 * attempts));
+      }
+    }
+    
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Chunk upload failed');
+    if (res.completed) {
+      return { fileId: res.file_id, filename: res.filename };
+    }
+  }
+}
+
+document.getElementById('gobtn').addEventListener('click', async () => {
   if (!selectedFile) return;
   hideErr('p-err');
   step(3);
@@ -2981,11 +3040,7 @@ document.getElementById('gobtn').addEventListener('click', () => {
 
   jobId = 'job_' + Date.now();
 
-  // Start SSE listener
-  startSSE(jobId);
-
   const fd = new FormData();
-  fd.append('video',         selectedFile);
   fd.append('device',        document.getElementById('dev').value);
   fd.append('quality',       selectedQ);
   fd.append('output_format', selectedFmt);
@@ -2996,51 +3051,76 @@ document.getElementById('gobtn').addEventListener('click', () => {
   const fgToggle = document.getElementById('film-grain-toggle');
   fd.append('film_grain', (fgToggle && fgToggle.checked) ? '1' : '0');
 
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/process', true);
-
-  xhr.upload.onprogress = e => {
-    if (e.lengthComputable) {
-      const uploadPct = Math.round((e.loaded / e.total) * 100);
-      pf.style.width = Math.max(2, Math.min(uploadPct, 95)) + '%';
-      pl.textContent = `Uploading video… ${uploadPct}%`;
-      ps.textContent = `${fmtSize(e.loaded)} of ${fmtSize(e.total)}`;
+  try {
+    if (selectedFile.size > 25 * 1024 * 1024) {
+      // Chunked upload: 20MB slices bypass Cloudflare 100MB body limit
+      const uploaded = await uploadFileInChunks(selectedFile, (loaded, total) => {
+        const uploadPct = Math.round((loaded / total) * 100);
+        pf.style.width = Math.max(2, Math.min(uploadPct, 95)) + '%';
+        pl.textContent = `Uploading video… ${uploadPct}%`;
+        ps.textContent = `${fmtSize(loaded)} of ${fmtSize(total)}`;
+      });
+      fd.append('file_id', uploaded.fileId);
+      fd.append('filename', uploaded.filename);
+    } else {
+      fd.append('video', selectedFile);
     }
-  };
 
-  xhr.onload = () => {
-    if (xhr.status >= 200 && xhr.status < 300) {
-      try {
-        const data = JSON.parse(xhr.responseText);
-        if (!data.ok) {
-          showErr('p-err', data.error || 'Server error.');
+    // Connect SSE right as server-side optimization begins
+    startSSE(jobId);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/process', true);
+
+    if (selectedFile.size <= 25 * 1024 * 1024) {
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) {
+          const uploadPct = Math.round((e.loaded / e.total) * 100);
+          pf.style.width = Math.max(2, Math.min(uploadPct, 95)) + '%';
+          pl.textContent = `Uploading video… ${uploadPct}%`;
+          ps.textContent = `${fmtSize(e.loaded)} of ${fmtSize(e.total)}`;
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (!data.ok) {
+            showErr('p-err', data.error || 'Server error.');
+            btn.disabled = false;
+            if (activeES) activeES.close();
+            return;
+          }
+          if (data.probe) fillProbeBadge(data.probe);
+          pl.textContent = 'Optimizing video stream…';
+        } catch (err) {
+          showErr('p-err', 'Invalid server response: ' + err.message);
           btn.disabled = false;
           if (activeES) activeES.close();
-          return;
         }
-        if (data.probe) fillProbeBadge(data.probe);
-        pl.textContent = 'Optimizing video stream…';
-      } catch (err) {
-        showErr('p-err', 'Invalid server response: ' + err.message);
+      } else {
+        let errMsg = 'Upload failed with status ' + xhr.status;
+        try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch {}
+        showErr('p-err', errMsg);
         btn.disabled = false;
         if (activeES) activeES.close();
       }
-    } else {
-      let errMsg = 'Upload failed with status ' + xhr.status;
-      try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch {}
-      showErr('p-err', errMsg);
+    };
+
+    xhr.onerror = () => {
+      showErr('p-err', 'Network error during upload. Please retry.');
       btn.disabled = false;
       if (activeES) activeES.close();
-    }
-  };
+    };
 
-  xhr.onerror = () => {
-    showErr('p-err', 'Network error during upload. Please retry.');
+    xhr.send(fd);
+  } catch (err) {
+    showErr('p-err', err.message || 'Upload error');
     btn.disabled = false;
     if (activeES) activeES.close();
-  };
-
-  xhr.send(fd);
+  }
 });
 
 function startSSE(jid) {
