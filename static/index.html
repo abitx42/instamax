@@ -71,6 +71,13 @@ input, textarea {
   user-select: auto;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+}
+
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg);
@@ -82,9 +89,21 @@ body{
   padding:56px 18px 84px;
   position:relative;
   overflow-x:hidden;
+  width:100%;
+  max-width:100vw;
   -webkit-font-smoothing:antialiased;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch & Mobile Optimization: Hide desktop cursor FX by default */
+.cursor-canvas,
+.cursor-dot,
+.cursor-ring,
+.cursor-glow,
+.cursor-badge {
+  display: none !important;
 }
 
 /* ── INTERACTIVE CUSTOM CURSOR & STARDUST ENGINE ── */
@@ -93,6 +112,7 @@ body{
     cursor: default;
   }
   .cursor-canvas {
+    display: block !important;
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -101,6 +121,7 @@ body{
     z-index: 9996;
   }
   .cursor-dot {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -116,6 +137,7 @@ body{
     will-change: transform;
   }
   .cursor-ring {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -141,6 +163,7 @@ body{
     transition: opacity 0.3s ease;
   }
   .cursor-glow {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -157,6 +180,7 @@ body{
   
   /* Floating Cursor Reticle Badge */
   .cursor-badge {
+    display: inline-flex !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -1117,8 +1141,8 @@ body{
 /* ── 4. ENHANCEMENT MODE: THE CROWN JEWEL ── */
 .enh-cards{
   display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:10px;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
   margin-bottom:20px;
 }
 .ec{
@@ -1651,6 +1675,284 @@ code{
   background:rgba(251, 146, 60, 0.12);
   border-color:rgba(251, 146, 60, 0.35);
   color:var(--warn);
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE DESIGN & MOBILE OPTIMIZATION SYSTEM
+   Supports: 320px (iPhone SE) → 430px (Pro Max) → Tablets → Desktops
+   ══════════════════════════════════════════════════════ */
+
+/* ── TABLETS & MEDIUM VIEWPORTS (max-width: 768px) ── */
+@media (max-width: 768px) {
+  body {
+    padding: 36px 16px 68px;
+  }
+  .hero {
+    margin-bottom: 26px;
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 5.2vw, 2.5rem);
+  }
+  .hero p {
+    font-size: 0.94rem;
+    padding: 0 8px;
+  }
+  .jlp-window {
+    padding: 24px 22px;
+  }
+}
+
+/* ── MOBILE SCREENS & PHONES (max-width: 600px) ── */
+@media (max-width: 600px) {
+  body {
+    padding: 22px 12px 56px;
+  }
+
+  .hero {
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-size: clamp(1.58rem, 6.6vw, 2.1rem);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    padding: 0 4px;
+  }
+
+  /* Interactive Steps Bar */
+  .steps-wrap {
+    margin-bottom: 16px;
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .stp {
+    padding: 7px 4px;
+    gap: 4px;
+    border-radius: 10px;
+    min-width: 0;
+  }
+  .snum {
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+  }
+  .slbl {
+    font-size: 0.7rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Main Glass Window Cards */
+  .jlp-window {
+    padding: 18px 14px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+  .ctitle {
+    font-size: 0.64rem;
+    letter-spacing: 1.4px;
+    margin-bottom: 10px;
+  }
+
+  /* Drop Zone */
+  #dz {
+    padding: 28px 14px;
+    border-radius: 14px;
+  }
+  .di {
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+  }
+  .dt {
+    font-size: 0.94rem;
+  }
+  .ds {
+    font-size: 0.74rem;
+  }
+  .dpill {
+    font-size: 0.66rem;
+    padding: 3px 9px;
+    margin-top: 10px;
+  }
+
+  /* Source Probe HUD */
+  #probe-badge {
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+  .pb-row {
+    gap: 10px;
+  }
+  .pb-item {
+    min-width: 65px;
+  }
+  .pb-val {
+    font-size: 0.84rem;
+  }
+
+  /* Quality Presets: 1-column stack on mobile */
+  .q-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .qc {
+    padding: 12px 14px;
+    border-radius: 14px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .qc-header {
+    margin-bottom: 2px;
+  }
+  .qc-title {
+    font-size: 0.88rem;
+    margin-top: 0;
+  }
+  .qc-sub {
+    font-size: 0.71rem;
+    line-height: 1.35;
+  }
+
+  /* Target Aspect Ratio: 2x2 grid on mobile prevents 4-column overflow */
+  .fmt-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .fc {
+    padding: 12px 8px;
+    border-radius: 14px;
+    gap: 6px;
+  }
+  .shape-preview-wrap {
+    height: 38px;
+  }
+  .fc-title {
+    font-size: 0.82rem;
+  }
+  .fc-badge {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+  }
+
+  /* Enhancement Cards: 1-column stack on mobile for clear readability */
+  .enh-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .ec {
+    padding: 12px 14px;
+    border-radius: 14px;
+    gap: 4px;
+  }
+  .ec-title {
+    font-size: 0.88rem;
+  }
+  .ec-sub {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  /* Device & Destination Dropdowns */
+  .row {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  select {
+    padding: 10px 12px;
+    font-size: 0.84rem;
+    border-radius: 10px;
+  }
+
+  /* Film Grain Dither Toggle Row */
+  #film-grain-row {
+    padding: 8px 12px !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Primary Action Button */
+  .btn-go {
+    padding: 14px;
+    font-size: 0.92rem;
+    border-radius: 14px;
+  }
+
+  /* Result Card */
+  #res-card {
+    padding: 18px 14px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+  .rh {
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+  }
+  .mrow {
+    font-size: 0.8rem;
+    padding: 8px 0;
+  }
+  .rbrow {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bsec, .bpri {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.84rem;
+  }
+
+  /* Educational Tips */
+  .tips {
+    margin-top: 4px;
+  }
+  .tip {
+    padding: 11px 12px;
+    gap: 9px;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+}
+
+/* ── COMPACT PHONES (max-width: 380px, e.g. iPhone SE / mini) ── */
+@media (max-width: 380px) {
+  body {
+    padding: 16px 8px 46px;
+  }
+  .hero h1 {
+    font-size: 1.45rem;
+  }
+  .jlp-window {
+    padding: 14px 10px;
+    border-radius: 16px;
+  }
+  .stp {
+    padding: 5px 2px;
+    gap: 3px;
+  }
+  .slbl {
+    font-size: 0.64rem;
+  }
+  .snum {
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+  }
+  .fc-badge {
+    font-size: 0.56rem;
+  }
 }
 </style>
 </head>
@@ -2490,6 +2792,7 @@ document.addEventListener('selectstart', e => {
 
 // ── 3D PERSPECTIVE TILT ON HOVER ──
 function initCardTilt() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
   const tiltCards = document.querySelectorAll('.qc, .fc, .ec, .bento-card');
   tiltCards.forEach(card => {
     card.addEventListener('mousemove', e => {
