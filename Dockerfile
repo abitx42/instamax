@@ -23,8 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY --chown=user:user . .
 
-# Expose Hugging Face Spaces port
-EXPOSE 7860
+# Expose web ports (7860 for HuggingFace, 10000 for Render, 8080 for Koyeb/CloudRun)
+EXPOSE 7860 10000 8080
 
 # Run InstaMax
 CMD ["python", "app.py"]

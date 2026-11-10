@@ -34,6 +34,9 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 UPLOAD_CHUNKS = UPLOAD_TMP / "chunks"
 UPLOAD_CHUNKS.mkdir(exist_ok=True)
 
+IS_CLOUD = os.environ.get("RENDER") is not None or os.environ.get("KOYEB") is not None or not sys.platform.startswith("darwin")
+THREAD_ARGS = ["-threads", "2"] if IS_CLOUD else []
+
 SUPPORTED = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm"}
 
 DEVICE_PROFILES = {
@@ -515,6 +518,7 @@ def api_process():
 
         pt_cmd = [
             ffmpeg, "-y",
+        ] + THREAD_ARGS + [
             "-i", str(tmp_in),
             "-vf", pt_vf,
             # Strict constant 30 fps
@@ -674,6 +678,7 @@ def api_process():
     # --- ffmpeg command ---
     cmd_compress = [
         ffmpeg, "-y",
+    ] + THREAD_ARGS + [
         "-i", str(tmp_in),
         "-vf", vf,
         "-r", str(target_fps),
@@ -893,7 +898,9 @@ def api_reprocess():
             pt_vf = pt_vf + ",geq=lum='lum(X,Y)+random(1)*8-4'"
         pt_gop = 30
         cmd = [
-            ffmpeg, "-y", "-i", str(tmp_in),
+            ffmpeg, "-y",
+        ] + THREAD_ARGS + [
+            "-i", str(tmp_in),
             "-vf", pt_vf, "-r", "30",
             "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "4.1",
             "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
@@ -913,7 +920,9 @@ def api_reprocess():
         enhance_vf = "hqdn3d=1.5:1.5:6:6,unsharp=lx=3:ly=3:la=0.35:cx=3:cy=3:ca=0.0,eq=contrast=1.07:saturation=1.1,"
         vf = f"{spatial_vf}{enhance_vf}format=yuv420p,setsar=1"
         cmd = [
-            ffmpeg, "-y", "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
+            ffmpeg, "-y",
+        ] + THREAD_ARGS + [
+            "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
             "-c:v", "libx264", "-crf", str(crf), "-preset", preset,
             "-profile:v", "high", "-level:v", "4.1",
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
@@ -933,7 +942,9 @@ def api_reprocess():
         enhance_vf = "setparams=color_primaries=bt2020:color_trc=arib-std-b67:colorspace=bt2020nc:range=limited,"
         vf = f"{spatial_vf}{enhance_vf}format=yuv420p10le,setsar=1"
         cmd = [
-            ffmpeg, "-y", "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
+            ffmpeg, "-y",
+        ] + THREAD_ARGS + [
+            "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
             "-c:v", "libx265", "-crf", "22", "-preset", preset,
             "-profile:v", "main10", "-tag:v", "hvc1", "-level:v", "5.1",
             "-x265-params", "colorprim=9:transfer=18:colormatrix=9",
@@ -952,7 +963,9 @@ def api_reprocess():
     else:  # standard
         vf = f"{spatial_vf}format=yuv420p,setsar=1"
         cmd = [
-            ffmpeg, "-y", "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
+            ffmpeg, "-y",
+        ] + THREAD_ARGS + [
+            "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
             "-c:v", "libx264", "-crf", str(crf), "-preset", preset,
             "-profile:v", "high", "-level:v", "4.1",
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
