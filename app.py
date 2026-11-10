@@ -113,9 +113,10 @@ OUTPUT_FORMATS = {
 
 # Enhancement modes
 ENHANCEMENT_MODES = {
-    "standard": {"label": "Standard",  "desc": "Optimised H.264 / BT.709"},
-    "cinema":   {"label": "Cinema",    "desc": "Denoise + Sharpen + Micro-contrast"},
-    "hlg":      {"label": "HDR (HLG)", "desc": "HLG Hybrid Log-Gamma / H.265 10-bit"},
+    "standard":      {"label": "Standard",         "desc": "Optimised H.264 / BT.709"},
+    "cinema":        {"label": "Cinema",            "desc": "Denoise + Sharpen + Micro-contrast"},
+    "hlg":           {"label": "HDR (HLG)",         "desc": "HLG Hybrid Log-Gamma / H.265 10-bit"},
+    "4k_passthrough":{"label": "4K Pass-Through",   "desc": "Let Instagram compress; strict CFR/GOP/bitrate; optional film grain dither"},
 }
 
 # In-memory SSE queues per job_id  (Python 3.9 compatible — no X|Y type hints)
@@ -300,6 +301,7 @@ def api_process():
     out_fmt    = request.form.get("output_format",  "reels")
     job_id     = request.form.get("job_id",         f"job_{int(time.time())}")
     enhancement = request.form.get("enhancement",   "standard")
+    film_grain  = request.form.get("film_grain",    "0") == "1"  # optional dither for 4K mode
 
     suffix = Path(f.filename).suffix.lower()
     if suffix not in SUPPORTED:
@@ -376,6 +378,144 @@ def api_process():
     crf    = q["crf"]
     preset = q["preset"]
 
+    # ── 4K PASS-THROUGH MODE ─────────────────────────────────────────────────
+    # Upload cleanly as-is (or at 4K scale) with strict Instagram-spec params:
+    # Strict CFR 30 fps, closed GOP = 30, no scene-cut variation,
+    # 12 Mbps target / 14 Mbps max / 20 MB VBV buffer, H.264 High L4.1,
+    # AAC-LC 128k 44.1 kHz, faststart.
+    # Optional 1–2% film grain dither to bust colour banding.
+    if enhancement == "4k_passthrough":
+        # For 4K pass-through we keep source dimensions if the source is ≥4K,
+        # otherwise we fall back to the user-selected target resolution.
+        is_4k_source = (src_w >= 3840 or src_h >= 2160)
+        if is_4k_source:
+            # Keep native 4K — Instagram will Lanczos-downsample server-side
+            pt_vf = "format=yuv420p,setsar=1"
+            pt_w, pt_h = src_w, src_h
+        else:
+            # Source is not 4K — scale to the selected target resolution
+            if already_right_size:
+                pt_vf = "format=yuv420p,setsar=1"
+            else:
+                scale_f = (
+                    f"scale={tgt_w}:{tgt_h}:flags=lanczos"
+                    f":force_original_aspect_ratio=decrease"
+                )
+                pad_f   = f"pad={tgt_w}:{tgt_h}:(ow-iw)/2:(oh-ih)/2:black"
+                pt_vf   = f"{scale_f},{pad_f},format=yuv420p,setsar=1"
+            pt_w, pt_h = tgt_w, tgt_h
+
+        # Optional film grain dither (subtle monochrome noise, prevents banding)
+        if film_grain:
+            # geq injects pixel-level random noise that varies each frame;
+            # keeps adjacent colour values different so encoder can't block-merge them.
+            grain_expr = "lum='lum(X,Y)+random(1)*8-4'"
+            pt_vf = pt_vf + f",geq={grain_expr}"
+
+        # Strict GOP: keyframe every exactly 1 s at 30 fps = GOP of 30, closed, no scene cut
+        pt_gop = 30  # always encode at exactly 30 fps for 4K mode
+
+        compress_label = "4K Pass-Through encode (strict CFR)…"
+        pt_target_w, pt_target_h = pt_w, pt_h
+
+        pt_cmd = [
+            ffmpeg, "-y",
+            "-i", str(tmp_in),
+            "-vf", pt_vf,
+            # Strict constant 30 fps
+            "-r", "30",
+            # H.264 High Profile Level 4.1 — Instagram baseline spec
+            "-c:v", "libx264", "-preset", "slow",
+            "-profile:v", "high", "-level:v", "4.1",
+            # Closed GOP, no scene-cut keyframe insertion
+            "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
+            # 12 Mbps target, 14 Mbps max, 20 MB VBV buffer
+            "-b:v", "12M", "-maxrate", "14M", "-bufsize", "20M",
+            # Colour metadata
+            "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
+        ]
+
+        if has_audio:
+            pt_cmd += [
+                # AAC-LC stereo 128k 44.1 kHz (Meta's native ingest spec)
+                "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2",
+            ]
+        else:
+            pt_cmd += ["-an"]
+
+        pt_cmd += ["-movflags", "+faststart", str(out_path)]
+
+        def do_work():
+            try:
+                ok, err = run_ffmpeg_with_progress(pt_cmd, job_id, duration, compress_label)
+                if not ok:
+                    err_msg = f"ffmpeg failed:\n{err[-500:]}"
+                    print(f"[ERROR] Job {job_id} ffmpeg failed:\n{err}", file=sys.stderr)
+                    _push(job_id, "app_error", {"error": err_msg})
+                    _push(job_id, "error",     {"error": err_msg})
+                    return
+
+                _push(job_id, "progress", {"pct": 97, "label": "Injecting metadata…"})
+
+                profile = DEVICE_PROFILES.get(device, DEVICE_PROFILES["iPhone 17 Pro Max"])
+                now_str = datetime.datetime.now().strftime("%Y:%m:%d %H:%M:%S")
+                et_cmd = [
+                    exiftool,
+                    f"-Make={profile['Make']}", f"-Model={profile['Model']}",
+                    f"-Software={profile.get('Software', '')}",
+                    f"-ColorSpace={profile.get('ColorSpace', 'sRGB')}",
+                    "-XResolution=72", "-YResolution=72", "-ResolutionUnit=inch",
+                    f"-DateTimeOriginal={now_str}", f"-CreateDate={now_str}",
+                    "-overwrite_original", str(out_path),
+                ]
+                subprocess.run(et_cmd, capture_output=True)
+
+                verify = subprocess.run(
+                    [exiftool, "-Make", "-Model", "-j", str(out_path)],
+                    capture_output=True, text=True
+                )
+                meta = {}
+                try: meta = json.loads(verify.stdout)[0]
+                except: pass
+
+                out_mb    = round(out_path.stat().st_size / 1_000_000, 1)
+                reduction = round((1 - out_path.stat().st_size /
+                                   (tmp_in.stat().st_size or 1)) * 100, 1)
+
+                _push(job_id, "done", {
+                    "output": str(out_path), "filename": out_name,
+                    "size_mb": out_mb, "orig_mb": src_mb, "reduction": reduction,
+                    "make": meta.get("Make", "?"), "model": meta.get("Model", "?"),
+                    "width": pt_target_w, "height": pt_target_h,
+                    "fps": 30, "crf": "CBR 12M", "enhancement": "4k_passthrough",
+                    "codec": "h264_4k",
+                    "is_4k": is_4k_source, "film_grain": film_grain,
+                })
+            except Exception as ex:
+                import traceback; traceback.print_exc()
+                err_msg = str(ex)
+                _push(job_id, "app_error", {"error": err_msg})
+                _push(job_id, "error", {"error": err_msg})
+            finally:
+                try: tmp_in.unlink()
+                except: pass
+
+        threading.Thread(target=do_work, daemon=True).start()
+        return jsonify({
+            "ok": True, "job_id": job_id,
+            "probe": {
+                "width": src_w, "height": src_h, "fps": src_fps,
+                "duration": round(duration, 1), "codec": info.get("codec", "?"),
+                "size_mb": src_mb, "has_audio": has_audio,
+            },
+            "target": {
+                "width": pt_w, "height": pt_h,
+                "format_label": fmt_cfg["label"],
+                "enhancement": "4k_passthrough",
+            },
+        })
+    # ─────────────────────────────────────────────────────────────────────────
+
     # --- Enhancement-specific filter chain + codec args ---
     if enhancement == "cinema":
         # Denoise + sharpen + micro-contrast, still H.264 / BT.709
@@ -389,8 +529,10 @@ def api_process():
         compress_label = "Cinema enhance + compress…"
         video_cmd = [
             "-c:v", "libx264", "-crf", str(crf), "-preset", preset,
-            "-profile:v", "high", "-level:v", "4.2",
-            "-maxrate", "12M", "-bufsize", "24M",
+            "-profile:v", "high", "-level:v", "4.1",
+            # Strict CFR + closed GOP (Instagram CFR spec)
+            "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
+            "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
         ]
         output_codec = "h264"
@@ -425,8 +567,10 @@ def api_process():
         )
         video_cmd = [
             "-c:v", "libx264", "-crf", str(crf), "-preset", preset,
-            "-profile:v", "high", "-level:v", "4.2",
-            "-maxrate", "12M", "-bufsize", "24M",
+            "-profile:v", "high", "-level:v", "4.1",
+            # Strict CFR + closed GOP (Instagram ingest spec)
+            "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
+            "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
         ]
         output_codec = "h264"
