@@ -2174,26 +2174,26 @@ code{
       <div class="ec-sub">H.265 Main 10 encode with Rec.2020 / HLG wide color headroom for HDR displays.</div>
     </div>
 
-    <!-- 4K Pass-Through -->
-    <div class="ec" data-enh="4k_passthrough" id="enh-4k" data-cursor-label="4K Supersampling Mode 🚀">
+    <!-- 4K Super-Resolution -->
+    <div class="ec" data-enh="4k_passthrough" id="enh-4k" data-cursor-label="4K Super-Resolution Mode 🚀">
       <div class="ec-top">
-        <span class="ec-pill" style="background:linear-gradient(135deg,rgba(251,191,36,0.25),rgba(239,68,68,0.25));border-color:rgba(251,191,36,0.6);color:#fbbf24;">4K UPLOAD</span>
+        <span class="ec-pill" style="background:linear-gradient(135deg,rgba(251,191,36,0.25),rgba(239,68,68,0.25));border-color:rgba(251,191,36,0.6);color:#fbbf24;">4K ULTRA</span>
         <span style="font-size:1.1rem">🚀</span>
       </div>
-      <div class="ec-title">4K Pass-Through</div>
-      <div class="ec-sub">Strict CFR · GOP 30 · 12 Mbps · H.264 L4.1. Let Instagram's server Lanczos-downsample your 4K master for maximum texture preservation.</div>
+      <div class="ec-title">4K Super-Resolution</div>
+      <div class="ec-sub">Upscales to true 4K (2160×3840) with Lanczos super-sampling, unsharp edge pop, and strict 32 Mbps CFR. Forces Instagram's top ladder tier.</div>
     </div>
   </div>
 
   <!-- Film Grain Toggle (shown only in 4K Pass-Through mode) -->
   <div id="film-grain-row" style="display:none;align-items:center;gap:12px;margin-bottom:14px;padding:10px 14px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.25);border-radius:10px;">
-    <label class="toggle-switch" style="flex-shrink:0;" title="Add 1–2% procedural monochrome film grain to prevent gradient banding after Instagram's 8-bit re-encode">
+    <label class="toggle-switch" style="flex-shrink:0;" title="Add subtle procedural monochrome luminance noise to prevent gradient banding without any color shift">
       <input type="checkbox" id="film-grain-toggle">
       <span class="toggle-track"></span>
     </label>
     <div>
       <div style="font-size:.82rem;font-weight:700;color:#fbbf24;letter-spacing:.04em;">Film Grain Dither</div>
-      <div style="font-size:.72rem;color:var(--text-dim);line-height:1.4;">Adds subtle procedural noise to bust gradient banding — Instagram's 8-bit encoder merges flat gradients into blocky steps. Grain keeps pixels variable, forcing finer quantization.</div>
+      <div style="font-size:.72rem;color:var(--text-dim);line-height:1.4;">Adds subtle procedural noise to bust gradient banding — Instagram's 8-bit encoder merges flat gradients into blocky steps. Preserves 100% natural colors with zero green shift.</div>
     </div>
   </div>
   
@@ -2204,7 +2204,7 @@ code{
     ℹ️ HDR tags the stream as HLG/BT.2020 10-bit (H.265). Provides extra color headroom to survive Instagram re-encode. Full HDR display requires an iPhone 12+ or HDR-capable Android.
   </div>
   <div id="enh-4k-note" style="display:none;font-size:.72rem;color:rgba(251,191,36,0.85);margin-bottom:14px;line-height:1.5">
-    🚀 <strong>4K Strategy:</strong> If your source is 4K (3840×2160+), it uploads at full resolution. Instagram's servers Lanczos-downsample to 1080p — 4 real sensor pixels per output pixel = sharper micro-edges than a native 1080p file. If your source is already 1080p, it encodes at strict CBR 12 Mbps with closed GOP for maximum ingest quality.
+    🚀 <strong>4K Strategy:</strong> Upscales to true 4K (2160×3840 for Reels, 3840×2160 for Landscape) with 3-lobed Lanczos and unsharp mask. Encodes at 32–35 Mbps CBR with closed GOP=30. When Instagram’s server downsamples 4K to 1080p, it acts as a supersampling filter that preserves razor-sharp micro-textures.
   </div>
 
   <!-- Hardware Metadata & Destination -->
@@ -2294,8 +2294,8 @@ code{
           <div style="font-size:10px;color:#6b6b88;">H.265 HLG</div>
         </button>
         <button class="rx-enh" data-enh="4k_passthrough" style="padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#c0c0d8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s;">
-          <div style="font-weight:600;margin-bottom:2px;">4K Pass-Through</div>
-          <div style="font-size:10px;color:#6b6b88;">Strict CBR 12M</div>
+          <div style="font-weight:600;margin-bottom:2px;">4K Super-Res</div>
+          <div style="font-size:10px;color:#6b6b88;">True 4K (2160p) · 32M</div>
         </button>
       </div>
 
@@ -3269,7 +3269,7 @@ function startSSE(jid) {
     const codecLabels = {
       hevc:     'H.265 HLG HDR (10-bit)',
       h264:     d.enhancement === 'cinema' ? 'H.264 Cinema Mode' : 'H.264 Broadcast SDR',
-      h264_4k:  d.is_4k ? `H.264 L4.1 · 4K→1080p · 12 Mbps CBR${d.film_grain ? ' · Film Grain' : ''}` : `H.264 L4.1 · 12 Mbps CBR · Strict CFR${d.film_grain ? ' · Film Grain' : ''}`,
+      h264_4k:  `H.264 L5.1 · 4K Super-Res (2160p) · 32 Mbps CBR${d.film_grain ? ' · Anti-Banding Dither' : ''}`,
     };
     document.getElementById('r-codec').textContent =
       codecLabels[d.codec] || (d.codec ? d.codec.toUpperCase() : 'H.264');

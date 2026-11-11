@@ -118,12 +118,20 @@ OUTPUT_FORMATS = {
     "landscape": {"w": 1920, "h": 1080, "label": "Landscape / IGTV (16:9)"},
 }
 
+# 4K Super-Resolution target dimensions
+FORMATS_4K = {
+    "reels":     {"w": 2160, "h": 3840, "label": "4K Ultra Reels (9:16)"},
+    "portrait":  {"w": 2160, "h": 2700, "label": "4K Ultra Portrait (4:5)"},
+    "square":    {"w": 2160, "h": 2160, "label": "4K Ultra Square (1:1)"},
+    "landscape": {"w": 3840, "h": 2160, "label": "4K UHD Landscape (16:9)"},
+}
+
 # Enhancement modes
 ENHANCEMENT_MODES = {
     "standard":      {"label": "Standard",         "desc": "Optimised H.264 / BT.709"},
     "cinema":        {"label": "Cinema",            "desc": "Denoise + Sharpen + Micro-contrast"},
     "hlg":           {"label": "HDR (HLG)",         "desc": "HLG Hybrid Log-Gamma / H.265 10-bit"},
-    "4k_passthrough":{"label": "4K Pass-Through",   "desc": "Let Instagram compress; strict CFR/GOP/bitrate; optional film grain dither"},
+    "4k_passthrough":{"label": "4K Super-Res",      "desc": "True 4K (2160p) upscale + Lanczos edge pop + 32 Mbps strict CFR"},
 }
 
 # In-memory SSE queues per job_id  (Python 3.9 compatible — no X|Y type hints)
@@ -476,44 +484,34 @@ def api_process():
     crf    = q["crf"]
     preset = q["preset"]
 
-    # ── 4K PASS-THROUGH MODE ─────────────────────────────────────────────────
-    # Upload cleanly as-is (or at 4K scale) with strict Instagram-spec params:
+    # ── 4K SUPER-RESOLUTION UPSCALE MODE ──────────────────────────────────────
+    # Upscale any source (1080p, 720p, 4K) to True 4K resolution (2160×3840 for 9:16 Reels)
+    # with Lanczos super-sampling, unsharp edge pop, and subtle micro-contrast.
     # Strict CFR 30 fps, closed GOP = 30, no scene-cut variation,
-    # 12 Mbps target / 14 Mbps max / 20 MB VBV buffer, H.264 High L4.1,
+    # 32 Mbps target / 35 Mbps max / 45 MB buffer, H.264 High L5.1,
     # AAC-LC 128k 44.1 kHz, faststart.
-    # Optional 1–2% film grain dither to bust colour banding.
+    # Optional luminance noise dither (c0s=3) to prevent gradient banding without green tint!
     if enhancement == "4k_passthrough":
-        # For 4K pass-through we keep source dimensions if the source is ≥4K,
-        # otherwise we fall back to the user-selected target resolution.
-        is_4k_source = (src_w >= 3840 or src_h >= 2160)
-        if is_4k_source:
-            # Keep native 4K — Instagram will Lanczos-downsample server-side
-            pt_vf = "format=yuv420p,setsar=1"
-            pt_w, pt_h = src_w, src_h
-        else:
-            # Source is not 4K — scale to the selected target resolution
-            if already_right_size:
-                pt_vf = "format=yuv420p,setsar=1"
-            else:
-                scale_f = (
-                    f"scale={tgt_w}:{tgt_h}:flags=lanczos"
-                    f":force_original_aspect_ratio=decrease"
-                )
-                pad_f   = f"pad={tgt_w}:{tgt_h}:(ow-iw)/2:(oh-ih)/2:black"
-                pt_vf   = f"{scale_f},{pad_f},format=yuv420p,setsar=1"
-            pt_w, pt_h = tgt_w, tgt_h
+        cfg_4k = FORMATS_4K.get(out_fmt, FORMATS_4K["reels"])
+        pt_w   = cfg_4k["w"]
+        pt_h   = cfg_4k["h"]
 
-        # Optional film grain dither (subtle monochrome noise, prevents banding)
+        # Super-resolution pipeline: Lanczos resize + pad + unsharp edge restoration + contrast
+        scale_f = f"scale={pt_w}:{pt_h}:flags=lanczos+accurate_rnd:force_original_aspect_ratio=decrease"
+        pad_f   = f"pad={pt_w}:{pt_h}:(ow-iw)/2:(oh-ih)/2:black"
+        unsharp_f = "unsharp=lx=5:ly=5:la=0.6:cx=5:cy=5:ca=0.0"
+        eq_f = "eq=contrast=1.04:saturation=1.05"
+
+        pt_vf_parts = [scale_f, pad_f, unsharp_f, eq_f]
         if film_grain:
-            # geq injects pixel-level random noise that varies each frame;
-            # keeps adjacent colour values different so encoder can't block-merge them.
-            grain_expr = "lum='lum(X,Y)+random(1)*8-4'"
-            pt_vf = pt_vf + f",geq={grain_expr}"
+            # FIX: Use native FFmpeg noise on luminance channel only (c0s=3)
+            # Avoids 'geq' chroma wipeout which previously turned videos green!
+            pt_vf_parts.append("noise=c0s=3:c0f=t+u")
+        pt_vf_parts.append("format=yuv420p,setsar=1")
+        pt_vf = ",".join(pt_vf_parts)
 
-        # Strict GOP: keyframe every exactly 1 s at 30 fps = GOP of 30, closed, no scene cut
         pt_gop = 30  # always encode at exactly 30 fps for 4K mode
-
-        compress_label = "4K Pass-Through encode (strict CFR)…"
+        compress_label = f"4K Super-Res encode ({pt_w}×{pt_h})…"
         pt_target_w, pt_target_h = pt_w, pt_h
 
         pt_cmd = [
@@ -523,13 +521,13 @@ def api_process():
             "-vf", pt_vf,
             # Strict constant 30 fps
             "-r", "30",
-            # H.264 High Profile Level 4.1 — Instagram baseline spec
+            # H.264 High Profile Level 5.1 — required for 4K video
             "-c:v", "libx264", "-preset", "slow",
-            "-profile:v", "high", "-level:v", "4.1",
+            "-profile:v", "high", "-level:v", "5.1",
             # Closed GOP, no scene-cut keyframe insertion
             "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
-            # 12 Mbps target, 14 Mbps max, 20 MB VBV buffer
-            "-b:v", "12M", "-maxrate", "14M", "-bufsize", "20M",
+            # 32 Mbps target, 35 Mbps max, 45 MB VBV buffer (optimal 4K ladder ingest)
+            "-b:v", "32M", "-maxrate", "35M", "-bufsize", "45M",
             # Colour metadata
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
         ]
@@ -586,9 +584,9 @@ def api_process():
                     "size_mb": out_mb, "orig_mb": src_mb, "reduction": reduction,
                     "make": meta.get("Make", "?"), "model": meta.get("Model", "?"),
                     "width": pt_target_w, "height": pt_target_h,
-                    "fps": 30, "crf": "CBR 12M", "enhancement": "4k_passthrough",
+                    "fps": 30, "crf": "32M 4K Super-Res", "enhancement": "4k_passthrough",
                     "codec": "h264_4k",
-                    "is_4k": is_4k_source, "film_grain": film_grain,
+                    "is_4k": True, "film_grain": film_grain,
                     "session_id": new_session_id,
                     "orig_filename": orig_filename,
                 })
@@ -884,27 +882,26 @@ def api_reprocess():
 
     # --- Build ffmpeg command for chosen enhancement ---
     if enhancement == "4k_passthrough":
-        is_4k_source = (src_w >= 3840 or src_h >= 2160)
-        if is_4k_source:
-            pt_vf = "format=yuv420p,setsar=1"
-            pt_w, pt_h = src_w, src_h
-        else:
-            if already_right_size:
-                pt_vf = "format=yuv420p,setsar=1"
-            else:
-                pt_vf = f"scale={tgt_w}:{tgt_h}:flags=lanczos:force_original_aspect_ratio=decrease,pad={tgt_w}:{tgt_h}:(ow-iw)/2:(oh-ih)/2:black,format=yuv420p,setsar=1"
-            pt_w, pt_h = tgt_w, tgt_h
+        cfg_4k = FORMATS_4K.get(out_fmt, FORMATS_4K["reels"])
+        pt_w, pt_h = cfg_4k["w"], cfg_4k["h"]
+        scale_f = f"scale={pt_w}:{pt_h}:flags=lanczos+accurate_rnd:force_original_aspect_ratio=decrease"
+        pad_f   = f"pad={pt_w}:{pt_h}:(ow-iw)/2:(oh-ih)/2:black"
+        unsharp_f = "unsharp=lx=5:ly=5:la=0.6:cx=5:cy=5:ca=0.0"
+        eq_f = "eq=contrast=1.04:saturation=1.05"
+        pt_vf_parts = [scale_f, pad_f, unsharp_f, eq_f]
         if film_grain:
-            pt_vf = pt_vf + ",geq=lum='lum(X,Y)+random(1)*8-4'"
+            pt_vf_parts.append("noise=c0s=3:c0f=t+u")
+        pt_vf_parts.append("format=yuv420p,setsar=1")
+        pt_vf = ",".join(pt_vf_parts)
         pt_gop = 30
         cmd = [
             ffmpeg, "-y",
         ] + THREAD_ARGS + [
             "-i", str(tmp_in),
             "-vf", pt_vf, "-r", "30",
-            "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "4.1",
+            "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "5.1",
             "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
-            "-b:v", "12M", "-maxrate", "14M", "-bufsize", "20M",
+            "-b:v", "32M", "-maxrate", "35M", "-bufsize", "45M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
         ]
         if has_audio:
@@ -912,7 +909,7 @@ def api_reprocess():
         else:
             cmd += ["-an"]
         cmd += ["-movflags", "+faststart", str(out_path)]
-        compress_label = "4K Pass-Through re-encode…"
+        compress_label = f"4K Super-Res re-encode ({pt_w}×{pt_h})…"
         output_codec = "h264_4k"
         out_res_w, out_res_h = pt_w, pt_h
 
@@ -1017,11 +1014,12 @@ def api_reprocess():
                 "size_mb": out_mb, "orig_mb": src_mb, "reduction": reduction,
                 "make": meta.get("Make", "?"), "model": meta.get("Model", "?"),
                 "width": out_res_w, "height": out_res_h,
-                "fps": target_fps, "crf": crf if enhancement != "4k_passthrough" else "CBR 12M",
+                "fps": 30 if enhancement == "4k_passthrough" else target_fps,
+                "crf": crf if enhancement != "4k_passthrough" else "32M 4K Super-Res",
                 "enhancement": enhancement, "codec": output_codec,
                 "session_id": session_id,
                 "orig_filename": orig_filename,
-                "is_4k": enhancement == "4k_passthrough" and (src_w >= 3840 or src_h >= 2160),
+                "is_4k": True if enhancement == "4k_passthrough" else False,
                 "film_grain": film_grain,
             })
         except Exception as ex:
