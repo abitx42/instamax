@@ -3217,6 +3217,7 @@ function startSSE(jid) {
   if (activeES) {
     try { activeES.close(); } catch {}
   }
+  let streamFinished = false;
   const es = new EventSource(`/api/events/${jid}`);
   activeES = es;
 
@@ -3241,6 +3242,7 @@ function startSSE(jid) {
   });
 
   es.addEventListener('done', e => {
+    streamFinished = true;
     es.close();
     activeES = null;
     const d = JSON.parse(e.data);
@@ -3295,6 +3297,7 @@ function startSSE(jid) {
 
   // Explicit server application error
   es.addEventListener('app_error', e => {
+    streamFinished = true;
     es.close();
     activeES = null;
     let msg = 'Processing failed.';
@@ -3306,6 +3309,7 @@ function startSSE(jid) {
 
   es.addEventListener('error', e => {
     if (e.data) {
+      streamFinished = true;
       es.close();
       activeES = null;
       let msg = 'Processing failed.';
@@ -3317,9 +3321,10 @@ function startSSE(jid) {
   });
 
   es.onerror = err => {
+    if (streamFinished) return;
     if (es.readyState === EventSource.CLOSED) {
       if (document.getElementById('res-card').style.display !== 'block') {
-        showErr('p-err', 'Stream connection ended. Please check output in Downloads.');
+        showErr('p-err', 'Connection interrupted. Please try again.');
         document.getElementById('gobtn').disabled = false;
         document.getElementById('eta').textContent = '';
       }

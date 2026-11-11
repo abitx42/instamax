@@ -37,6 +37,13 @@ UPLOAD_CHUNKS.mkdir(exist_ok=True)
 IS_CLOUD = os.environ.get("RENDER") is not None or os.environ.get("KOYEB") is not None or not sys.platform.startswith("darwin")
 THREAD_ARGS = ["-threads", "2"] if IS_CLOUD else []
 
+# Low-memory encoder constraints for 512MB RAM cloud containers (prevents OOM SIGKILL)
+CLOUD_X264_ARGS = [
+    "-threads", "2",
+    "-x264-params", "threads=2:lookahead_threads=1:rc_lookahead=15:ref=2:bframes=2"
+] if IS_CLOUD else []
+CLOUD_X265_EXTRA = ":pools=1:frame-threads=1:rc-lookahead=10" if IS_CLOUD else ""
+
 SUPPORTED = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm"}
 
 DEVICE_PROFILES = {
@@ -136,6 +143,7 @@ ENHANCEMENT_MODES = {
 
 # In-memory SSE queues per job_id  (Python 3.9 compatible — no X|Y type hints)
 _progress = {}  # dict[str, Queue]
+_job_status = {}  # dict[str, dict] persistent latest status for reconnect resilience
 
 # Session store: keeps original uploaded file alive for re-export
 # key = session_id, value = {path, orig_filename, orig_stem, suffix, probe_info}
@@ -193,6 +201,7 @@ def probe_video(path):
 # SSE helpers
 # ─────────────────────────────────────────────
 def _push(job_id, event, data):
+    _job_status[job_id] = {"event": event, "data": data}
     if job_id in _progress:
         _progress[job_id].put({"event": event, "data": data})
 
@@ -482,7 +491,7 @@ def api_process():
     # CRF & preset
     q      = QUALITY_PRESETS.get(quality, QUALITY_PRESETS["best"])
     crf    = q["crf"]
-    preset = q["preset"]
+    preset = "medium" if (IS_CLOUD and q["preset"] == "slow") else q["preset"]
 
     # ── 4K SUPER-RESOLUTION UPSCALE MODE ──────────────────────────────────────
     # Upscale any source (1080p, 720p, 4K) to True 4K resolution (2160×3840 for 9:16 Reels)
@@ -514,6 +523,7 @@ def api_process():
         compress_label = f"4K Super-Res encode ({pt_w}×{pt_h})…"
         pt_target_w, pt_target_h = pt_w, pt_h
 
+        preset_4k = "medium" if IS_CLOUD else "slow"
         pt_cmd = [
             ffmpeg, "-y",
         ] + THREAD_ARGS + [
@@ -522,7 +532,7 @@ def api_process():
             # Strict constant 30 fps
             "-r", "30",
             # H.264 High Profile Level 5.1 — required for 4K video
-            "-c:v", "libx264", "-preset", "slow",
+            "-c:v", "libx264", "-preset", preset_4k,
             "-profile:v", "high", "-level:v", "5.1",
             # Closed GOP, no scene-cut keyframe insertion
             "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
@@ -530,7 +540,7 @@ def api_process():
             "-b:v", "32M", "-maxrate", "35M", "-bufsize", "45M",
             # Colour metadata
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
 
         if has_audio:
             pt_cmd += [
@@ -632,7 +642,7 @@ def api_process():
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
             "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
         output_codec = "h264"
 
     elif enhancement == "hlg":
@@ -650,7 +660,7 @@ def api_process():
         video_cmd = [
             "-c:v", "libx265", "-crf", "22", "-preset", preset,
             "-profile:v", "main10", "-tag:v", "hvc1", "-level:v", "5.1",
-            "-x265-params", "colorprim=9:transfer=18:colormatrix=9",
+            "-x265-params", f"colorprim=9:transfer=18:colormatrix=9{CLOUD_X265_EXTRA}",
             "-maxrate", "12M", "-bufsize", "24M",
             "-color_primaries", "bt2020", "-color_trc", "arib-std-b67", "-colorspace", "bt2020nc",
         ]
@@ -670,7 +680,7 @@ def api_process():
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
             "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
         output_codec = "h264"
 
     # --- ffmpeg command ---
@@ -878,7 +888,7 @@ def api_reprocess():
 
     q_cfg  = QUALITY_PRESETS.get(quality, QUALITY_PRESETS["best"])
     crf    = q_cfg["crf"]
-    preset = q_cfg["preset"]
+    preset = "medium" if (IS_CLOUD and q_cfg["preset"] == "slow") else q_cfg["preset"]
 
     # --- Build ffmpeg command for chosen enhancement ---
     if enhancement == "4k_passthrough":
@@ -894,16 +904,17 @@ def api_reprocess():
         pt_vf_parts.append("format=yuv420p,setsar=1")
         pt_vf = ",".join(pt_vf_parts)
         pt_gop = 30
+        preset_4k = "medium" if IS_CLOUD else "slow"
         cmd = [
             ffmpeg, "-y",
         ] + THREAD_ARGS + [
             "-i", str(tmp_in),
             "-vf", pt_vf, "-r", "30",
-            "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "5.1",
+            "-c:v", "libx264", "-preset", preset_4k, "-profile:v", "high", "-level:v", "5.1",
             "-g", str(pt_gop), "-keyint_min", str(pt_gop), "-sc_threshold", "0",
             "-b:v", "32M", "-maxrate", "35M", "-bufsize", "45M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
         if has_audio:
             cmd += ["-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2"]
         else:
@@ -925,7 +936,7 @@ def api_reprocess():
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
             "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
         if has_audio:
             cmd += ["-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "256k", "-ar", "48000", "-ac", "2"]
         else:
@@ -944,7 +955,7 @@ def api_reprocess():
             "-i", str(tmp_in), "-vf", vf, "-r", str(target_fps),
             "-c:v", "libx265", "-crf", "22", "-preset", preset,
             "-profile:v", "main10", "-tag:v", "hvc1", "-level:v", "5.1",
-            "-x265-params", "colorprim=9:transfer=18:colormatrix=9",
+            "-x265-params", f"colorprim=9:transfer=18:colormatrix=9{CLOUD_X265_EXTRA}",
             "-maxrate", "12M", "-bufsize", "24M",
             "-color_primaries", "bt2020", "-color_trc", "arib-std-b67", "-colorspace", "bt2020nc",
         ]
@@ -968,7 +979,7 @@ def api_reprocess():
             "-g", str(int(target_fps)), "-keyint_min", str(int(target_fps)), "-sc_threshold", "0",
             "-maxrate", "12M", "-bufsize", "20M",
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
-        ]
+        ] + CLOUD_X264_ARGS
         if has_audio:
             cmd += ["-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "256k", "-ar", "48000", "-ac", "2"]
         else:
@@ -1056,9 +1067,17 @@ def api_events(job_id):
     def generate():
         # Flush initial keepalive so browser connects immediately without timeout
         yield ": keepalive\n\n"
+
+        # Resilient reconnect: if job is already done or errored, yield it immediately
+        last = _job_status.get(job_id)
+        if last and last["event"] in ("done", "error", "app_error"):
+            yield _sse_format(last["event"], last["data"])
+            return
+
         while True:
             try:
-                msg = q.get(timeout=25)
+                # 5s keepalive prevents Cloudflare/Safari proxy timeout
+                msg = q.get(timeout=5)
                 yield _sse_format(msg["event"], msg["data"])
                 if msg["event"] in ("done", "error", "app_error"):
                     _progress.pop(job_id, None)
